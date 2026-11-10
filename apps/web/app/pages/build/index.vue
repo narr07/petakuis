@@ -1,12 +1,14 @@
 <script setup lang="ts">
 	import {
 		INDONESIAN_SUBJECTS,
+		NPC_CHARACTERS,
 		SCHOOL_LEVEL_OPTIONS,
 		type GameMode,
 		type MapTemplate,
 		type QuestionType,
 		type QuizQuestion,
-		type SchoolLevel
+		type SchoolLevel,
+		type TilePosition
 	} from '@petakuis/shared'
 
 	const route = useRoute()
@@ -75,6 +77,27 @@
 		gradeLabel.value = availableGrades.value[0] || 'Kelas 1'
 	})
 
+	const selectedMap = computed(
+		() => maps.value.find((m) => m.id === selectedMapId.value) || null
+	)
+
+	const placementIndex = ref<number | null>(null)
+
+	// Posisi karakter terikat pada satu peta: ganti peta berarti posisi dipilih ulang.
+	watch(selectedMapId, () => {
+		for (const q of questions.value) {
+			q.placement = undefined
+		}
+		placementIndex.value = null
+	})
+
+
+	function setPlacement(position: TilePosition | undefined) {
+		if (placementIndex.value === null) return
+		const q = questions.value[placementIndex.value]
+		if (q) q.placement = position
+	}
+
 	function selectMap(map: MapTemplate) {
 		selectedMapId.value = map.id
 		selectedMode.value = map.defaultMode
@@ -131,6 +154,7 @@
 	function removeQuestion(index: number) {
 		if (questions.value.length <= 1) return
 		questions.value.splice(index, 1)
+		placementIndex.value = null
 	}
 
 	async function handleAiGenerate() {
@@ -796,6 +820,66 @@
 								/>
 							</div>
 
+							<!-- Karakter pemberi soal & posisinya di peta -->
+							<div class="rounded-xl border border-[#16211b]/30 bg-[#faf6ee] p-3">
+								<span class="block text-xs font-bold text-[#435249]">
+									Karakter yang membawa soal ini
+								</span>
+								<div class="mt-2 flex flex-wrap items-end gap-1.5">
+									<button
+										type="button"
+										class="h-[52px] rounded-lg border-2 px-2 text-[11px] font-extrabold"
+										:class="
+											!q.npcId
+												? 'border-[#16211b] bg-[#fef08a]'
+												: 'border-[#16211b]/30 bg-white'
+										"
+										@click="q.npcId = undefined"
+									>
+										Acak
+									</button>
+									<button
+										v-for="npc in NPC_CHARACTERS"
+										:key="npc.id"
+										type="button"
+										class="flex h-[52px] items-end rounded-lg border-2 px-1 pb-0.5"
+										:class="
+											q.npcId === npc.id
+												? 'border-[#16211b] bg-[#fef08a]'
+												: 'border-[#16211b]/30 bg-white'
+										"
+										:title="npc.label"
+										:aria-label="`Pilih karakter ${npc.label}`"
+										:aria-pressed="q.npcId === npc.id"
+										@click="q.npcId = npc.id"
+									>
+										<GameNpcSprite
+											:npc-id="npc.id"
+											:scale="2"
+											:animated="q.npcId === npc.id"
+										/>
+									</button>
+								</div>
+
+								<div class="mt-3 flex flex-wrap items-center gap-2">
+									<button
+										type="button"
+										class="pixel-btn rounded-xl bg-white px-3 py-2 text-xs font-extrabold"
+										:disabled="!selectedMap"
+										@click="placementIndex = qIdx"
+									>
+										{{ q.placement ? 'Ubah Posisi di Peta' : 'Pilih Posisi di Peta' }}
+									</button>
+									<span class="text-xs font-bold text-[#435249]">
+										{{
+											q.placement
+												? `Kolom ${q.placement.tileX}, baris ${q.placement.tileY}`
+												: 'Posisi otomatis (pos bawaan peta)'
+										}}
+									</span>
+								</div>
+							</div>
+
 							<!-- Multiple choice options -->
 							<div
 								v-if="q.type === 'multiple'"
@@ -876,5 +960,15 @@
 				</div>
 			</div>
 		</section>
+
+		<BuildMapPlacementPicker
+			v-if="placementIndex !== null && selectedMap"
+			:map="selectedMap"
+			:questions="questions"
+			:active-index="placementIndex"
+			@pick="setPlacement($event)"
+			@clear="setPlacement(undefined)"
+			@close="placementIndex = null"
+		/>
 	</div>
 </template>

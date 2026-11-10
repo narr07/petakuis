@@ -39,6 +39,23 @@ export interface QuizQuestion {
 	timeLimitS: number
 	points: number
 	order: number
+	/** Karakter pemberi soal (id dari NPC_CHARACTERS). Kosong = dipilih otomatis. */
+	npcId?: string
+	/** Posisi karakter di peta kuis (koordinat tile). Kosong = pos bawaan peta. */
+	placement?: TilePosition
+}
+
+export interface TilePosition {
+	tileX: number
+	tileY: number
+}
+
+export interface NpcCharacter {
+	id: string
+	label: string
+	spriteUrl: string
+	/** Jumlah frame animasi diam, berjajar mendatar, masing-masing 32x32 px. */
+	frames: number
 }
 
 export interface PublicQuestionPayload {
@@ -54,6 +71,7 @@ export interface PublicQuestionPayload {
 	points: number
 	orderIndex: number
 	totalQuestions: number
+	npcId?: string
 }
 
 export interface QuizSettings {

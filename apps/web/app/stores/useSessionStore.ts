@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import {
+	buildAssignedObjects,
 	MAP_CATALOG,
 	STARTER_QUIZZES,
 	type AnswerResultPayload,
@@ -33,18 +34,7 @@ export const useSessionStore = defineStore('petakuis-session', () => {
 	const isAccessibleMode = ref(false)
 
 	const assignedObjects = ref<AssignedMapObject[]>(
-		defaultQuiz.questions.map((q, idx) => {
-			const sp = defaultMap.spawnPoints[idx % defaultMap.spawnPoints.length]!
-			return {
-				objectId: `${sp.id}__${q.id}`,
-				questionId: q.id,
-				orderIndex: idx + 1,
-				tileX: sp.tileX,
-				tileY: sp.tileY,
-				objectKind: sp.objectKind,
-				answered: false
-			}
-		})
+		buildAssignedObjects(defaultQuiz, defaultMap, 'demo')
 	)
 	const nearbyPlayers = ref<CompactPlayerTuple[]>([])
 	const activeQuestion = ref<PublicQuestionPayload | null>(null)
@@ -122,10 +112,8 @@ export const useSessionStore = defineStore('petakuis-session', () => {
 			const sp = target.spawnPoints[idx % target.spawnPoints.length]!
 			return {
 				...obj,
-				objectId: `${sp.id}__${obj.questionId}`,
 				tileX: sp.tileX,
-				tileY: sp.tileY,
-				objectKind: sp.objectKind
+				tileY: sp.tileY
 			}
 		})
 	}

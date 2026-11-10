@@ -30,7 +30,7 @@
 
 	const mapShortLabels: Record<string, string> = {
 		'map-halaman-sekolah': '1. Hoenn GBA (60×50)',
-		'map-desa-sunnyside': '2. Sunnyside Farm (56×44)',
+		'map-desa-sunnyside': '2. Lembah Sunnyside (64×48)',
 		'map-kampus-modern': '3. Kampus Modern (48×36)'
 	}
 

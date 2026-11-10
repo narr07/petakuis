@@ -33,6 +33,8 @@ export interface AssignedMapObject {
 	tileX: number
 	tileY: number
 	objectKind: 'chest' | 'board' | 'crystal' | 'npc'
+	/** Karakter yang membawa soal ini (id dari NPC_CHARACTERS). */
+	npcId: string
 	answered: boolean
 }
 

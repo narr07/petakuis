@@ -20,7 +20,7 @@
 
 	const doneItems = [
 		{
-			title: '3 Peta Dunia Terbuka Multi-Region (Hoenn GBA 60×50, Sunnyside Farm 56×44, Kampus Modern 48×36)',
+			title: '3 Peta Dunia Terbuka Multi-Region (Hoenn GBA 60×50, Lembah Sunnyside 64×48, Kampus Modern 48×36)',
 			detail: 'Setiap peta menggabungkan 4 kawasan/kota sekaligus dengan 24 pos soal dan 3 gaya tilemap berbeda.'
 		},
 		{

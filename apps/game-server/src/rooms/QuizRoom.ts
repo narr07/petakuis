@@ -1,4 +1,5 @@
 import {
+	buildAssignedObjects,
 	calculateScore,
 	evaluateAnswer,
 	GAME_CONSTANTS,
@@ -19,7 +20,7 @@ import {
 	type MapTemplate,
 	type PublicQuestionPayload,
 	type QuizDefinition,
-	type QuizQuestion
+	type SessionEndPayload
 } from '@petakuis/shared'
 import type { Server, Socket } from 'socket.io'
 import {
@@ -123,35 +124,7 @@ export class QuizRoom {
 	}
 
 	private buildAssignedObjects(playerId: string): AssignedMapObject[] {
-		const questions = [...this.quiz.questions].sort((a, b) => a.order - b.order)
-		const spawnPool = [...this.mapConfig.spawnPoints]
-
-		if (this.quiz.mode === 'free') {
-			let seed = 0
-			for (let i = 0; i < playerId.length; i++) {
-				seed = (seed * 31 + playerId.charCodeAt(i)) >>> 0
-			}
-			for (let i = spawnPool.length - 1; i > 0; i--) {
-				seed = (seed * 1664525 + 1013904223) >>> 0
-				const j = seed % (i + 1)
-				const temp = spawnPool[i]!
-				spawnPool[i] = spawnPool[j]!
-				spawnPool[j] = temp
-			}
-		}
-
-		return questions.map((q, idx) => {
-			const sp = spawnPool[idx % spawnPool.length]!
-			return {
-				objectId: `${sp.id}__${q.id}`,
-				questionId: q.id,
-				orderIndex: idx + 1,
-				tileX: sp.tileX,
-				tileY: sp.tileY,
-				objectKind: sp.objectKind,
-				answered: false
-			}
-		})
+		return buildAssignedObjects(this.quiz, this.mapConfig, playerId)
 	}
 
 	public handleMapChange(mapIdOrSlug: string): void {
@@ -437,7 +410,8 @@ export class QuizRoom {
 			remainingTimeS,
 			points: question.points,
 			orderIndex: assigned.orderIndex,
-			totalQuestions: this.quiz.questions.length
+			totalQuestions: this.quiz.questions.length,
+			npcId: assigned.npcId
 		}
 
 		socket.emit('question:show', payload)

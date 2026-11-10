@@ -225,17 +225,14 @@
 						</span>
 					</div>
 
-					<!-- GBA Item Pokéball Spawn Points -->
-					<img
+					<!-- Pos soal bawaan peta -->
+					<div
 						v-for="sp in mapConfig.spawnPoints"
 						:key="sp.id"
-						src="/gba/sprites/item_ball.png"
-						alt="Pokéball"
-						class="pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2"
+						class="pointer-events-none absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#16211b] bg-[#facc15]"
 						:style="{
-							left: `${(sp.tileX / mapConfig.widthTiles) * 100}%`,
-							top: `${(sp.tileY / mapConfig.heightTiles) * 100}%`,
-							imageRendering: 'pixelated'
+							left: `${((sp.tileX + 0.5) / mapConfig.widthTiles) * 100}%`,
+							top: `${((sp.tileY + 0.5) / mapConfig.heightTiles) * 100}%`
 						}"
 					/>
 

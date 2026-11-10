@@ -1,4 +1,4 @@
-import type { QuizDefinition } from '@petakuis/shared'
+import { NPC_CHARACTERS, type QuizDefinition } from '@petakuis/shared'
 import { saveQuiz } from '../../utils/store'
 
 export default defineEventHandler(async (event) => {
@@ -44,7 +44,14 @@ export default defineEventHandler(async (event) => {
 			ignoreSpaces: q.ignoreSpaces ?? true,
 			timeLimitS: Number(q.timeLimitS) || 30,
 			points: Number(q.points) || 100,
-			order: idx + 1
+			order: idx + 1,
+			npcId: NPC_CHARACTERS.some((c) => c.id === q.npcId) ? q.npcId : undefined,
+			placement:
+				q.placement &&
+				Number.isInteger(q.placement.tileX) &&
+				Number.isInteger(q.placement.tileY)
+					? { tileX: q.placement.tileX, tileY: q.placement.tileY }
+					: undefined
 		})),
 		createdAt: body.createdAt || now,
 		updatedAt: now

@@ -1,0 +1,5 @@
+# Cache editor Godot
+.godot/
+
+# Salinan aset berlisensi (disalin dari paket mentah oleh scripts/setup_assets.gd)
+assets/vendor/

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-	import type {
-		AnswerResultPayload,
-		PublicQuestionPayload
+	import {
+		getNpcCharacter,
+		type AnswerResultPayload,
+		type PublicQuestionPayload
 	} from '@petakuis/shared'
 
 	const props = defineProps<{
@@ -86,7 +87,7 @@
 		aria-modal="true"
 		aria-labelledby="question-modal-title"
 	>
-		<!-- Classic GBA Pokémon Double-Border Dialogue Window -->
+		<!-- Jendela dialog bergaris ganda -->
 		<div
 			class="w-full max-w-xl rounded-2xl border-4 border-[#283040] bg-[#f8f8f8] p-1.5 shadow-[6px_6px_0px_#16211b]"
 		>
@@ -94,12 +95,13 @@
 				<!-- GBA Battle Header Bar -->
 				<div class="flex items-center justify-between border-b-2 border-[#283040] pb-3">
 					<div class="flex items-center gap-2.5">
-						<img
-							src="/gba/sprites/item_ball.png"
-							alt=""
-							class="h-6 w-6"
-							style="image-rendering: pixelated"
+						<GameNpcSprite
+							:npc-id="question.npcId"
+							:scale="2"
 						/>
+						<span class="text-xs font-extrabold text-[#283040]">
+							{{ getNpcCharacter(question.npcId).label }}
+						</span>
 						<span
 							class="rounded bg-[#283040] px-2.5 py-1 font-pixel text-[10px] text-[#f8d030]"
 						>
@@ -152,13 +154,13 @@
 							class="text-xs font-extrabold text-[#15803d] underline"
 							@click="showHint = true"
 						>
-							▶ Buka Petunjuk Pokédex (Hint)
+							▶ Buka Petunjuk
 						</button>
 						<p
 							v-else
 							class="rounded-lg border border-[#15803d] bg-[#dcfce7] px-3 py-2 text-xs font-bold text-[#14532d]"
 						>
-							Pokédex: {{ question.hint.value }}
+							Petunjuk: {{ question.hint.value }}
 						</p>
 					</div>
 				</div>

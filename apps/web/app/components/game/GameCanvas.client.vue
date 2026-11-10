@@ -2,6 +2,7 @@
 	import {
 		AVATAR_COLORWAYS,
 		findTilePathBFS,
+		getNpcCharacter,
 		isFootBoxWalkable,
 		slideMovePlayer,
 		snapToNearestWalkableTile,
@@ -58,8 +59,8 @@
 	}
 
 	const initialSafePos = ensureWalkableWorldPos(
-		props.myX || props.mapConfig.playerSpawn.tileX * 48 + 24,
-		props.myY || props.mapConfig.playerSpawn.tileY * 48 + 24
+		props.myX || props.mapConfig.playerSpawn.tileX * tilePx.value + tilePx.value / 2,
+		props.myY || props.mapConfig.playerSpawn.tileY * tilePx.value + tilePx.value / 2
 	)
 
 	const localX = ref(initialSafePos.x)
@@ -101,7 +102,7 @@
 			visible: true,
 			steps: Math.max(1, Math.round(distPx / tilePx.value)),
 			angleRad: Math.atan2(dy, dx),
-			label: `Pokéball Soal #${target.orderIndex}`
+			label: `Soal #${target.orderIndex} · ${getNpcCharacter(target.npcId).label}`
 		}
 	})
 
@@ -403,7 +404,7 @@
 				top: `${-camY}px`
 			}"
 		>
-			<!-- Authentic GBA / Farm RPG Pixel Map Image -->
+			<!-- Gambar peta -->
 			<img
 				:src="mapConfig.mapImageUrl"
 				:alt="mapConfig.name"
@@ -421,88 +422,44 @@
 				}"
 			/>
 
-			<!-- Interactive Quiz Objects: Pokéballs, NPCs, Signposts & Farm RPG Chests -->
+			<!-- Karakter pemberi soal: kaki berpijak sedikit di bawah tengah tile -->
 			<div
 				v-for="obj in assignedObjects"
 				:key="obj.objectId"
-				class="absolute -translate-x-1/2 -translate-y-1/2"
+				class="absolute flex -translate-x-1/2 -translate-y-full flex-col items-center"
 				:style="{
 					left: `${obj.tileX * tilePx + tilePx / 2}px`,
-					top: `${obj.tileY * tilePx + tilePx / 2}px`,
-					zIndex: getYDepth(obj.tileY * tilePx)
+					top: `${obj.tileY * tilePx + tilePx / 2 + 16}px`,
+					zIndex: getYDepth(obj.tileY * tilePx + tilePx / 2)
 				}"
 				@pointerdown.stop="handleObjectClick(obj)"
 			>
-				<!-- Answered Badge -->
 				<div
 					v-if="obj.answered"
-					class="rounded border-2 border-[#4ade80] bg-[#14532d]/95 px-2 py-0.5 font-mono-num text-[10px] font-extrabold text-[#fef08a] shadow"
+					v-show="!disabled"
+					class="mb-1 rounded border-2 border-[#4ade80] bg-[#14532d]/95 px-1.5 py-0.5 font-mono-num text-[10px] font-extrabold text-[#fef08a] shadow"
 				>
-					SELESAI
+					✓ #{{ obj.orderIndex }}
 				</div>
-
-				<!-- Active Quiz Object -->
 				<div
 					v-else
-					class="relative flex flex-col items-center"
+					v-show="!disabled"
+					class="mb-1 whitespace-nowrap rounded border-2 border-[#16211b] px-1.5 py-0.5 font-mono-num text-[11px] font-extrabold text-[#16211b] shadow-[2px_2px_0px_#16211b]"
+					:class="
+						nextTargetObject?.objectId === obj.objectId
+							? 'bg-[#facc15]'
+							: 'bg-white'
+					"
 				>
-					<!-- Floating Question Pin -->
-					<div
-						v-show="!disabled"
-						class="mb-1 rounded border-2 border-[#16211b] px-1.5 py-0.5 font-mono-num text-[11px] font-extrabold text-[#16211b] shadow-[2px_2px_0px_#16211b]"
-						:class="
-							nextTargetObject?.objectId === obj.objectId
-								? 'bg-[#facc15]'
-								: 'bg-white'
-						"
-					>
-						! #{{ obj.orderIndex }}
-					</div>
-
-					<!-- NPC Sprite (Prof. Oak / Prof. Birch) -->
-					<div
-						v-if="obj.objectKind === 'npc'"
-						class="relative h-16 w-8 overflow-hidden"
-					>
-						<img
-							:src="
-								obj.orderIndex % 2 === 0
-									? '/gba/sprites/oak.png'
-									: '/gba/sprites/prof_birch.png'
-							"
-							alt="NPC Professor"
-							class="absolute left-0 top-0 h-16 max-w-none"
-							style="image-rendering: pixelated; width: 288px"
-						/>
-					</div>
-
-					<!-- Signpost Sprite -->
-					<img
-						v-else-if="obj.objectKind === 'board'"
-						src="/gba/sprites/signpost.png"
-						alt="Papan Petunjuk Kuis"
-						class="h-10 w-10"
-						style="image-rendering: pixelated"
-					/>
-
-					<!-- Farm RPG 16x16 Treasure Chest Sprite -->
-					<img
-						v-else-if="obj.objectKind === 'crystal'"
-						src="/gba/sprites/chest_closed.png"
-						alt="Peti Kuis"
-						class="h-10 w-10"
-						style="image-rendering: pixelated"
-					/>
-
-					<!-- GBA Item Pokéball -->
-					<img
-						v-else
-						src="/gba/sprites/item_ball.png"
-						alt="Item Pokéball"
-						class="h-9 w-9"
-						style="image-rendering: pixelated"
-					/>
+					? #{{ obj.orderIndex }}
 				</div>
+				<GameNpcSprite
+					:npc-id="obj.npcId"
+					:scale="3"
+					:animated="!obj.answered"
+					:flip="localX < obj.tileX * tilePx + tilePx / 2"
+					:class="obj.answered ? 'opacity-60' : ''"
+				/>
 			</div>
 
 			<!-- Other Nearby Trainers -->
