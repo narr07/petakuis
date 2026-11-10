@@ -30,7 +30,7 @@
 		"@nuxt/eslint": "latest",
 		"drizzle-kit": "latest",
 		"eslint": "latest",
-		"typescript": "latest",
+		"typescript": "~5.7.3",
 		"vue-tsc": "latest"
 	}
 }

@@ -172,7 +172,7 @@
 						class="pointer-events-none absolute inset-0 h-full w-full"
 						style="image-rendering: pixelated"
 						draggable="false"
-					/>
+					>
 
 					<!-- Sel yang sedang ditunjuk -->
 					<div

@@ -2,11 +2,14 @@ import { io, type Socket } from 'socket.io-client'
 import type {
 	AnswerResultPayload,
 	AnswerSubmitPayload,
+	AssignedMapObject,
 	AvatarColorway,
+	CompactPlayerTuple,
 	Direction,
 	HostControlPayload,
 	JoinedRoomResponse,
 	LeaderboardEntry,
+	MapTemplate,
 	PublicQuestionPayload,
 	SessionEndPayload
 } from '@petakuis/shared'
@@ -74,11 +77,11 @@ export function useGameSocket() {
 			}
 		})
 
-		s.on('state', (payload: { t: number; players: any[] }) => {
+		s.on('state', (payload: { t: number; players: CompactPlayerTuple[] }) => {
 			store.nearbyPlayers = payload.players
 		})
 
-		s.on('session:status', (payload: { status: any }) => {
+		s.on('session:status', (payload: { status: 'lobby' | 'active' | 'paused' | 'ended' }) => {
 			store.sessionStatus = payload.status
 		})
 
@@ -118,8 +121,8 @@ export function useGameSocket() {
 		s.on(
 			'map:changed',
 			(payload: {
-				mapConfig: any
-				assignedObjects: any[]
+				mapConfig: MapTemplate
+				assignedObjects: AssignedMapObject[]
 				spawnX: number
 				spawnY: number
 			}) => {

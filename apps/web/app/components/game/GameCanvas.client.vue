@@ -391,6 +391,7 @@
 	<div
 		ref="viewportEl"
 		class="relative isolate z-0 h-full w-full cursor-pointer select-none overflow-hidden bg-[#183018]"
+		:class="{ 'pointer-events-none': disabled }"
 		style="isolation: isolate; z-index: 0"
 		@pointerdown="handleViewportPointerDown"
 	>
@@ -410,11 +411,11 @@
 				:alt="mapConfig.name"
 				class="pointer-events-none absolute inset-0 h-full w-full select-none"
 				style="image-rendering: pixelated"
-			/>
+			>
 
 			<!-- Tap-to-move Target Ring -->
 			<div
-				v-if="targetWalkPos"
+				v-if="targetWalkPos && !disabled"
 				class="pointer-events-none absolute h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-3 border-[#fde047] bg-[#fde047]/20"
 				:style="{
 					left: `${targetWalkPos.x}px`,
@@ -465,6 +466,7 @@
 			<!-- Other Nearby Trainers -->
 			<div
 				v-for="p in nearbyPlayers"
+				v-show="!disabled"
 				:key="p[0]"
 				class="pointer-events-none absolute -translate-x-1/2 -translate-y-[65%] flex flex-col items-center"
 				:style="{
@@ -486,10 +488,9 @@
 								? 'scaleX(-1)'
 								: 'none'
 						}"
-					/>
+					>
 				</div>
 				<span
-					v-show="!disabled"
 					class="mt-0.5 rounded border border-white bg-[#16211b]/90 px-2 py-0.5 text-[11px] font-bold text-white shadow"
 				>
 					{{ p[4] }}
@@ -529,7 +530,7 @@
 							width: '360px',
 							left: `-${mySpriteFrame.frameIdx * 40}px`
 						}"
-					/>
+					>
 				</div>
 
 				<!-- Player Nameplate -->
@@ -543,7 +544,7 @@
 
 		<!-- Navigator Compass Pill -->
 		<div
-			v-if="navigatorHud.visible"
+			v-if="navigatorHud.visible && !disabled"
 			class="pointer-events-none absolute left-1/2 top-16 z-20 -translate-x-1/2 flex items-center gap-2.5 rounded-full border-2 border-[#16211b] bg-[#fef08a] px-4 py-1.5 text-xs font-extrabold text-[#16211b] shadow-[3px_3px_0px_#16211b]"
 		>
 			<span

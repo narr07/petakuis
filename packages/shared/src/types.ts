@@ -164,3 +164,45 @@ export interface LeaderboardEntry {
 	answeredCount: number
 	totalQuestions: number
 }
+
+export interface ReportPlayerEntry extends LeaderboardEntry {
+	rank: number
+	accuracyPercent: number
+	totalTimeSeconds: number
+}
+
+export interface QuestionStatEntry {
+	questionId: string
+	order: number
+	prompt: string
+	type: string
+	attemptsCount: number
+	correctCount: number
+	accuracyPercent: number
+	avgResponseSeconds: number
+}
+
+export interface SessionReportData {
+	code: string
+	status: 'lobby' | 'active' | 'paused' | 'ended'
+	quizTitle: string
+	subject: string
+	schoolLevel: string
+	gradeLabel: string
+	mapName: string
+	mode: 'free' | 'linear'
+	startedAt?: string
+	endedAt?: string
+	totalPlayers: number
+	totalQuestions: number
+	players: ReportPlayerEntry[]
+	questionStats: QuestionStatEntry[]
+	answers: Array<{
+		playerId: string
+		nickname: string
+		questionId: string
+		value: string[]
+		isCorrect: boolean
+		responseMs: number
+	}>
+}

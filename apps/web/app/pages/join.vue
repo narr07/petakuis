@@ -4,11 +4,30 @@
 	const route = useRoute()
 	const router = useRouter()
 
-	const code = ref(String(route.query.code || '123456'))
+	const PIN_LENGTH = 6
+
+	const code = ref(String(route.query.code || '123456').slice(0, PIN_LENGTH))
 	const nickname = ref('')
 	const selectedColorway = ref<AvatarColorway>('merah-putih')
 	const errorMessage = ref('')
 	const loading = ref(false)
+
+	// UPinInput memakai array of string, sementara logika lama memakai string
+	const pin = computed<string[]>({
+		get: () => code.value.split(''),
+		set: (val) => {
+			code.value = val.join('')
+		}
+	})
+
+	const selectedPreset = computed(() =>
+		AVATAR_COLORWAYS.find(p => p.id === selectedColorway.value)
+	)
+
+	function fillDemoPin() {
+		code.value = '123456'
+		errorMessage.value = ''
+	}
 
 	async function handleJoinRoom() {
 		errorMessage.value = ''
@@ -31,10 +50,11 @@
 					colorway: selectedColorway.value
 				}
 			})
-		} catch (err: any) {
-			errorMessage.value =
-				err?.data?.statusMessage ||
-				'Kode ruangan tidak ditemukan. Coba gunakan PIN demo 123456.'
+		} catch (err: unknown) {
+			const e = err as { data?: { statusMessage?: string } }
+			errorMessage.value
+				= e?.data?.statusMessage
+					|| 'Kode ruangan tidak ditemukan. Coba gunakan PIN demo 123456.'
 		} finally {
 			loading.value = false
 		}
@@ -42,117 +62,145 @@
 </script>
 
 <template>
-	<div class="mx-auto max-w-xl px-4 py-10 sm:py-14">
-		<div class="pixel-card rounded-2xl p-6 sm:p-8">
-			<div class="flex items-center justify-between">
-				<span class="font-pixel text-xs text-[#15803d]">GABUNG SESI KELAS</span>
-				<button
-					type="button"
-					class="rounded border border-[#16211b] bg-[#fef08a] px-2.5 py-1 font-mono-num text-xs font-extrabold text-[#16211b]"
-					@click="code = '123456'"
-				>
-					Isi PIN Demo: 123456
-				</button>
-			</div>
-
-			<h1 class="mt-3 text-2xl font-extrabold text-[#16211b] sm:text-3xl">
-				Siapkan Avatarmu
-			</h1>
-			<p class="mt-1 text-sm text-[#435249]">
-				Masukkan kode ruangan dari layar proyektor guru dan pilih warna seragam
-				sebelum masuk ke peta.
-			</p>
-
-			<form
-				class="mt-6 space-y-5"
-				@submit.prevent="handleJoinRoom"
-			>
-				<div>
-					<label
-						for="join-code-input"
-						class="block text-xs font-extrabold uppercase tracking-wider text-[#16211b]"
-					>
-						Kode Ruangan (PIN 6 Digit)
-					</label>
-					<input
-						id="join-code-input"
-						v-model="code"
-						type="text"
-						maxlength="8"
-						required
-						class="font-mono-num mt-1.5 w-full rounded-xl border-2 border-[#16211b] bg-[#faf6ee] px-4 py-3 text-center text-2xl font-extrabold tracking-widest text-[#16211b]"
-					/>
-				</div>
-
-				<div>
-					<label
-						for="join-nickname-input"
-						class="block text-xs font-extrabold uppercase tracking-wider text-[#16211b]"
-					>
-						Nama Panggilan di Kelas
-					</label>
-					<input
-						id="join-nickname-input"
-						v-model="nickname"
-						type="text"
-						maxlength="20"
-						placeholder="Contoh: Budi Kelas 5A"
-						class="mt-1.5 w-full rounded-xl border-2 border-[#16211b] bg-white px-4 py-3 text-base font-bold text-[#16211b]"
-					/>
-				</div>
-
-				<div>
-					<span
-						class="block text-xs font-extrabold uppercase tracking-wider text-[#16211b]"
-					>
-						Pilih Karakter Trainer GBA Pokémon
-					</span>
-					<div class="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-						<button
-							v-for="preset in AVATAR_COLORWAYS"
-							:key="preset.id"
-							type="button"
-							class="flex items-center gap-2.5 rounded-xl border-2 p-2.5 text-left text-xs font-bold transition-transform"
-							:class="
-								selectedColorway === preset.id
-									? 'border-[#16211b] bg-[#fef08a] shadow-[2px_2px_0px_#16211b]'
-									: 'border-[#16211b]/40 bg-white hover:border-[#16211b]'
-							"
-							@click="selectedColorway = preset.id"
-						>
-							<span
-								class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded border border-[#16211b] bg-[#dcfce7]"
-							>
-								<span class="relative block h-8 w-4 overflow-hidden">
-									<img
-										:src="preset.spriteUrl"
-										:alt="preset.label"
-										class="absolute left-0 top-0 h-8 max-w-none"
-										style="image-rendering: pixelated; width: 144px"
-									/>
-								</span>
-							</span>
-							<span class="truncate">{{ preset.label }}</span>
-						</button>
-					</div>
-				</div>
-
-				<p
-					v-if="errorMessage"
-					role="alert"
-					class="rounded-xl border-2 border-[#991b1b] bg-[#fee2e2] px-4 py-3 text-xs font-bold text-[#991b1b]"
-				>
-					{{ errorMessage }}
-				</p>
-
-				<button
-					type="submit"
-					:disabled="loading"
-					class="pixel-btn w-full rounded-xl bg-[#15803d] py-3.5 text-base font-extrabold text-white"
-				>
-					{{ loading ? 'Memeriksa Ruangan...' : 'Masuk ke Peta Permainan' }}
-				</button>
-			</form>
+	<UContainer class="relative py-10 sm:py-14">
+		<!-- Dekorasi -->
+		<div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+			<div class="absolute -left-10 top-10 size-56 rounded-full bg-secondary/25 blur-2xl" />
+			<div class="absolute -right-10 bottom-10 size-64 rounded-full bg-primary/25 blur-2xl" />
+			<UIcon name="i-lucide-star" class="absolute left-[10%] top-[12%] size-8 animate-bounce text-warning" />
+			<UIcon name="i-lucide-sparkles" class="absolute right-[12%] top-[20%] size-8 animate-pulse text-secondary" />
 		</div>
-	</div>
+
+		<div class="mx-auto max-w-xl">
+			<UCard :ui="{ header: 'bg-primary/10', body: 'p-5 sm:p-8' }">
+				<template #header>
+					<div class="flex items-center justify-between gap-2">
+						<UBadge color="primary" variant="solid" icon="i-lucide-door-open">
+							Gabung sesi kelas
+						</UBadge>
+						<UButton
+							size="xs"
+							color="warning"
+							variant="soft"
+							icon="i-lucide-wand-sparkles"
+							label="Isi PIN Demo: 123456"
+							@click="fillDemoPin"
+						/>
+					</div>
+
+					<h1 class="mt-3 text-2xl font-extrabold sm:text-3xl">
+						Siapkan Avatarmu!
+					</h1>
+					<p class="mt-1 text-sm text-muted">
+						Masukkan kode ruangan dari layar proyektor guru dan pilih karakter
+						sebelum masuk ke peta.
+					</p>
+				</template>
+
+				<form class="space-y-6" @submit.prevent="handleJoinRoom">
+					<!-- PIN -->
+					<UFormField
+						label="Kode ruangan (PIN 6 digit)"
+						:ui="{ container: 'mt-2' }"
+					>
+						<div class="flex justify-center">
+							<UPinInput
+								v-model="pin"
+								:length="PIN_LENGTH"
+								type="number"
+								size="xl"
+								otp
+								:ui="{ base: 'size-12 sm:size-14 text-2xl font-extrabold font-mono' }"
+							/>
+						</div>
+					</UFormField>
+
+					<!-- Nama -->
+					<UFormField label="Nama panggilan di kelas">
+						<UInput
+							v-model="nickname"
+							size="xl"
+							class="w-full"
+							icon="i-lucide-smile"
+							maxlength="20"
+							placeholder="Contoh: Budi Kelas 5A"
+						/>
+					</UFormField>
+
+					<!-- Karakter -->
+					<div>
+						<div class="flex items-center justify-between">
+							<span id="avatar-label" class="text-sm font-medium text-highlighted">
+								Pilih karakter trainer
+							</span>
+							<UBadge v-if="selectedPreset" color="secondary" variant="subtle" size="sm">
+								{{ selectedPreset.label }}
+							</UBadge>
+						</div>
+
+						<div
+							role="radiogroup"
+							aria-labelledby="avatar-label"
+							class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4"
+						>
+							<button
+								v-for="preset in AVATAR_COLORWAYS"
+								:key="preset.id"
+								type="button"
+								role="radio"
+								:aria-checked="selectedColorway === preset.id"
+								class="relative flex items-center gap-2.5 rounded-xl border-2 p-2.5 text-left text-xs font-bold transition-all focus-visible:outline-3 focus-visible:outline-primary/40"
+								:class="
+									selectedColorway === preset.id
+										? 'border-[var(--ui-text-highlighted)] bg-primary/15 shadow-[3px_3px_0px_0px_var(--ui-text-highlighted)]'
+										: 'border-accented bg-default hover:-translate-y-0.5 hover:border-[var(--ui-text-highlighted)]'
+								"
+								@click="selectedColorway = preset.id"
+							>
+								<span
+									class="relative flex size-10 shrink-0 items-center justify-center rounded-lg border-2 border-[var(--ui-text-highlighted)] bg-success/20"
+								>
+									<span class="relative block h-8 w-4 overflow-hidden">
+										<img
+											:src="preset.spriteUrl"
+											:alt="preset.label"
+											class="absolute left-0 top-0 h-8 max-w-none"
+											style="image-rendering: pixelated; width: 144px"
+										>
+									</span>
+								</span>
+								<span class="truncate">{{ preset.label }}</span>
+
+								<UIcon
+									v-if="selectedColorway === preset.id"
+									name="i-lucide-circle-check"
+									class="absolute -right-2 -top-2 size-5 rounded-full bg-default text-primary"
+								/>
+							</button>
+						</div>
+					</div>
+
+					<!-- Error -->
+					<UAlert
+						v-if="errorMessage"
+						color="error"
+						variant="subtle"
+						icon="i-lucide-circle-alert"
+						title="Oops!"
+						:description="errorMessage"
+					/>
+
+					<UButton
+						type="submit"
+						size="xl"
+						block
+						color="secondary"
+						trailing-icon="i-lucide-arrow-right"
+						:loading="loading"
+						:label="loading ? 'Memeriksa ruangan...' : 'Masuk ke Peta Permainan'"
+					/>
+				</form>
+			</UCard>
+		</div>
+	</UContainer>
 </template>

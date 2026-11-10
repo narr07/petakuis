@@ -13,7 +13,12 @@
 		"dev:server": "bun --filter @petakuis/game-server dev",
 		"build:web": "bun --filter @petakuis/web build",
 		"build:server": "bun --filter @petakuis/game-server build",
+		"lint": "bun --cwd apps/web lint",
+		"lint:fix": "bun --cwd apps/web lint --fix",
 		"typecheck": "bun --filter '*' typecheck",
 		"test": "bun test"
+	},
+	"overrides": {
+		"typescript": "~5.7.3"
 	}
 }

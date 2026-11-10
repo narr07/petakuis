@@ -9,7 +9,6 @@
 	const route = useRoute()
 	const store = useSessionStore()
 	const {
-		connected,
 		connectPlayer,
 		sendMove,
 		requestOpenQuestion,

@@ -1,12 +1,12 @@
 <script lang="ts">
 	// Satu pewaktu untuk semua sprite supaya animasi diam serempak dan murah.
-	const npcTick = ref(0)
-	let npcTickUsers = 0
-	let npcTickTimer: ReturnType<typeof setInterval> | null = null
-</script>
+	</script>
 
 <script setup lang="ts">
 	import { getNpcCharacter } from '@petakuis/shared'
+const npcTick = ref(0)
+	let npcTickUsers = 0
+	let npcTickTimer: ReturnType<typeof setInterval> | null = null
 
 	const props = withDefaults(
 		defineProps<{

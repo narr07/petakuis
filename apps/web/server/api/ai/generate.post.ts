@@ -39,7 +39,9 @@ Untuk type "ox", gunakan options [{"id":"o","text":"Benar"},{"id":"x","text":"Sa
 			)
 
 			if (resp.ok) {
-				const data = (await resp.json()) as any
+				const data = (await resp.json()) as {
+					candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+				}
 				const rawText =
 					data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
 				const parsed = JSON.parse(rawText) as Array<Partial<QuizQuestion>>

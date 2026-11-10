@@ -21,8 +21,8 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 		return await resp.json()
-	} catch (err: any) {
-		if (err.statusCode) throw err
+	} catch (err: unknown) {
+		if (err && typeof err === 'object' && 'statusCode' in err) throw err
 		throw createError({
 			statusCode: 503,
 			statusMessage: 'Game server belum aktif.'

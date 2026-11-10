@@ -8,6 +8,23 @@
 		type MapTemplate
 	} from '@petakuis/shared'
 
+	interface HostInitPayload {
+		code: string
+		status: 'lobby' | 'active' | 'paused' | 'ended'
+		quizTitle: string
+		subject: string
+		mode: 'free' | 'linear'
+		mapConfig: MapTemplate
+		totalQuestions: number
+		leaderboard?: LeaderboardEntry[]
+	}
+
+	interface HostStatePayload {
+		status: 'lobby' | 'active' | 'paused' | 'ended'
+		players?: HostPlayerTuple[]
+		leaderboard?: LeaderboardEntry[]
+	}
+
 	const route = useRoute()
 	const config = useRuntimeConfig()
 	const code = computed(() => String(route.params.code || '123456'))
@@ -45,7 +62,7 @@
 			})
 		})
 
-		socket.on('host:init', (payload: any) => {
+		socket.on('host:init', (payload: HostInitPayload) => {
 			status.value = payload.status
 			quizTitle.value = payload.quizTitle
 			subject.value = payload.subject
@@ -55,13 +72,13 @@
 			leaderboard.value = payload.leaderboard || []
 		})
 
-		socket.on('host:state', (payload: any) => {
+		socket.on('host:state', (payload: HostStatePayload) => {
 			status.value = payload.status
 			players.value = payload.players || []
 			leaderboard.value = payload.leaderboard || []
 		})
 
-		socket.on('session:status', (payload: any) => {
+		socket.on('session:status', (payload: { status: 'lobby' | 'active' | 'paused' | 'ended' }) => {
 			status.value = payload.status
 		})
 
@@ -73,7 +90,7 @@
 	})
 
 	function changeHostMap(mapId: string) {
-		const found = MAP_CATALOG.find((m) => m.id === mapId)
+		const found = MAP_CATALOG.find(m => m.id === mapId)
 		if (found) {
 			mapConfig.value = found
 		}
@@ -86,118 +103,132 @@
 </script>
 
 <template>
-	<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-		<!-- Top Banner with Big Projector PIN -->
-		<div class="pixel-card rounded-2xl p-6">
-			<div class="flex flex-wrap items-center justify-between gap-6">
-				<div>
+	<UContainer class="py-8 sm:py-10">
+		<!-- Banner Layar Proyektor Guru -->
+		<UCard :ui="{ header: 'bg-primary/10', body: 'p-6' }">
+			<template #header>
+				<div class="flex flex-wrap items-center justify-between gap-3">
 					<div class="flex items-center gap-2">
-						<span
-							class="rounded border border-[#16211b] bg-[#dcfce7] px-2.5 py-0.5 text-xs font-extrabold uppercase text-[#14532d]"
+						<UBadge
+							:color="status === 'active' ? 'success' : status === 'paused' ? 'warning' : 'neutral'"
+							variant="solid"
+							size="md"
+							icon="i-lucide-projector"
 						>
-							LAYAR HOST GURU · {{ status.toUpperCase() }}
-						</span>
-						<span class="text-xs font-bold text-[#435249]">
+							Layar Host Guru · {{ status.toUpperCase() }}
+						</UBadge>
+						<UBadge color="primary" variant="subtle" size="md">
 							{{ subject }} · Mode {{ mode === 'free' ? 'Bebas' : 'Berurutan' }}
-						</span>
+						</UBadge>
 					</div>
-					<h1 class="mt-2 text-2xl font-extrabold text-[#16211b] sm:text-3xl">
+
+					<div class="flex items-center gap-2">
+						<UButton
+							:to="`/play/${code}?nickname=SiswaUjiCoba&colorway=batik-biru`"
+							target="_blank"
+							color="neutral"
+							variant="outline"
+							size="sm"
+							icon="i-lucide-external-link"
+							label="Buka Tab Siswa Baru"
+						/>
+						<UButton
+							:to="`/report/${code}`"
+							color="primary"
+							size="sm"
+							icon="i-lucide-file-text"
+							label="Laporan & Ekspor CSV"
+						/>
+					</div>
+				</div>
+			</template>
+
+			<div class="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+				<div>
+					<h1 class="text-2xl font-black tracking-tight sm:text-3xl text-highlighted">
 						{{ quizTitle }}
 					</h1>
-					<p class="mt-1 text-sm text-[#435249]">
-						Minta siswa membuka <strong>/join</strong> lalu memasukkan kode ruangan di
-						samping.
+					<p class="mt-1 text-sm text-muted">
+						Minta siswa membuka tautan <strong class="text-highlighted">/join</strong> melalui ponsel atau laptop kelas, lalu masukkan kode PIN di samping.
 					</p>
+
+					<!-- Tombol Kendali Sesi -->
+					<div class="mt-4 flex flex-wrap items-center gap-2">
+						<UButton
+							v-if="status !== 'active'"
+							color="success"
+							variant="solid"
+							size="md"
+							icon="i-lucide-play"
+							label="Mulai / Lanjutkan Sesi"
+							@click="sendControl('start')"
+						/>
+						<UButton
+							v-if="status === 'active'"
+							color="warning"
+							variant="solid"
+							size="md"
+							icon="i-lucide-pause"
+							label="Jeda Sesi"
+							@click="sendControl('pause')"
+						/>
+						<UButton
+							color="error"
+							variant="outline"
+							size="md"
+							icon="i-lucide-square"
+							label="Akhiri Sesi"
+							@click="sendControl('end')"
+						/>
+					</div>
 				</div>
 
-				<div class="flex flex-wrap items-center gap-4">
-					<div
-						class="rounded-2xl border-2 border-[#16211b] bg-[#fef08a] px-6 py-3 text-center shadow-[3px_3px_0px_#16211b]"
-					>
-						<span class="block text-[10px] font-extrabold uppercase text-[#16211b]">
-							KODE PIN RUANGAN
-						</span>
-						<span class="font-mono-num text-3xl font-extrabold tracking-widest text-[#16211b]">
-							{{ code }}
-						</span>
-					</div>
-
-					<div class="flex flex-col gap-2">
-						<div class="flex items-center gap-2">
-							<button
-								v-if="status !== 'active'"
-								type="button"
-								class="pixel-btn rounded-xl bg-[#15803d] px-4 py-2.5 text-xs font-extrabold text-white"
-								@click="sendControl('start')"
-							>
-								Mulai / Lanjutkan
-							</button>
-							<button
-								v-if="status === 'active'"
-								type="button"
-								class="pixel-btn rounded-xl bg-[#f59e0b] px-4 py-2.5 text-xs font-extrabold text-[#16211b]"
-								@click="sendControl('pause')"
-							>
-								Jeda Sesi
-							</button>
-							<button
-								type="button"
-								class="pixel-btn rounded-xl bg-[#dc2626] px-4 py-2.5 text-xs font-extrabold text-white"
-								@click="sendControl('end')"
-							>
-								Akhiri Sesi
-							</button>
-						</div>
-
-						<div class="flex items-center gap-2">
-							<NuxtLink
-								:to="`/play/${code}?nickname=SiswaUjiCoba&colorway=batik-biru`"
-								target="_blank"
-								class="rounded-lg border border-[#16211b] bg-white px-3 py-1.5 text-xs font-bold text-[#16211b]"
-							>
-								+ Buka Tab Siswa Baru
-							</NuxtLink>
-							<NuxtLink
-								:to="`/report/${code}`"
-								class="rounded-lg border border-[#16211b] bg-[#16211b] px-3 py-1.5 text-xs font-bold text-[#fef08a]"
-							>
-								Laporan & Ekspor CSV →
-							</NuxtLink>
-						</div>
-					</div>
+				<!-- Kotak PIN Proyektor -->
+				<div class="flex flex-col items-center justify-center rounded-2xl border-2 border-primary bg-primary/10 px-8 py-4 text-center">
+					<span class="text-xs font-black tracking-widest text-primary uppercase">
+						PIN Ruangan Kelas
+					</span>
+					<span class="font-mono text-4xl sm:text-5xl font-black tracking-widest text-highlighted">
+						{{ code }}
+					</span>
+					<span class="mt-1 text-[11px] font-semibold text-muted">
+						Tampilkan di Proyektor
+					</span>
 				</div>
 			</div>
-		</div>
+		</UCard>
 
-		<!-- Main Grid: Live Mini-map + Live Leaderboard -->
+		<!-- Konten Utama: Mini Map Radar + Papan Skor Siswa -->
 		<div class="mt-6 grid gap-6 lg:grid-cols-12">
-			<!-- Live Mini-Map Radar -->
-			<div class="pixel-card rounded-2xl p-5 lg:col-span-7">
-				<div class="flex flex-wrap items-center justify-between gap-2">
-					<h2 class="text-base font-extrabold text-[#16211b]">
-						Peta Radar Kelas Live ({{ players.length }} Siswa Terhubung)
-					</h2>
-					<div class="flex flex-wrap items-center gap-1.5">
-						<button
-							v-for="m in MAP_CATALOG"
-							:key="m.id"
-							type="button"
-							class="rounded-lg border border-[#16211b] px-2 py-1 text-[11px] font-extrabold"
-							:class="
-								mapConfig?.id === m.id
-									? 'bg-[#15803d] text-white'
-									: 'bg-[#faf6ee] text-[#16211b]'
-							"
-							@click="changeHostMap(m.id)"
-						>
-							{{ m.name.split('(')[0]?.trim() }} ({{ m.widthTiles }}×{{ m.heightTiles }})
-						</button>
+			<!-- Radar Peta Kelas Live -->
+			<UCard class="lg:col-span-7" :ui="{ header: 'bg-primary/5', body: 'p-4 sm:p-5' }">
+				<template #header>
+					<div class="flex flex-wrap items-center justify-between gap-2">
+						<div class="flex items-center gap-2">
+							<UIcon name="i-lucide-radar" class="size-5 text-primary" />
+							<h2 class="text-base font-bold text-highlighted">
+								Peta Radar Kelas ({{ players.length }} Siswa Aktif)
+							</h2>
+						</div>
+
+						<!-- Pemilihan Peta Aktif -->
+						<div class="flex flex-wrap items-center gap-1.5">
+							<UButton
+								v-for="m in MAP_CATALOG"
+								:key="m.id"
+								:color="mapConfig?.id === m.id ? 'primary' : 'neutral'"
+								:variant="mapConfig?.id === m.id ? 'solid' : 'outline'"
+								size="xs"
+								:label="m.name.split('(')[0]?.trim()"
+								@click="changeHostMap(m.id)"
+							/>
+						</div>
 					</div>
-				</div>
+				</template>
 
 				<div
 					v-if="mapConfig"
-					class="relative mt-4 h-80 sm:h-96 w-full overflow-hidden rounded-xl border-2 border-[#16211b]"
+					class="relative h-80 sm:h-96 w-full overflow-hidden rounded-xl border border-default"
 					:style="{ backgroundColor: mapConfig.palette.floorPrimary }"
 				>
 					<img
@@ -205,8 +236,9 @@
 						:alt="mapConfig.name"
 						class="absolute inset-0 h-full w-full object-cover"
 						style="image-rendering: pixelated"
-					/>
-					<!-- Building Roof Labels on Mini-Map -->
+					>
+
+					<!-- Label Rintangan di Mini-Map -->
 					<div
 						v-for="(obs, idx) in mapConfig.obstacles"
 						:key="idx"
@@ -218,25 +250,23 @@
 							height: `${(obs.height / mapConfig.heightTiles) * 100}%`
 						}"
 					>
-						<span
-							class="rounded border border-[#16211b] bg-[#16211b]/85 px-1.5 py-0.5 text-[9px] font-bold text-[#fef08a] shadow"
-						>
+						<span class="rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-xs">
 							{{ obs.label }}
 						</span>
 					</div>
 
-					<!-- Pos soal bawaan peta -->
+					<!-- Pos Soal Bawaan Peta -->
 					<div
 						v-for="sp in mapConfig.spawnPoints"
 						:key="sp.id"
-						class="pointer-events-none absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#16211b] bg-[#facc15]"
+						class="pointer-events-none absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-warning shadow-xs"
 						:style="{
 							left: `${((sp.tileX + 0.5) / mapConfig.widthTiles) * 100}%`,
 							top: `${((sp.tileY + 0.5) / mapConfig.heightTiles) * 100}%`
 						}"
 					/>
 
-					<!-- Live Student Dots -->
+					<!-- Titik Posisi Siswa Live -->
 					<div
 						v-for="p in players"
 						:key="p[0]"
@@ -246,74 +276,81 @@
 							top: `${(p[4] / (mapConfig.heightTiles * mapConfig.tileSizePx * mapConfig.renderScale)) * 100}%`
 						}"
 					>
-						<div
-							class="flex items-center gap-1 rounded-full border border-[#16211b] bg-white px-2 py-0.5 text-[10px] font-extrabold text-[#16211b] shadow"
-						>
-							<span class="h-2 w-2 rounded-full bg-[#15803d]" />
+						<div class="flex items-center gap-1 rounded-full border border-default bg-default px-2 py-0.5 text-[10px] font-bold text-highlighted shadow-md">
+							<span class="size-2 rounded-full bg-success animate-pulse" />
 							<span>{{ p[1] }}</span>
 						</div>
 					</div>
 				</div>
-			</div>
+			</UCard>
 
-			<!-- Live Leaderboard & Player Management -->
-			<div class="pixel-card rounded-2xl p-5 lg:col-span-5">
-				<h2 class="text-base font-extrabold text-[#16211b]">
-					Papan Skor & Progres Siswa
-				</h2>
+			<!-- Live Leaderboard & Kelola Siswa -->
+			<UCard class="lg:col-span-5" :ui="{ header: 'bg-secondary/5', body: 'p-4 sm:p-5' }">
+				<template #header>
+					<div class="flex items-center justify-between">
+						<div class="flex items-center gap-2">
+							<UIcon name="i-lucide-trophy" class="size-5 text-warning" />
+							<h2 class="text-base font-bold text-highlighted">
+								Papan Skor & Progres Siswa
+							</h2>
+						</div>
+						<UBadge color="secondary" variant="subtle" size="sm">
+							{{ leaderboard.length }} Siswa
+						</UBadge>
+					</div>
+				</template>
 
 				<div
 					v-if="leaderboard.length === 0"
-					class="mt-6 rounded-xl border border-dashed border-[#16211b]/40 bg-[#faf6ee] p-6 text-center text-xs font-semibold text-[#435249]"
+					class="rounded-xl border border-dashed border-default p-8 text-center text-xs text-muted"
 				>
-					Belum ada siswa di dalam ruangan. Klik tombol
-					<strong>"+ Buka Tab Siswa Baru"</strong> di atas untuk menguji coba
-					permainan secara langsung.
+					<UIcon name="i-lucide-users" class="mx-auto size-8 text-muted/60" />
+					<p class="mt-2 font-semibold">Belum ada siswa di dalam ruangan.</p>
+					<p class="mt-1">
+						Klik tombol <strong>"Buka Tab Siswa Baru"</strong> di atas untuk menguji coba sesi secara langsung.
+					</p>
 				</div>
 
-				<div
-					v-else
-					class="mt-4 space-y-2.5"
-				>
+				<div v-else class="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
 					<div
 						v-for="(entry, idx) in leaderboard"
 						:key="entry.id"
-						class="flex items-center justify-between rounded-xl border-2 border-[#16211b] bg-[#faf6ee] px-3.5 py-2.5"
+						class="flex items-center justify-between rounded-xl border border-default bg-default p-3 shadow-2xs"
 					>
 						<div>
 							<div class="flex items-center gap-2">
-								<span
-									class="rounded bg-[#16211b] px-1.5 py-0.5 font-mono-num text-xs font-bold text-[#fef08a]"
+								<UBadge
+									:color="idx === 0 ? 'warning' : idx < 3 ? 'secondary' : 'neutral'"
+									variant="solid"
+									size="xs"
 								>
 									#{{ idx + 1 }}
-								</span>
-								<span class="text-sm font-extrabold text-[#16211b]">
+								</UBadge>
+								<span class="text-sm font-bold text-highlighted">
 									{{ entry.nickname }}
 								</span>
 							</div>
-							<p class="mt-0.5 text-xs font-semibold text-[#435249]">
-								Terjawab {{ entry.answeredCount }}/{{ entry.totalQuestions }} soal ({{
-									entry.correctCount
-								}}
-								benar)
+							<p class="mt-0.5 text-xs text-muted">
+								Terjawab {{ entry.answeredCount }}/{{ entry.totalQuestions }} soal ({{ entry.correctCount }} benar)
 							</p>
 						</div>
 
 						<div class="flex items-center gap-2">
-							<span class="font-mono-num text-sm font-extrabold text-[#15803d]">
+							<span class="font-mono text-sm font-black text-primary">
 								{{ entry.score }} Poin
 							</span>
-							<button
-								type="button"
-								class="rounded border border-[#991b1b] px-2 py-1 text-[11px] font-bold text-[#991b1b] hover:bg-[#fee2e2]"
+							<UButton
+								color="error"
+								variant="ghost"
+								size="xs"
+								icon="i-lucide-user-x"
+								title="Keluarkan dari sesi"
 								@click="sendControl('kick', entry.id)"
-							>
-								Keluarkan
-							</button>
+							/>
 						</div>
 					</div>
 				</div>
-			</div>
+			</UCard>
 		</div>
-	</div>
+	</UContainer>
 </template>

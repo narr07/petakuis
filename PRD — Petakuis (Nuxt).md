@@ -477,9 +477,13 @@ Bagian ini mencatat secara transparan **apa saja yang sudah selesai diimplementa
    - [x] Unit test otomatis (`bun test` di `packages/shared/src/scoring.test.ts` — **959 assertions lolos 100%**) yang memverifikasi seluruh titik spawn dan blokir tabrakan rumah di ketiga peta.
 
 4. **Perbaikan Bug UI Terhalang (Z-Index Stacking Context) & Live Tilemap Switcher**
-   - [x] **Fix Bug Modal Soal Terhalang Sprite/Pin:** Root container `GameCanvas.client.vue` kini terisolasi dengan `isolation: isolate; z-index: 0`, kedalaman *Y-sorting* internal dinormalisasi ke `z-index: 2..80`, pin/sprite disembunyikan saat modal terbuka (`v-show="!disabled"`), dan `QuestionModal.vue` berada di `z-index: 2000`.
+   - [x] **Fix Bug Modal Soal Terhalang Sprite/Pin (Selesai Tuntas):**
+     - Modal soal (`QuestionModal.vue`) kini dibungkus dengan `<Teleport to="body">` dan layer dialog dinaikkan ke level root mutlak (`z-index: 99999`), terpisah total dari konteks rendering halaman atau canvas game.
+     - Menghapus efek `backdrop-blur` pada overlay modal yang pada browser berbasis Chromium/WebKit memicu pemisahan GPU compositing layer yang dapat membocorkan sprite sheet/transform di atas dialog.
+     - Di `GameCanvas.client.vue`: saat `disabled: true` (modal terbuka), viewport diberi class `pointer-events-none`, kompas penunjuk arah disembunyikan (`v-if="!disabled"`), serta sprite pemain dan pemain lain disembunyikan (`v-show="!disabled"`), sehingga teks soal dan pilihan jawaban 100% bebas dari halangan visual.
    - [x] **Live Demo Tilemap Switcher:** Bar pemilih peta langsung di HUD atas `/play/[code]` dan `/host/[code]` (`1. Hoenn GBA (60×50)`, `2. Sunnyside Farm (56×44)`, `3. Kampus Modern (48×36)`) serta 3 kode PIN demo aktif (`123456`, `222222`, `333333`).
    - [x] **Desain Logo & Maskot Kuispi si Rubah Petualang (Standar `logo-design-skill`):** Maskot rubah ceria bertopi ranger/pramuka rimba bergeometri bersih simetris, pipi gemas, dan mata ekspresif. Tersedia dalam master vektor SVG 256×256, lockup horizontal, favicon `.ico`/`.svg`, dan varian PWA multi-ukuran.
+   - [x] **Desain Landing Page, Auth Portal & Multi-Role Dashboard (Standar `nuxt-ui`):** Memanfaatkan komponen bawaan `@nuxt/ui` (UCard, UButton, UInput, UBadge, UIcon, UAlert), layout multi-role untuk **Guru**, **Admin Sekolah / Kurikulum**, dan **Siswa**, dengan simulasi alur navigasi tanpa lock autentikasi ketat.
 
 5. **Alur Lengkap ZEP QUIZ (Pembuat Kuis, AI Generator, Join Tanpa Akun, Host Live, Laporan CSV)**
    - [x] Halaman Beranda (`/`), Jelajah Kuis Komunitas (`/explore`), Pembuat Kuis 3 Langkah (`/build`) dengan dukungan soal Pilihan Ganda (`multiple`), Benar/Salah (`ox`), dan Isian Singkat (`subjective` + `ignoreSpaces` + `hint`), serta generator soal otomatis (`/api/ai/generate-questions`).

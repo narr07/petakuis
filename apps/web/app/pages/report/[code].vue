@@ -1,8 +1,10 @@
 <script setup lang="ts">
+	import type { QuestionStatEntry, ReportPlayerEntry, SessionReportData } from '@petakuis/shared'
+
 	const route = useRoute()
 	const code = computed(() => String(route.params.code || '123456'))
 
-	const { data: report, refresh } = await useFetch<any>(
+	const { data: report, refresh, status } = await useFetch<SessionReportData>(
 		() => `/api/sessions/${code.value}/report`
 	)
 
@@ -17,7 +19,7 @@
 			'Akurasi (%)',
 			'Total Waktu Respons (Detik)'
 		]
-		const rows = (report.value.players || []).map((p: any) => [
+		const rows = (report.value.players || []).map((p: ReportPlayerEntry) => [
 			p.rank,
 			`"${String(p.nickname).replace(/"/g, '""')}"`,
 			p.score,
@@ -27,9 +29,9 @@
 			p.totalTimeSeconds
 		])
 
-		const csvContent =
-			'data:text/csv;charset=utf-8,' +
-			[headers.join(','), ...rows.map((r: any[]) => r.join(','))].join('\n')
+		const csvContent
+			= 'data:text/csv;charset=utf-8,'
+				+ [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
 
 		const encodedUri = encodeURI(csvContent)
 		const link = document.createElement('a')
@@ -39,142 +41,260 @@
 		link.click()
 		document.body.removeChild(link)
 	}
+
+	const columns = [
+		{ accessorKey: 'rank', header: 'Peringkat' },
+		{ accessorKey: 'nickname', header: 'Nama Siswa' },
+		{ accessorKey: 'correctCount', header: 'Benar / Total' },
+		{ accessorKey: 'accuracyPercent', header: 'Akurasi' },
+		{ accessorKey: 'totalTimeSeconds', header: 'Waktu' },
+		{ accessorKey: 'score', header: 'Skor Akhir' }
+	]
+
+	function formatDuration(sec: number) {
+		return `${sec.toFixed(1)} dtk`
+	}
 </script>
 
 <template>
-	<div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-		<div
-			v-if="report"
-			class="space-y-8"
-		>
-			<!-- Report Summary Header -->
-			<div class="pixel-card rounded-2xl p-6">
-				<div class="flex flex-wrap items-center justify-between gap-4">
-					<div>
-						<span class="text-xs font-extrabold uppercase tracking-wider text-[#15803d]">
-							LAPORAN HASIL SESI KELAS · PIN {{ report.code }}
-						</span>
-						<h1 class="mt-1 text-2xl font-extrabold text-[#16211b] sm:text-3xl">
-							{{ report.quizTitle }}
-						</h1>
-						<p class="mt-1 text-sm text-[#435249]">
-							{{ report.subject }} ({{ report.gradeLabel }}) · Peta:
-							{{ report.mapName }} · {{ report.totalPlayers }} Siswa
-						</p>
-					</div>
-
-					<div class="flex flex-wrap items-center gap-3">
-						<button
-							type="button"
-							class="pixel-btn rounded-xl bg-white px-4 py-2.5 text-xs font-extrabold text-[#16211b]"
+	<UContainer class="py-8 sm:py-10">
+		<div v-if="report" class="space-y-8">
+			<!-- Header Laporan -->
+			<UPageHeader
+				:headline="`PIN Sesi: ${report.code} · ${report.subject} (${report.gradeLabel})`"
+				:title="report.quizTitle"
+				:description="`Peta: ${report.mapName} · Mode: ${report.mode === 'free' ? 'Eksplorasi Bebas' : 'Jalur Berurutan'} · Diikuti oleh ${report.totalPlayers} siswa.`"
+				:ui="{ root: 'border-b-0 pb-0' }"
+			>
+				<template #links>
+					<div class="flex flex-wrap items-center gap-2">
+						<UButton
+							color="neutral"
+							variant="outline"
+							icon="i-lucide-rotate-ccw"
+							label="Muat Ulang"
+							:loading="status === 'pending'"
 							@click="refresh()"
-						>
-							Muat Ulang Data
-						</button>
-						<button
-							type="button"
-							class="pixel-btn rounded-xl bg-[#15803d] px-5 py-2.5 text-xs font-extrabold text-white"
+						/>
+						<UButton
+							color="primary"
+							icon="i-lucide-download"
+							label="Unduh Nilai CSV"
 							@click="downloadCsv"
-						>
-							Unduh Nilai CSV (Format Google Classroom)
-						</button>
+						/>
+						<UButton
+							color="neutral"
+							variant="subtle"
+							icon="i-lucide-monitor"
+							label="Kembali ke Host"
+							:to="`/host/${report.code}`"
+						/>
 					</div>
-				</div>
+				</template>
+			</UPageHeader>
+
+			<!-- Statistik Ringkas -->
+			<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+				<UCard :ui="{ body: 'p-4 sm:p-5' }">
+					<div class="flex items-center justify-between">
+						<span class="text-xs font-semibold text-muted">Total Siswa</span>
+						<UIcon name="i-lucide-users" class="size-4 text-primary" />
+					</div>
+					<div class="mt-2 text-2xl font-extrabold sm:text-3xl">
+						{{ report.totalPlayers }}
+					</div>
+					<p class="mt-1 text-xs text-muted">Siswa terhubung</p>
+				</UCard>
+
+				<UCard :ui="{ body: 'p-4 sm:p-5' }">
+					<div class="flex items-center justify-between">
+						<span class="text-xs font-semibold text-muted">Total Soal</span>
+						<UIcon name="i-lucide-help-circle" class="size-4 text-secondary" />
+					</div>
+					<div class="mt-2 text-2xl font-extrabold sm:text-3xl">
+						{{ report.totalQuestions }}
+					</div>
+					<p class="mt-1 text-xs text-muted">Pos tantangan di peta</p>
+				</UCard>
+
+				<UCard :ui="{ body: 'p-4 sm:p-5' }">
+					<div class="flex items-center justify-between">
+						<span class="text-xs font-semibold text-muted">Rata-rata Akurasi</span>
+						<UIcon name="i-lucide-target" class="size-4 text-success" />
+					</div>
+					<div class="mt-2 text-2xl font-extrabold sm:text-3xl">
+						{{
+							report.players.length > 0
+								? Math.round(
+									report.players.reduce((acc, p) => acc + p.accuracyPercent, 0) /
+										report.players.length
+								)
+								: 0
+						}}%
+					</div>
+					<p class="mt-1 text-xs text-muted">Ketepatan jawaban kelas</p>
+				</UCard>
+
+				<UCard :ui="{ body: 'p-4 sm:p-5' }">
+					<div class="flex items-center justify-between">
+						<span class="text-xs font-semibold text-muted">Skor Tertinggi</span>
+						<UIcon name="i-lucide-trophy" class="size-4 text-warning" />
+					</div>
+					<div class="mt-2 text-2xl font-extrabold sm:text-3xl">
+						{{ report.players[0]?.score || 0 }}
+					</div>
+					<p class="mt-1 text-xs text-muted">
+						{{ report.players[0]?.nickname || 'Belum ada data' }}
+					</p>
+				</UCard>
 			</div>
 
-			<!-- Per-Student Grade Table -->
-			<section class="pixel-card rounded-2xl p-6">
-				<h2 class="text-lg font-extrabold text-[#16211b]">
-					Daftar Nilai per Siswa
-				</h2>
-				<div class="mt-4 overflow-x-auto">
-					<table class="w-full border-collapse text-left text-sm">
-						<thead>
-							<tr class="border-b-2 border-[#16211b] text-xs font-extrabold uppercase text-[#435249]">
-								<th class="py-3 pr-4">Peringkat</th>
-								<th class="py-3 px-4">Nama Siswa</th>
-								<th class="py-3 px-4">Benar / Total</th>
-								<th class="py-3 px-4">Akurasi</th>
-								<th class="py-3 px-4">Waktu Jawab</th>
-								<th class="py-3 pl-4 text-right">Skor Akhir</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr
-								v-for="p in report.players"
-								:key="p.id"
-								class="border-b border-[#e6decb] font-semibold"
-							>
-								<td class="py-3 pr-4 font-mono-num font-extrabold">
-									#{{ p.rank }}
-								</td>
-								<td class="py-3 px-4 font-bold text-[#16211b]">
-									{{ p.nickname }}
-								</td>
-								<td class="py-3 px-4 font-mono-num">
-									{{ p.correctCount }} / {{ p.totalQuestions }}
-								</td>
-								<td class="py-3 px-4 font-mono-num">
-									{{ p.accuracyPercent }}%
-								</td>
-								<td class="py-3 px-4 font-mono-num">
-									{{ p.totalTimeSeconds }} dtk
-								</td>
-								<td class="py-3 pl-4 text-right font-mono-num font-extrabold text-[#15803d]">
-									{{ p.score }}
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</section>
+			<!-- Tabel Nilai Siswa -->
+			<UCard :ui="{ header: 'bg-primary/10', body: 'p-0' }">
+				<template #header>
+					<div class="flex items-center justify-between">
+						<div>
+							<h2 class="text-lg font-bold sm:text-xl">
+								Rekapitulasi Nilai Siswa
+							</h2>
+							<p class="text-xs text-muted">
+								Data siap diimpor ke Google Classroom atau buku nilai Dapodik.
+							</p>
+						</div>
+						<UBadge color="primary" variant="subtle" size="md">
+							{{ report.players.length }} Siswa Terdata
+						</UBadge>
+					</div>
+				</template>
 
-			<!-- Per-Question Analysis -->
-			<section class="pixel-card rounded-2xl p-6">
-				<h2 class="text-lg font-extrabold text-[#16211b]">
-					Analisis Ketuntasan per Butir Soal
-				</h2>
-				<div class="mt-4 overflow-x-auto">
-					<table class="w-full border-collapse text-left text-sm">
-						<thead>
-							<tr class="border-b-2 border-[#16211b] text-xs font-extrabold uppercase text-[#435249]">
-								<th class="py-3 pr-4">No</th>
-								<th class="py-3 px-4">Pertanyaan</th>
-								<th class="py-3 px-4">Tipe</th>
-								<th class="py-3 px-4">Dijawab</th>
-								<th class="py-3 px-4">Persentase Benar</th>
-								<th class="py-3 pl-4 text-right">Rata-rata Waktu</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr
-								v-for="qs in report.questionStats"
-								:key="qs.questionId"
-								class="border-b border-[#e6decb] font-semibold"
-							>
-								<td class="py-3 pr-4 font-mono-num font-extrabold">
-									#{{ qs.order }}
-								</td>
-								<td class="py-3 px-4 font-bold text-[#16211b]">
-									{{ qs.prompt }}
-								</td>
-								<td class="py-3 px-4 uppercase text-xs font-extrabold text-[#435249]">
-									{{ qs.type }}
-								</td>
-								<td class="py-3 px-4 font-mono-num">
-									{{ qs.attemptsCount }} siswa
-								</td>
-								<td class="py-3 px-4 font-mono-num font-extrabold">
-									{{ qs.accuracyPercent }}%
-								</td>
-								<td class="py-3 pl-4 text-right font-mono-num">
-									{{ qs.avgResponseSeconds }} dtk
-								</td>
-							</tr>
-						</tbody>
-					</table>
+				<div v-if="report.players.length === 0" class="p-8 text-center text-sm text-muted">
+					Belum ada data siswa yang menyelesaikan kuis pada sesi ini.
 				</div>
-			</section>
+
+				<UTable
+					v-else
+					:data="report.players"
+					:columns="columns"
+					class="w-full"
+				>
+					<template #rank-cell="{ row }">
+						<UBadge
+							:color="row.original.rank === 1 ? 'warning' : row.original.rank <= 3 ? 'secondary' : 'neutral'"
+							variant="solid"
+							size="sm"
+						>
+							#{{ row.original.rank }}
+						</UBadge>
+					</template>
+
+					<template #nickname-cell="{ row }">
+						<span class="font-bold text-highlighted">
+							{{ row.original.nickname }}
+						</span>
+					</template>
+
+					<template #correctCount-cell="{ row }">
+						<span class="font-mono text-sm">
+							{{ row.original.correctCount }} / {{ row.original.totalQuestions }}
+						</span>
+					</template>
+
+					<template #accuracyPercent-cell="{ row }">
+						<UBadge
+							:color="row.original.accuracyPercent >= 75 ? 'success' : row.original.accuracyPercent >= 50 ? 'warning' : 'error'"
+							variant="subtle"
+							size="sm"
+						>
+							{{ row.original.accuracyPercent }}%
+						</UBadge>
+					</template>
+
+					<template #totalTimeSeconds-cell="{ row }">
+						<span class="text-xs text-muted">
+							{{ formatDuration(row.original.totalTimeSeconds) }}
+						</span>
+					</template>
+
+					<template #score-cell="{ row }">
+						<span class="font-mono text-sm font-extrabold text-primary">
+							{{ row.original.score }} Poin
+						</span>
+					</template>
+				</UTable>
+			</UCard>
+
+			<!-- Analisis Daya Serap per Butir Soal -->
+			<UCard v-if="report.questionStats?.length" :ui="{ header: 'bg-secondary/10' }">
+				<template #header>
+					<div class="flex items-center justify-between">
+						<div>
+							<h2 class="text-lg font-bold sm:text-xl">
+								Analisis Butir Soal & Daya Serap Materi
+							</h2>
+							<p class="text-xs text-muted">
+								Identifikasi soal yang paling sulit dijawab siswa untuk bahan remedial atau pembahasan kelas.
+							</p>
+						</div>
+						<UBadge color="secondary" variant="subtle" size="md">
+							{{ report.questionStats.length }} Butir Soal
+						</UBadge>
+					</div>
+				</template>
+
+				<div class="grid gap-4 sm:grid-cols-2">
+					<UCard
+						v-for="stat in (report.questionStats as QuestionStatEntry[])"
+						:key="stat.questionId"
+						variant="subtle"
+						:ui="{ body: 'p-4' }"
+					>
+						<div class="flex items-center justify-between gap-2">
+							<UBadge color="neutral" variant="outline" size="xs">
+								Pos #{{ stat.order }} · {{ stat.type === 'multiple' ? 'PG' : stat.type === 'ox' ? 'B/S' : 'Isian' }}
+							</UBadge>
+							<UBadge
+								:color="stat.accuracyPercent >= 70 ? 'success' : stat.accuracyPercent >= 40 ? 'warning' : 'error'"
+								variant="solid"
+								size="xs"
+							>
+								Akurasi: {{ stat.accuracyPercent }}%
+							</UBadge>
+						</div>
+
+						<p class="mt-2 text-sm font-semibold text-highlighted line-clamp-2">
+							{{ stat.prompt }}
+						</p>
+
+						<div class="mt-3 flex items-center justify-between text-xs text-muted">
+							<span>{{ stat.correctCount }} dari {{ stat.attemptsCount }} siswa benar</span>
+							<span>Rata-rata: {{ stat.avgResponseSeconds }} dtk</span>
+						</div>
+					</UCard>
+				</div>
+			</UCard>
 		</div>
-	</div>
+
+		<!-- State Loading / Not Found -->
+		<div v-else-if="status === 'pending'" class="flex h-64 items-center justify-center">
+			<div class="flex flex-col items-center gap-3">
+				<UIcon name="i-lucide-loader-2" class="size-8 animate-spin text-primary" />
+				<span class="text-sm font-semibold text-muted">Memuat data rekapitulasi sesi...</span>
+			</div>
+		</div>
+
+		<div v-else class="mx-auto max-w-md text-center py-16">
+			<UIcon name="i-lucide-file-x" class="mx-auto size-12 text-muted" />
+			<h2 class="mt-4 text-xl font-bold">Laporan Tidak Ditemukan</h2>
+			<p class="mt-2 text-sm text-muted">
+				Sesi dengan PIN {{ code }} belum memiliki rekaman nilai atau server game baru saja dimulai ulang.
+			</p>
+			<UButton
+				to="/dashboard"
+				color="primary"
+				class="mt-6"
+				icon="i-lucide-arrow-left"
+				label="Kembali ke Dashboard"
+			/>
+		</div>
+	</UContainer>
 </template>
