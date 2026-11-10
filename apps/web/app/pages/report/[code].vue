@@ -150,7 +150,7 @@
 			</div>
 
 			<!-- Tabel Nilai Siswa -->
-			<UCard :ui="{ header: 'bg-primary/10', body: 'p-0' }">
+			<UCard :ui="{ header: 'border-b border-default', body: 'p-0' }">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<div>
@@ -224,7 +224,7 @@
 			</UCard>
 
 			<!-- Analisis Daya Serap per Butir Soal -->
-			<UCard v-if="report.questionStats?.length" :ui="{ header: 'bg-secondary/10' }">
+			<UCard v-if="report.questionStats?.length" :ui="{ header: 'border-b border-default' }">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<div>

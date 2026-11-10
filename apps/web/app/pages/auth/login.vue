@@ -96,7 +96,7 @@
 								:variant="role === r.id ? 'solid' : 'outline'"
 								:color="role === r.id ? 'primary' : 'neutral'"
 								class="flex flex-col items-center justify-center p-3 h-auto"
-								@click="role = r.id as any; isOtpSent = false"
+								@click="role = r.id as 'teacher' | 'admin' | 'student'; isOtpSent = false"
 							>
 								<UIcon :name="r.icon" class="w-6 h-6 mb-1.5" />
 								<span class="text-xs font-bold">{{ r.label }}</span>

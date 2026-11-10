@@ -72,7 +72,7 @@
 		</div>
 
 		<div class="mx-auto max-w-xl">
-			<UCard :ui="{ header: 'bg-primary/10', body: 'p-5 sm:p-8' }">
+			<UCard :ui="{ header: 'border-b border-default', body: 'p-5 sm:p-8' }">
 				<template #header>
 					<div class="flex items-center justify-between gap-2">
 						<UBadge color="primary" variant="solid" icon="i-lucide-door-open">

@@ -105,7 +105,7 @@
 <template>
 	<UContainer class="py-8 sm:py-10">
 		<!-- Banner Layar Proyektor Guru -->
-		<UCard :ui="{ header: 'bg-primary/10', body: 'p-6' }">
+		<UCard :ui="{ header: 'border-b border-default', body: 'p-6' }">
 			<template #header>
 				<div class="flex flex-wrap items-center justify-between gap-3">
 					<div class="flex items-center gap-2">
@@ -184,14 +184,14 @@
 				</div>
 
 				<!-- Kotak PIN Proyektor -->
-				<div class="flex flex-col items-center justify-center rounded-2xl border-2 border-primary bg-primary/10 px-8 py-4 text-center">
+				<div class="flex flex-col items-center justify-center rounded-2xl border-2 border-primary bg-default px-8 py-4 text-center shadow-sm">
 					<span class="text-xs font-black tracking-widest text-primary uppercase">
 						PIN Ruangan Kelas
 					</span>
 					<span class="font-mono text-4xl sm:text-5xl font-black tracking-widest text-highlighted">
 						{{ code }}
 					</span>
-					<span class="mt-1 text-[11px] font-semibold text-muted">
+					<span class="mt-1 text-xs font-bold text-muted">
 						Tampilkan di Proyektor
 					</span>
 				</div>
@@ -201,7 +201,7 @@
 		<!-- Konten Utama: Mini Map Radar + Papan Skor Siswa -->
 		<div class="mt-6 grid gap-6 lg:grid-cols-12">
 			<!-- Radar Peta Kelas Live -->
-			<UCard class="lg:col-span-7" :ui="{ header: 'bg-primary/5', body: 'p-4 sm:p-5' }">
+			<UCard class="lg:col-span-7" :ui="{ header: 'border-b border-default', body: 'p-4 sm:p-5' }">
 				<template #header>
 					<div class="flex flex-wrap items-center justify-between gap-2">
 						<div class="flex items-center gap-2">
@@ -285,7 +285,7 @@
 			</UCard>
 
 			<!-- Live Leaderboard & Kelola Siswa -->
-			<UCard class="lg:col-span-5" :ui="{ header: 'bg-secondary/5', body: 'p-4 sm:p-5' }">
+			<UCard class="lg:col-span-5" :ui="{ header: 'border-b border-default', body: 'p-4 sm:p-5' }">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<div class="flex items-center gap-2">

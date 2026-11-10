@@ -18,7 +18,9 @@
 	const { data: mapsData } = await useFetch<{ maps: MapTemplate[] }>('/api/maps')
 	const maps = computed(() => mapsData.value?.maps || [])
 
-	const currentStep = ref<1 | 2 | 3>(1)
+	const currentStep = ref<1 | 2 | 3>(
+		([1, 2, 3].includes(Number(route.query.step)) ? Number(route.query.step) : 1) as 1 | 2 | 3
+	)
 	const modeFilter = ref<'all' | GameMode>('all')
 
 	const selectedMapId = ref(
@@ -455,7 +457,7 @@
 
 		<!-- ================= STEP 2: JENJANG & MAPEL ================= -->
 		<section v-else-if="currentStep === 2" class="mt-8 space-y-6">
-			<UCard :ui="{ header: 'bg-primary/10', body: 'p-6 sm:p-8' }">
+			<UCard :ui="{ header: 'border-b border-default', body: 'p-6 sm:p-8' }">
 				<template #header>
 					<h2 class="text-xl font-bold text-highlighted">
 						Jenjang Pendidikan & Informasi Kuis
@@ -570,7 +572,7 @@
 			<!-- Kolom Kiri: AI Generator & Pengaturan -->
 			<div class="space-y-6 lg:col-span-4">
 				<!-- Asisten AI -->
-				<UCard :ui="{ header: 'bg-primary/10', body: 'p-5 space-y-4' }">
+				<UCard :ui="{ header: 'border-b border-default', body: 'p-5 space-y-4' }">
 					<template #header>
 						<div class="flex items-center gap-2">
 							<UIcon name="i-lucide-sparkles" class="size-5 text-primary" />
@@ -636,7 +638,7 @@
 				</UCard>
 
 				<!-- Pengaturan Mekanik & Impor CSV -->
-				<UCard :ui="{ header: 'bg-secondary/10', body: 'p-5 space-y-4' }">
+				<UCard :ui="{ header: 'border-b border-default', body: 'p-5 space-y-4' }">
 					<template #header>
 						<h3 class="text-base font-bold text-highlighted">
 							Mekanik & Impor CSV
@@ -707,7 +709,7 @@
 					<UCard
 						v-for="(q, qIdx) in questions"
 						:key="q.id"
-						:ui="{ header: 'bg-primary/5', body: 'p-5 space-y-4' }"
+						:ui="{ header: 'border-b border-default', body: 'p-5 space-y-4' }"
 					>
 						<template #header>
 							<div class="flex items-center justify-between">

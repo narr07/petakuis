@@ -173,7 +173,7 @@
 				v-for="quiz in quizzes"
 				:key="quiz.id"
 				class="flex flex-col"
-				:ui="{ body: 'flex-1', header: 'bg-primary/10' }"
+				:ui="{ body: 'flex-1', header: 'border-b border-default' }"
 			>
 				<template #header>
 					<div class="flex flex-wrap items-center gap-1.5">
@@ -202,16 +202,16 @@
 				</p>
 
 				<!-- Contoh soal -->
-				<div class="mt-4 rounded-xl border-2 border-dashed border-accented bg-muted p-3">
-					<p class="flex items-center gap-1.5 text-xs font-bold uppercase text-muted">
-						<UIcon name="i-lucide-list-checks" class="size-4" />
+				<div class="mt-4 rounded-xl border border-default bg-zinc-50 dark:bg-zinc-900/40 p-3.5">
+					<p class="flex items-center gap-1.5 text-xs font-bold uppercase text-highlighted">
+						<UIcon name="i-lucide-list-checks" class="size-4 text-primary" />
 						Contoh pertanyaan · {{ quiz.questions.length }} soal
 					</p>
-					<ul class="mt-2 space-y-1.5">
+					<ul class="mt-2.5 space-y-2">
 						<li
 							v-for="q in quiz.questions.slice(0, 3)"
 							:key="q.id"
-							class="flex items-center gap-2 text-sm"
+							class="flex items-center gap-2 text-sm text-highlighted"
 						>
 							<UBadge
 								:color="typeInfo(q.type).color"
@@ -221,7 +221,7 @@
 							>
 								{{ typeInfo(q.type).label }}
 							</UBadge>
-							<span class="truncate">{{ q.prompt }}</span>
+							<span class="truncate font-medium">{{ q.prompt }}</span>
 						</li>
 					</ul>
 				</div>

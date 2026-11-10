@@ -1,13 +1,13 @@
 export default defineAppConfig({
   ui: {
     colors: {
-      primary: 'sky',
-      secondary: 'pink',
-      success: 'lime',
-      info: 'cyan',
+      primary: 'blue',
+      secondary: 'violet',
+      success: 'emerald',
+      info: 'blue',
       warning: 'amber',
       error: 'rose',
-      neutral: 'mist'
+      neutral: 'zinc'
     },
     button: {
       slots: {

@@ -146,7 +146,7 @@
 							name="i-lucide-gamepad-2"
 							class="absolute -right-4 -top-6 z-10 size-14 rotate-12 rounded-xl border-2 border-[var(--ui-text-highlighted)] bg-warning p-2.5 text-inverted"
 						/>
-						<UCard :ui="{ header: 'bg-primary/10', footer: 'bg-muted' }">
+						<UCard :ui="{ header: 'border-b border-default', footer: 'border-t border-default' }">
 							<template #header>
 								<div class="flex items-center justify-between gap-2">
 									<UBadge color="primary" variant="solid">Masuk ruang kelas</UBadge>
@@ -248,7 +248,7 @@
 				headline="Katalog dunia 2D"
 				title="Pilih peta sesuai suasana materi"
 				description="Seluruh peta gratis dengan kapasitas hingga 200 siswa per sesi."
-				class="bg-primary/5"
+				class="bg-zinc-50/80 dark:bg-zinc-900/40 border-y border-default"
 			>
 				<UPageGrid>
 					<UCard
