@@ -1,0 +1,469 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="1034" viewBox="0 0 1600 1034"><rect width="1600" height="1034" fill="#f7f7f4"/><text x="60" y="78" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="40" font-weight="700" fill="#161616">Logo concepts</text><text x="60" y="116" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="20" fill="#6b6b6b">Concepts for review — pick a direction (or tell me what you like in each).</text><rect x="60" y="150" width="726" height="824" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="90" y="190" width="666" height="300" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B: Maskot "Kuispi" si Rubah Petualang Pixel / Pokémon Style -->
+  <!-- Rounded Shield Base / Background Badge -->
+  <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <!-- Inner Warm Background -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+
+  <!-- Scout Feather / Compass Arrow on Ear -->
+  <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+
+  <!-- Fox Ears Outer -->
+  <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Fox Ears Inner (Cream) -->
+  <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+  <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+
+  <!-- Fox Head Shape (Geometric Adventure Cap + Cheeks) -->
+  <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Cream Cheeks / Muzzle -->
+  <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Explorer Cap Visor / Front Band -->
+  <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+  <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+
+  <!-- Big Curious Pixel-Style Eyes -->
+  <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <!-- Eye Catchlights -->
+  <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+
+  <!-- Cute Nose & Smile -->
+  <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+  <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 540 256" x="90" y="514" width="666" height="170" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B Lockup: Maskot Kuispi + Logotype PETAKUIS -->
+  <g transform="translate(16, 18) scale(0.85)">
+    <!-- Rounded Shield Base / Background Badge -->
+    <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+    <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+    <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+    <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+    <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+    <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+    <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+    <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+    <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+    <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+    <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+    <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+    <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+    <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+    <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <!-- Geometric Logotype PETAKUIS -->
+  <g fill="#16211b" transform="translate(225, 96) scale(0.70)">
+    <!-- P -->
+    <path d="M0 0h28c11 0 18 7 18 17s-7 17-18 17H14v26H0V0Zm14 12v10h12c4 0 6-2 6-5s-2-5-6-5H14Z"/>
+    <!-- E -->
+    <path d="M54 0h38v12H68v12h20v12H68v14h24v12H54V0Z"/>
+    <!-- T -->
+    <path d="M100 0h40v12h-13v60h-14V12h-13V0Z"/>
+    <!-- A -->
+    <path d="M152 72l18-72h15l18 72h-15l-4-16h-18l-4 16h-14Zm19-27h11l-5.5-23-5.5 23Z"/>
+    <!-- K (Accent Orange) -->
+    <path d="M211 0h14v30l19-30h17l-22 34 24 38h-18l-18-29-2 3v26h-14V0Z" fill="#ea580c"/>
+    <!-- U -->
+    <path d="M272 0h14v44c0 10 5 16 13 16s13-6 13-16V0h14v44c0 19-11 29-27 29s-27-10-27-29V0Z"/>
+    <!-- I -->
+    <path d="M334 0h14v72h-14V0Z"/>
+    <!-- S (True S Curve) -->
+    <path d="M394 14c-1-8-8-14-18-14-11 0-18 6-18 16 0 11 8 16 20 19 12 3 18 7 18 17 0 12-9 20-21 20-13 0-21-8-22-19h14c1 6 5 10 9 10 5 0 9-3 9-8 0-6-4-9-15-12-14-4-22-9-22-22 0-12 9-21 22-21 12 0 20 7 21 14h-17Z"/>
+  </g>
+  <!-- Subtitle Tagline -->
+  <g fill="#435249" transform="translate(226, 168)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="#ea580c">GAME PETUALANGAN KUIS KELAS</text>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="90" y="710" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B: Maskot "Kuispi" si Rubah Petualang Pixel / Pokémon Style -->
+  <!-- Rounded Shield Base / Background Badge -->
+  <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <!-- Inner Warm Background -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+
+  <!-- Scout Feather / Compass Arrow on Ear -->
+  <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+
+  <!-- Fox Ears Outer -->
+  <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Fox Ears Inner (Cream) -->
+  <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+  <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+
+  <!-- Fox Head Shape (Geometric Adventure Cap + Cheeks) -->
+  <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Cream Cheeks / Muzzle -->
+  <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Explorer Cap Visor / Front Band -->
+  <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+  <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+
+  <!-- Big Curious Pixel-Style Eyes -->
+  <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <!-- Eye Catchlights -->
+  <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+
+  <!-- Cute Nose & Smile -->
+  <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+  <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="122" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="180" y="742" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B: Maskot "Kuispi" si Rubah Petualang Pixel / Pokémon Style -->
+  <!-- Rounded Shield Base / Background Badge -->
+  <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <!-- Inner Warm Background -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+
+  <!-- Scout Feather / Compass Arrow on Ear -->
+  <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+
+  <!-- Fox Ears Outer -->
+  <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Fox Ears Inner (Cream) -->
+  <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+  <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+
+  <!-- Fox Head Shape (Geometric Adventure Cap + Cheeks) -->
+  <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Cream Cheeks / Muzzle -->
+  <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Explorer Cap Visor / Front Band -->
+  <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+  <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+
+  <!-- Big Curious Pixel-Style Eyes -->
+  <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <!-- Eye Catchlights -->
+  <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+
+  <!-- Cute Nose & Smile -->
+  <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+  <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="196" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="238" y="758" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B: Maskot "Kuispi" si Rubah Petualang Pixel / Pokémon Style -->
+  <!-- Rounded Shield Base / Background Badge -->
+  <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <!-- Inner Warm Background -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+
+  <!-- Scout Feather / Compass Arrow on Ear -->
+  <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+
+  <!-- Fox Ears Outer -->
+  <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Fox Ears Inner (Cream) -->
+  <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+  <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+
+  <!-- Fox Head Shape (Geometric Adventure Cap + Cheeks) -->
+  <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Cream Cheeks / Muzzle -->
+  <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Explorer Cap Visor / Front Band -->
+  <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+  <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+
+  <!-- Big Curious Pixel-Style Eyes -->
+  <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <!-- Eye Catchlights -->
+  <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+
+  <!-- Cute Nose & Smile -->
+  <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+  <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="246" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="830" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">A · B1: Kuispi Versi Awal</text><text x="90.0" y="864" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Konsep awal maskot rubah</text><rect x="814" y="150" width="726" height="824" rx="18" fill="#fff" stroke="#161616" stroke-width="2"/><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="844" y="190" width="666" height="300" preserveAspectRatio="xMidYMid meet">
+  <title>Petakuis Mascot - Kuispi</title>
+  <!-- 1. Squircle Shield Badge (Forest Green Frame) -->
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <rect x="28" y="28" width="200" height="200" rx="44" fill="#faf6ee"/>
+
+  <!-- 2. Fox Ears (Clean Symmetrical Outlines) -->
+  <!-- Left Ear Outer -->
+  <path d="M52 82C48 54 62 34 86 32c12 18 16 38 14 56L52 82Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Left Ear Inner (Gold) -->
+  <path d="M62 76C60 56 68 44 82 42c8 12 10 24 8 36L62 76Z" fill="#facc15"/>
+  
+  <!-- Right Ear Outer -->
+  <path d="M204 82C208 54 194 34 170 32c-12 18-16 38-14 56l48-6Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Right Ear Inner (Gold) -->
+  <path d="M194 76C196 56 188 44 174 42c-8 12-10 24-8 36l28-2Z" fill="#facc15"/>
+
+  <!-- 3. Fox Head Silhouette (Vibrant Orange Fur) -->
+  <path d="M68 86c0-12 18-18 60-18s60 6 60 18c18 24 22 52 8 78-18 34-44 50-68 56-24-6-50-22-68-56-14-26-10-54 8-78Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- 4. Ranger Explorer Cap (Emerald Cap) -->
+  <path d="M66 94c18-10 40-14 62-14s44 4 62 14v12c-18-8-40-11-62-11s-44 3-62 11V94Z" fill="#15803d" stroke="#16211b" stroke-width="7"/>
+  <!-- Cap Front Badge (Compass Star) -->
+  <circle cx="128" cy="98" r="9" fill="#facc15" stroke="#16211b" stroke-width="3.5"/>
+  <path d="M128 92l2.5 4 4 2.5-4 2.5-2.5 4-2.5-4-4-2.5 4-2.5 2.5-4Z" fill="#16211b"/>
+  <!-- Scout Feather on Cap -->
+  <path d="M142 90c12-16 26-22 34-24-2 10-6 22-18 28l-16-4Z" fill="#f59e0b" stroke="#16211b" stroke-width="3.5"/>
+
+  <!-- 5. Cheerful Cream Muzzle & Face Mask -->
+  <path d="M72 136c12 28 32 50 56 56 24-6 44-28 56-56 0 0-14-16-32-12-14 3-28 3-48-12-14-4-32 24-32 24Z" fill="#faf6ee" stroke="#16211b" stroke-width="7" stroke-linejoin="round"/>
+
+  <!-- 6. Expressive Big Friendly Eyes (Scalable > 16px) -->
+  <g>
+    <!-- Left Eye -->
+    <ellipse cx="104" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="106.5" cy="133" r="3.5" fill="#faf6ee"/>
+
+    <!-- Right Eye -->
+    <ellipse cx="152" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="154.5" cy="133" r="3.5" fill="#faf6ee"/>
+  </g>
+
+  <!-- 7. Sweet Rosy Cheeks (Solid Pastel Red) -->
+  <circle cx="86" cy="150" r="7" fill="#f87171"/>
+  <circle cx="170" cy="150" r="7" fill="#f87171"/>
+
+  <!-- 8. Button Nose & Warm Smile -->
+  <path d="M124 153c0-3 8-3 8 0l-4 4-4-4Z" fill="#16211b"/>
+  <path d="M120 160c3 3 6 4 8 4s5-1 8-4" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 540 256" x="844" y="514" width="666" height="170" preserveAspectRatio="xMidYMid meet">
+  <title>Petakuis Logo &amp; Mascot Lockup</title>
+  <!-- Mascot Kuispi Refined Frame (Scale & Offset for Perfect Lockup Harmony) -->
+  <g transform="translate(16, 18) scale(0.85)">
+    <!-- 1. Squircle Shield Badge (Forest Green Frame) -->
+    <rect x="16" y="16" width="224" height="224" rx="56" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+    <rect x="28" y="28" width="200" height="200" rx="44" fill="#faf6ee"/>
+
+    <!-- 2. Fox Ears -->
+    <path d="M52 82C48 54 62 34 86 32c12 18 16 38 14 56L52 82Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M62 76C60 56 68 44 82 42c8 12 10 24 8 36L62 76Z" fill="#facc15"/>
+    
+    <path d="M204 82C208 54 194 34 170 32c-12 18-16 38-14 56l48-6Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M194 76C196 56 188 44 174 42c-8 12-10 24-8 36l28-2Z" fill="#facc15"/>
+
+    <!-- 3. Fox Head Silhouette -->
+    <path d="M68 86c0-12 18-18 60-18s60 6 60 18c18 24 22 52 8 78-18 34-44 50-68 56-24-6-50-22-68-56-14-26-10-54 8-78Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+    <!-- 4. Ranger / Scout Cap -->
+    <path d="M66 94c18-10 40-14 62-14s44 4 62 14v12c-18-8-40-11-62-11s-44 3-62 11V94Z" fill="#15803d" stroke="#16211b" stroke-width="7"/>
+    <circle cx="128" cy="98" r="9" fill="#facc15" stroke="#16211b" stroke-width="3.5"/>
+    <path d="M128 92l2.5 4 4 2.5-4 2.5-2.5 4-2.5-4-4-2.5 4-2.5 2.5-4Z" fill="#16211b"/>
+    <path d="M142 90c12-16 26-22 34-24-2 10-6 22-18 28l-16-4Z" fill="#f59e0b" stroke="#16211b" stroke-width="3.5"/>
+
+    <!-- 5. Cheerful Face Mask -->
+    <path d="M72 136c12 28 32 50 56 56 24-6 44-28 56-56 0 0-14-16-32-12-14 3-28 3-48-12-14-4-32 24-32 24Z" fill="#faf6ee" stroke="#16211b" stroke-width="7" stroke-linejoin="round"/>
+
+    <!-- 6. Expressive Eyes -->
+    <g>
+      <ellipse cx="104" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+      <circle cx="106.5" cy="133" r="3.5" fill="#faf6ee"/>
+
+      <ellipse cx="152" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+      <circle cx="154.5" cy="133" r="3.5" fill="#faf6ee"/>
+    </g>
+
+    <!-- 7. Rosy Cheeks -->
+    <circle cx="86" cy="150" r="7" fill="#f87171"/>
+    <circle cx="170" cy="150" r="7" fill="#f87171"/>
+
+    <!-- 8. Button Nose & Warm Smile -->
+    <path d="M124 153c0-3 8-3 8 0l-4 4-4-4Z" fill="#16211b"/>
+    <path d="M120 160c3 3 6 4 8 4s5-1 8-4" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- Clean Geometric Logotype PETAKUIS -->
+  <g fill="#16211b" transform="translate(225, 96) scale(0.70)">
+    <!-- P -->
+    <path d="M0 0h28c11 0 18 7 18 17s-7 17-18 17H14v26H0V0Zm14 12v10h12c4 0 6-2 6-5s-2-5-6-5H14Z"/>
+    <!-- E -->
+    <path d="M54 0h38v12H68v12h20v12H68v14h24v12H54V0Z"/>
+    <!-- T -->
+    <path d="M100 0h40v12h-13v60h-14V12h-13V0Z"/>
+    <!-- A -->
+    <path d="M152 72l18-72h15l18 72h-15l-4-16h-18l-4 16h-14Zm19-27h11l-5.5-23-5.5 23Z"/>
+    <!-- K (Accent Orange) -->
+    <path d="M211 0h14v30l19-30h17l-22 34 24 38h-18l-18-29-2 3v26h-14V0Z" fill="#ea580c"/>
+    <!-- U -->
+    <path d="M272 0h14v44c0 10 5 16 13 16s13-6 13-16V0h14v44c0 19-11 29-27 29s-27-10-27-29V0Z"/>
+    <!-- I -->
+    <path d="M334 0h14v72h-14V0Z"/>
+    <!-- S (True S Curve) -->
+    <path d="M394 14c-1-8-8-14-18-14-11 0-18 6-18 16 0 11 8 16 20 19 12 3 18 7 18 17 0 12-9 20-21 20-13 0-21-8-22-19h14c1 6 5 10 9 10 5 0 9-3 9-8 0-6-4-9-15-12-14-4-22-9-22-22 0-12 9-21 22-21 12 0 20 7 21 14h-17Z"/>
+  </g>
+
+  <!-- Subtitle Tagline -->
+  <g fill="#435249" transform="translate(226, 168)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="#ea580c">GAME PETUALANGAN KUIS KELAS</text>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="844" y="710" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <title>Petakuis Mascot - Kuispi</title>
+  <!-- 1. Squircle Shield Badge (Forest Green Frame) -->
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <rect x="28" y="28" width="200" height="200" rx="44" fill="#faf6ee"/>
+
+  <!-- 2. Fox Ears (Clean Symmetrical Outlines) -->
+  <!-- Left Ear Outer -->
+  <path d="M52 82C48 54 62 34 86 32c12 18 16 38 14 56L52 82Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Left Ear Inner (Gold) -->
+  <path d="M62 76C60 56 68 44 82 42c8 12 10 24 8 36L62 76Z" fill="#facc15"/>
+  
+  <!-- Right Ear Outer -->
+  <path d="M204 82C208 54 194 34 170 32c-12 18-16 38-14 56l48-6Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Right Ear Inner (Gold) -->
+  <path d="M194 76C196 56 188 44 174 42c-8 12-10 24-8 36l28-2Z" fill="#facc15"/>
+
+  <!-- 3. Fox Head Silhouette (Vibrant Orange Fur) -->
+  <path d="M68 86c0-12 18-18 60-18s60 6 60 18c18 24 22 52 8 78-18 34-44 50-68 56-24-6-50-22-68-56-14-26-10-54 8-78Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- 4. Ranger Explorer Cap (Emerald Cap) -->
+  <path d="M66 94c18-10 40-14 62-14s44 4 62 14v12c-18-8-40-11-62-11s-44 3-62 11V94Z" fill="#15803d" stroke="#16211b" stroke-width="7"/>
+  <!-- Cap Front Badge (Compass Star) -->
+  <circle cx="128" cy="98" r="9" fill="#facc15" stroke="#16211b" stroke-width="3.5"/>
+  <path d="M128 92l2.5 4 4 2.5-4 2.5-2.5 4-2.5-4-4-2.5 4-2.5 2.5-4Z" fill="#16211b"/>
+  <!-- Scout Feather on Cap -->
+  <path d="M142 90c12-16 26-22 34-24-2 10-6 22-18 28l-16-4Z" fill="#f59e0b" stroke="#16211b" stroke-width="3.5"/>
+
+  <!-- 5. Cheerful Cream Muzzle & Face Mask -->
+  <path d="M72 136c12 28 32 50 56 56 24-6 44-28 56-56 0 0-14-16-32-12-14 3-28 3-48-12-14-4-32 24-32 24Z" fill="#faf6ee" stroke="#16211b" stroke-width="7" stroke-linejoin="round"/>
+
+  <!-- 6. Expressive Big Friendly Eyes (Scalable > 16px) -->
+  <g>
+    <!-- Left Eye -->
+    <ellipse cx="104" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="106.5" cy="133" r="3.5" fill="#faf6ee"/>
+
+    <!-- Right Eye -->
+    <ellipse cx="152" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="154.5" cy="133" r="3.5" fill="#faf6ee"/>
+  </g>
+
+  <!-- 7. Sweet Rosy Cheeks (Solid Pastel Red) -->
+  <circle cx="86" cy="150" r="7" fill="#f87171"/>
+  <circle cx="170" cy="150" r="7" fill="#f87171"/>
+
+  <!-- 8. Button Nose & Warm Smile -->
+  <path d="M124 153c0-3 8-3 8 0l-4 4-4-4Z" fill="#16211b"/>
+  <path d="M120 160c3 3 6 4 8 4s5-1 8-4" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="876" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="934" y="742" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <title>Petakuis Mascot - Kuispi</title>
+  <!-- 1. Squircle Shield Badge (Forest Green Frame) -->
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <rect x="28" y="28" width="200" height="200" rx="44" fill="#faf6ee"/>
+
+  <!-- 2. Fox Ears (Clean Symmetrical Outlines) -->
+  <!-- Left Ear Outer -->
+  <path d="M52 82C48 54 62 34 86 32c12 18 16 38 14 56L52 82Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Left Ear Inner (Gold) -->
+  <path d="M62 76C60 56 68 44 82 42c8 12 10 24 8 36L62 76Z" fill="#facc15"/>
+  
+  <!-- Right Ear Outer -->
+  <path d="M204 82C208 54 194 34 170 32c-12 18-16 38-14 56l48-6Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Right Ear Inner (Gold) -->
+  <path d="M194 76C196 56 188 44 174 42c-8 12-10 24-8 36l28-2Z" fill="#facc15"/>
+
+  <!-- 3. Fox Head Silhouette (Vibrant Orange Fur) -->
+  <path d="M68 86c0-12 18-18 60-18s60 6 60 18c18 24 22 52 8 78-18 34-44 50-68 56-24-6-50-22-68-56-14-26-10-54 8-78Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- 4. Ranger Explorer Cap (Emerald Cap) -->
+  <path d="M66 94c18-10 40-14 62-14s44 4 62 14v12c-18-8-40-11-62-11s-44 3-62 11V94Z" fill="#15803d" stroke="#16211b" stroke-width="7"/>
+  <!-- Cap Front Badge (Compass Star) -->
+  <circle cx="128" cy="98" r="9" fill="#facc15" stroke="#16211b" stroke-width="3.5"/>
+  <path d="M128 92l2.5 4 4 2.5-4 2.5-2.5 4-2.5-4-4-2.5 4-2.5 2.5-4Z" fill="#16211b"/>
+  <!-- Scout Feather on Cap -->
+  <path d="M142 90c12-16 26-22 34-24-2 10-6 22-18 28l-16-4Z" fill="#f59e0b" stroke="#16211b" stroke-width="3.5"/>
+
+  <!-- 5. Cheerful Cream Muzzle & Face Mask -->
+  <path d="M72 136c12 28 32 50 56 56 24-6 44-28 56-56 0 0-14-16-32-12-14 3-28 3-48-12-14-4-32 24-32 24Z" fill="#faf6ee" stroke="#16211b" stroke-width="7" stroke-linejoin="round"/>
+
+  <!-- 6. Expressive Big Friendly Eyes (Scalable > 16px) -->
+  <g>
+    <!-- Left Eye -->
+    <ellipse cx="104" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="106.5" cy="133" r="3.5" fill="#faf6ee"/>
+
+    <!-- Right Eye -->
+    <ellipse cx="152" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="154.5" cy="133" r="3.5" fill="#faf6ee"/>
+  </g>
+
+  <!-- 7. Sweet Rosy Cheeks (Solid Pastel Red) -->
+  <circle cx="86" cy="150" r="7" fill="#f87171"/>
+  <circle cx="170" cy="150" r="7" fill="#f87171"/>
+
+  <!-- 8. Button Nose & Warm Smile -->
+  <path d="M124 153c0-3 8-3 8 0l-4 4-4-4Z" fill="#16211b"/>
+  <path d="M120 160c3 3 6 4 8 4s5-1 8-4" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="950" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="992" y="758" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <title>Petakuis Mascot - Kuispi</title>
+  <!-- 1. Squircle Shield Badge (Forest Green Frame) -->
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <rect x="28" y="28" width="200" height="200" rx="44" fill="#faf6ee"/>
+
+  <!-- 2. Fox Ears (Clean Symmetrical Outlines) -->
+  <!-- Left Ear Outer -->
+  <path d="M52 82C48 54 62 34 86 32c12 18 16 38 14 56L52 82Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Left Ear Inner (Gold) -->
+  <path d="M62 76C60 56 68 44 82 42c8 12 10 24 8 36L62 76Z" fill="#facc15"/>
+  
+  <!-- Right Ear Outer -->
+  <path d="M204 82C208 54 194 34 170 32c-12 18-16 38-14 56l48-6Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Right Ear Inner (Gold) -->
+  <path d="M194 76C196 56 188 44 174 42c-8 12-10 24-8 36l28-2Z" fill="#facc15"/>
+
+  <!-- 3. Fox Head Silhouette (Vibrant Orange Fur) -->
+  <path d="M68 86c0-12 18-18 60-18s60 6 60 18c18 24 22 52 8 78-18 34-44 50-68 56-24-6-50-22-68-56-14-26-10-54 8-78Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- 4. Ranger Explorer Cap (Emerald Cap) -->
+  <path d="M66 94c18-10 40-14 62-14s44 4 62 14v12c-18-8-40-11-62-11s-44 3-62 11V94Z" fill="#15803d" stroke="#16211b" stroke-width="7"/>
+  <!-- Cap Front Badge (Compass Star) -->
+  <circle cx="128" cy="98" r="9" fill="#facc15" stroke="#16211b" stroke-width="3.5"/>
+  <path d="M128 92l2.5 4 4 2.5-4 2.5-2.5 4-2.5-4-4-2.5 4-2.5 2.5-4Z" fill="#16211b"/>
+  <!-- Scout Feather on Cap -->
+  <path d="M142 90c12-16 26-22 34-24-2 10-6 22-18 28l-16-4Z" fill="#f59e0b" stroke="#16211b" stroke-width="3.5"/>
+
+  <!-- 5. Cheerful Cream Muzzle & Face Mask -->
+  <path d="M72 136c12 28 32 50 56 56 24-6 44-28 56-56 0 0-14-16-32-12-14 3-28 3-48-12-14-4-32 24-32 24Z" fill="#faf6ee" stroke="#16211b" stroke-width="7" stroke-linejoin="round"/>
+
+  <!-- 6. Expressive Big Friendly Eyes (Scalable > 16px) -->
+  <g>
+    <!-- Left Eye -->
+    <ellipse cx="104" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="106.5" cy="133" r="3.5" fill="#faf6ee"/>
+
+    <!-- Right Eye -->
+    <ellipse cx="152" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="154.5" cy="133" r="3.5" fill="#faf6ee"/>
+  </g>
+
+  <!-- 7. Sweet Rosy Cheeks (Solid Pastel Red) -->
+  <circle cx="86" cy="150" r="7" fill="#f87171"/>
+  <circle cx="170" cy="150" r="7" fill="#f87171"/>
+
+  <!-- 8. Button Nose & Warm Smile -->
+  <path d="M124 153c0-3 8-3 8 0l-4 4-4-4Z" fill="#16211b"/>
+  <path d="M120 160c3 3 6 4 8 4s5-1 8-4" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="1000" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="844.0" y="830" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">B · B2: Kuispi Refined (Rapi, Lucu &amp; Bersih)</text><text x="844.0" y="858" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#161616" letter-spacing="1.5">RECOMMENDED</text><text x="844.0" y="892" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Geometri simetris, topi pramuka rapi, pipi gemas, scalable</text></svg>

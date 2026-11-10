@@ -1,0 +1,58 @@
+import type { QuizDefinition } from '@petakuis/shared'
+import { saveQuiz } from '../../utils/store'
+
+export default defineEventHandler(async (event) => {
+	const body = await readBody<Partial<QuizDefinition>>(event)
+
+	if (!body.title || !body.questions || body.questions.length === 0) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: 'Judul kuis dan minimal 1 pertanyaan wajib diisi.'
+		})
+	}
+
+	const now = new Date().toISOString()
+	const id = body.id || 'quiz-' + Math.random().toString(36).slice(2, 10)
+
+	const quiz: QuizDefinition = {
+		id,
+		ownerName: body.ownerName || 'Guru Petakuis',
+		title: body.title.trim(),
+		description: (body.description || '').trim(),
+		schoolLevel: body.schoolLevel || 'sd',
+		gradeLabel: body.gradeLabel || 'Kelas 5',
+		subject: body.subject || 'IPA (Sains)',
+		visibility: body.visibility || 'public',
+		mapId: body.mapId || 'map-halaman-sekolah',
+		mode: body.mode || 'free',
+		settings: body.settings || {
+			isAllowPass: true,
+			showIncorrectAnswer: true,
+			answerRevealMode: 'always',
+			shuffleQuestions: true,
+			shuffleOptions: false
+		},
+		questions: body.questions.map((q, idx) => ({
+			id: q.id || `q-${idx + 1}`,
+			type: q.type || 'multiple',
+			prompt: q.prompt,
+			imageUrl: q.imageUrl,
+			hint: q.hint,
+			options: q.options || [],
+			answer: q.answer || ['a'],
+			isMultipleAnswer: Boolean(q.isMultipleAnswer),
+			ignoreSpaces: q.ignoreSpaces ?? true,
+			timeLimitS: Number(q.timeLimitS) || 30,
+			points: Number(q.points) || 100,
+			order: idx + 1
+		})),
+		createdAt: body.createdAt || now,
+		updatedAt: now
+	}
+
+	saveQuiz(quiz)
+	return {
+		ok: true,
+		quiz
+	}
+})

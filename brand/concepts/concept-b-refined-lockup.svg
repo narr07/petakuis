@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 256" width="540" height="256" fill="none">
+  <title>Petakuis Logo &amp; Mascot Lockup</title>
+  <!-- Mascot Kuispi Refined Frame (Scale & Offset for Perfect Lockup Harmony) -->
+  <g transform="translate(16, 18) scale(0.85)">
+    <!-- 1. Squircle Shield Badge (Forest Green Frame) -->
+    <rect x="16" y="16" width="224" height="224" rx="56" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+    <rect x="28" y="28" width="200" height="200" rx="44" fill="#faf6ee"/>
+
+    <!-- 2. Fox Ears -->
+    <path d="M52 82C48 54 62 34 86 32c12 18 16 38 14 56L52 82Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M62 76C60 56 68 44 82 42c8 12 10 24 8 36L62 76Z" fill="#facc15"/>
+    
+    <path d="M204 82C208 54 194 34 170 32c-12 18-16 38-14 56l48-6Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M194 76C196 56 188 44 174 42c-8 12-10 24-8 36l28-2Z" fill="#facc15"/>
+
+    <!-- 3. Fox Head Silhouette -->
+    <path d="M68 86c0-12 18-18 60-18s60 6 60 18c18 24 22 52 8 78-18 34-44 50-68 56-24-6-50-22-68-56-14-26-10-54 8-78Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+    <!-- 4. Ranger / Scout Cap -->
+    <path d="M66 94c18-10 40-14 62-14s44 4 62 14v12c-18-8-40-11-62-11s-44 3-62 11V94Z" fill="#15803d" stroke="#16211b" stroke-width="7"/>
+    <circle cx="128" cy="98" r="9" fill="#facc15" stroke="#16211b" stroke-width="3.5"/>
+    <path d="M128 92l2.5 4 4 2.5-4 2.5-2.5 4-2.5-4-4-2.5 4-2.5 2.5-4Z" fill="#16211b"/>
+    <path d="M142 90c12-16 26-22 34-24-2 10-6 22-18 28l-16-4Z" fill="#f59e0b" stroke="#16211b" stroke-width="3.5"/>
+
+    <!-- 5. Cheerful Face Mask -->
+    <path d="M72 136c12 28 32 50 56 56 24-6 44-28 56-56 0 0-14-16-32-12-14 3-28 3-48-12-14-4-32 24-32 24Z" fill="#faf6ee" stroke="#16211b" stroke-width="7" stroke-linejoin="round"/>
+
+    <!-- 6. Expressive Eyes -->
+    <g>
+      <ellipse cx="104" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+      <circle cx="106.5" cy="133" r="3.5" fill="#faf6ee"/>
+
+      <ellipse cx="152" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+      <circle cx="154.5" cy="133" r="3.5" fill="#faf6ee"/>
+    </g>
+
+    <!-- 7. Rosy Cheeks -->
+    <circle cx="86" cy="150" r="7" fill="#f87171"/>
+    <circle cx="170" cy="150" r="7" fill="#f87171"/>
+
+    <!-- 8. Button Nose & Warm Smile -->
+    <path d="M124 153c0-3 8-3 8 0l-4 4-4-4Z" fill="#16211b"/>
+    <path d="M120 160c3 3 6 4 8 4s5-1 8-4" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- Clean Geometric Logotype PETAKUIS -->
+  <g fill="#16211b" transform="translate(225, 96) scale(0.70)">
+    <!-- P -->
+    <path d="M0 0h28c11 0 18 7 18 17s-7 17-18 17H14v26H0V0Zm14 12v10h12c4 0 6-2 6-5s-2-5-6-5H14Z"/>
+    <!-- E -->
+    <path d="M54 0h38v12H68v12h20v12H68v14h24v12H54V0Z"/>
+    <!-- T -->
+    <path d="M100 0h40v12h-13v60h-14V12h-13V0Z"/>
+    <!-- A -->
+    <path d="M152 72l18-72h15l18 72h-15l-4-16h-18l-4 16h-14Zm19-27h11l-5.5-23-5.5 23Z"/>
+    <!-- K (Accent Orange) -->
+    <path d="M211 0h14v30l19-30h17l-22 34 24 38h-18l-18-29-2 3v26h-14V0Z" fill="#ea580c"/>
+    <!-- U -->
+    <path d="M272 0h14v44c0 10 5 16 13 16s13-6 13-16V0h14v44c0 19-11 29-27 29s-27-10-27-29V0Z"/>
+    <!-- I -->
+    <path d="M334 0h14v72h-14V0Z"/>
+    <!-- S (True S Curve) -->
+    <path d="M394 14c-1-8-8-14-18-14-11 0-18 6-18 16 0 11 8 16 20 19 12 3 18 7 18 17 0 12-9 20-21 20-13 0-21-8-22-19h14c1 6 5 10 9 10 5 0 9-3 9-8 0-6-4-9-15-12-14-4-22-9-22-22 0-12 9-21 22-21 12 0 20 7 21 14h-17Z"/>
+  </g>
+
+  <!-- Subtitle Tagline -->
+  <g fill="#435249" transform="translate(226, 168)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="#ea580c">GAME PETUALANGAN KUIS KELAS</text>
+  </g>
+</svg>

@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+:root {
+	--bg-paper: #faf6ee;
+	--bg-surface: #ffffff;
+	--bg-muted: #f1eadc;
+	--ink-primary: #16211b;
+	--ink-secondary: #435249;
+	--brand-green: #15803d;
+	--brand-green-dark: #14532d;
+	--accent-amber: #d97706;
+	--border-ink: #16211b;
+}
+
+body {
+	background-color: var(--bg-paper);
+	color: var(--ink-primary);
+	font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+.font-pixel {
+	font-family: 'Press Start 2P', monospace;
+}
+
+.font-mono-num {
+	font-family: 'JetBrains Mono', monospace;
+	font-variant-numeric: tabular-nums;
+}
+
+.pixel-card {
+	background-color: var(--bg-surface);
+	border: 2px solid var(--border-ink);
+	box-shadow: 4px 4px 0px var(--border-ink);
+}
+
+.pixel-btn {
+	border: 2px solid var(--border-ink);
+	box-shadow: 3px 3px 0px var(--border-ink);
+	transition: transform 80ms ease, box-shadow 80ms ease;
+}
+
+.pixel-btn:hover:not(:disabled) {
+	transform: translate(-1px, -1px);
+	box-shadow: 4px 4px 0px var(--border-ink);
+}
+
+.pixel-btn:active:not(:disabled) {
+	transform: translate(2px, 2px);
+	box-shadow: 1px 1px 0px var(--border-ink);
+}
+
+:focus-visible {
+	outline: 3px solid #15803d;
+	outline-offset: 2px;
+}

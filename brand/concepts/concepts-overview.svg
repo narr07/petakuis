@@ -1,0 +1,390 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="1034" viewBox="0 0 1600 1034"><rect width="1600" height="1034" fill="#f7f7f4"/><text x="60" y="78" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="40" font-weight="700" fill="#161616">Logo concepts</text><text x="60" y="116" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="20" fill="#6b6b6b">Concepts for review — pick a direction (or tell me what you like in each).</text><rect x="60" y="150" width="474.667" height="824" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="90" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept A: Peta Pin + Kompas Pixel ("Peta-Pin Navigasi") -->
+  <!-- Outer Shield / Compass Pin Outline -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M128 20C72.772 20 28 64.772 28 120c0 42.186 26.31 82.234 68.212 110.158a56 56 0 0 0 63.576 0C201.69 202.234 228 162.186 228 120 228 64.772 183.228 20 128 20Zm0 28c39.765 0 72 32.235 72 72 0 32.613-20.916 67.228-56.12 90.722a28 28 0 0 1-31.76 0C76.916 187.228 56 152.613 56 120c0-39.765 32.235-72 72-72Z" fill="#16211b"/>
+  <!-- Central 4-Point Compass Star / Pin Core -->
+  <path d="M128 68l13 39 39 13-39 13-13 39-13-39-39-13 39-13 13-39Z" fill="#15803d"/>
+  <!-- Center Core Ring / Quiz Marker -->
+  <circle cx="128" cy="120" r="14" fill="#faf6ee" stroke="#16211b" stroke-width="6"/>
+  <circle cx="128" cy="120" r="5" fill="#f59e0b"/>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 540 256" x="90" y="514" width="414.667" height="170" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept A Lockup: Pin Navigasi + Logotype PETAKUIS -->
+  <g transform="translate(16, 20) scale(0.84)">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M128 20C72.772 20 28 64.772 28 120c0 42.186 26.31 82.234 68.212 110.158a56 56 0 0 0 63.576 0C201.69 202.234 228 162.186 228 120 228 64.772 183.228 20 128 20Zm0 28c39.765 0 72 32.235 72 72 0 32.613-20.916 67.228-56.12 90.722a28 28 0 0 1-31.76 0C76.916 187.228 56 152.613 56 120c0-39.765 32.235-72 72-72Z" fill="#16211b"/>
+    <path d="M128 68l13 39 39 13-39 13-13 39-13-39-39-13 39-13 13-39Z" fill="#15803d"/>
+    <circle cx="128" cy="120" r="14" fill="#faf6ee" stroke="#16211b" stroke-width="6"/>
+    <circle cx="128" cy="120" r="5" fill="#f59e0b"/>
+  </g>
+  <!-- Geometric Logotype PETAKUIS -->
+  <g fill="#16211b" transform="translate(225, 96) scale(0.70)">
+    <!-- P -->
+    <path d="M0 0h28c11 0 18 7 18 17s-7 17-18 17H14v26H0V0Zm14 12v10h12c4 0 6-2 6-5s-2-5-6-5H14Z"/>
+    <!-- E -->
+    <path d="M54 0h38v12H68v12h20v12H68v14h24v12H54V0Z"/>
+    <!-- T -->
+    <path d="M100 0h40v12h-13v60h-14V12h-13V0Z"/>
+    <!-- A -->
+    <path d="M152 72l18-72h15l18 72h-15l-4-16h-18l-4 16h-14Zm19-27h11l-5.5-23-5.5 23Z"/>
+    <!-- K (Accent Green) -->
+    <path d="M211 0h14v30l19-30h17l-22 34 24 38h-18l-18-29-2 3v26h-14V0Z" fill="#15803d"/>
+    <!-- U -->
+    <path d="M272 0h14v44c0 10 5 16 13 16s13-6 13-16V0h14v44c0 19-11 29-27 29s-27-10-27-29V0Z"/>
+    <!-- I -->
+    <path d="M334 0h14v72h-14V0Z"/>
+    <!-- S (True S Curve) -->
+    <path d="M394 14c-1-8-8-14-18-14-11 0-18 6-18 16 0 11 8 16 20 19 12 3 18 7 18 17 0 12-9 20-21 20-13 0-21-8-22-19h14c1 6 5 10 9 10 5 0 9-3 9-8 0-6-4-9-15-12-14-4-22-9-22-22 0-12 9-21 22-21 12 0 20 7 21 14h-17Z"/>
+  </g>
+  <!-- Subtitle Tagline -->
+  <g fill="#435249" transform="translate(226, 168)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="#15803d">PETUALANGAN KUIS KELAS 2D</text>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="90" y="710" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept A: Peta Pin + Kompas Pixel ("Peta-Pin Navigasi") -->
+  <!-- Outer Shield / Compass Pin Outline -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M128 20C72.772 20 28 64.772 28 120c0 42.186 26.31 82.234 68.212 110.158a56 56 0 0 0 63.576 0C201.69 202.234 228 162.186 228 120 228 64.772 183.228 20 128 20Zm0 28c39.765 0 72 32.235 72 72 0 32.613-20.916 67.228-56.12 90.722a28 28 0 0 1-31.76 0C76.916 187.228 56 152.613 56 120c0-39.765 32.235-72 72-72Z" fill="#16211b"/>
+  <!-- Central 4-Point Compass Star / Pin Core -->
+  <path d="M128 68l13 39 39 13-39 13-13 39-13-39-39-13 39-13 13-39Z" fill="#15803d"/>
+  <!-- Center Core Ring / Quiz Marker -->
+  <circle cx="128" cy="120" r="14" fill="#faf6ee" stroke="#16211b" stroke-width="6"/>
+  <circle cx="128" cy="120" r="5" fill="#f59e0b"/>
+</svg>
+</g><text x="122" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="180" y="742" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept A: Peta Pin + Kompas Pixel ("Peta-Pin Navigasi") -->
+  <!-- Outer Shield / Compass Pin Outline -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M128 20C72.772 20 28 64.772 28 120c0 42.186 26.31 82.234 68.212 110.158a56 56 0 0 0 63.576 0C201.69 202.234 228 162.186 228 120 228 64.772 183.228 20 128 20Zm0 28c39.765 0 72 32.235 72 72 0 32.613-20.916 67.228-56.12 90.722a28 28 0 0 1-31.76 0C76.916 187.228 56 152.613 56 120c0-39.765 32.235-72 72-72Z" fill="#16211b"/>
+  <!-- Central 4-Point Compass Star / Pin Core -->
+  <path d="M128 68l13 39 39 13-39 13-13 39-13-39-39-13 39-13 13-39Z" fill="#15803d"/>
+  <!-- Center Core Ring / Quiz Marker -->
+  <circle cx="128" cy="120" r="14" fill="#faf6ee" stroke="#16211b" stroke-width="6"/>
+  <circle cx="128" cy="120" r="5" fill="#f59e0b"/>
+</svg>
+</g><text x="196" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="238" y="758" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept A: Peta Pin + Kompas Pixel ("Peta-Pin Navigasi") -->
+  <!-- Outer Shield / Compass Pin Outline -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M128 20C72.772 20 28 64.772 28 120c0 42.186 26.31 82.234 68.212 110.158a56 56 0 0 0 63.576 0C201.69 202.234 228 162.186 228 120 228 64.772 183.228 20 128 20Zm0 28c39.765 0 72 32.235 72 72 0 32.613-20.916 67.228-56.12 90.722a28 28 0 0 1-31.76 0C76.916 187.228 56 152.613 56 120c0-39.765 32.235-72 72-72Z" fill="#16211b"/>
+  <!-- Central 4-Point Compass Star / Pin Core -->
+  <path d="M128 68l13 39 39 13-39 13-13 39-13-39-39-13 39-13 13-39Z" fill="#15803d"/>
+  <!-- Center Core Ring / Quiz Marker -->
+  <circle cx="128" cy="120" r="14" fill="#faf6ee" stroke="#16211b" stroke-width="6"/>
+  <circle cx="128" cy="120" r="5" fill="#f59e0b"/>
+</svg>
+</g><text x="246" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="830" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">A · Konsep A: Peta-Pin</text><text x="90.0" y="864" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Pin navigasi kompas eksplorasi peta</text><rect x="562.667" y="150" width="474.667" height="824" rx="18" fill="#fff" stroke="#161616" stroke-width="2"/><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="592.667" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B: Maskot "Kuispi" si Rubah Petualang Pixel / Pokémon Style -->
+  <!-- Rounded Shield Base / Background Badge -->
+  <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <!-- Inner Warm Background -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+
+  <!-- Scout Feather / Compass Arrow on Ear -->
+  <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+
+  <!-- Fox Ears Outer -->
+  <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Fox Ears Inner (Cream) -->
+  <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+  <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+
+  <!-- Fox Head Shape (Geometric Adventure Cap + Cheeks) -->
+  <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Cream Cheeks / Muzzle -->
+  <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Explorer Cap Visor / Front Band -->
+  <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+  <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+
+  <!-- Big Curious Pixel-Style Eyes -->
+  <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <!-- Eye Catchlights -->
+  <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+
+  <!-- Cute Nose & Smile -->
+  <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+  <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 540 256" x="592.667" y="514" width="414.667" height="170" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B Lockup: Maskot Kuispi + Logotype PETAKUIS -->
+  <g transform="translate(16, 18) scale(0.85)">
+    <!-- Rounded Shield Base / Background Badge -->
+    <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+    <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+    <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+    <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+    <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+    <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+    <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+    <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+    <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+    <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+    <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+    <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+    <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+    <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+    <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <!-- Geometric Logotype PETAKUIS -->
+  <g fill="#16211b" transform="translate(225, 96) scale(0.70)">
+    <!-- P -->
+    <path d="M0 0h28c11 0 18 7 18 17s-7 17-18 17H14v26H0V0Zm14 12v10h12c4 0 6-2 6-5s-2-5-6-5H14Z"/>
+    <!-- E -->
+    <path d="M54 0h38v12H68v12h20v12H68v14h24v12H54V0Z"/>
+    <!-- T -->
+    <path d="M100 0h40v12h-13v60h-14V12h-13V0Z"/>
+    <!-- A -->
+    <path d="M152 72l18-72h15l18 72h-15l-4-16h-18l-4 16h-14Zm19-27h11l-5.5-23-5.5 23Z"/>
+    <!-- K (Accent Orange) -->
+    <path d="M211 0h14v30l19-30h17l-22 34 24 38h-18l-18-29-2 3v26h-14V0Z" fill="#ea580c"/>
+    <!-- U -->
+    <path d="M272 0h14v44c0 10 5 16 13 16s13-6 13-16V0h14v44c0 19-11 29-27 29s-27-10-27-29V0Z"/>
+    <!-- I -->
+    <path d="M334 0h14v72h-14V0Z"/>
+    <!-- S (True S Curve) -->
+    <path d="M394 14c-1-8-8-14-18-14-11 0-18 6-18 16 0 11 8 16 20 19 12 3 18 7 18 17 0 12-9 20-21 20-13 0-21-8-22-19h14c1 6 5 10 9 10 5 0 9-3 9-8 0-6-4-9-15-12-14-4-22-9-22-22 0-12 9-21 22-21 12 0 20 7 21 14h-17Z"/>
+  </g>
+  <!-- Subtitle Tagline -->
+  <g fill="#435249" transform="translate(226, 168)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="#ea580c">GAME PETUALANGAN KUIS KELAS</text>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="592.667" y="710" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B: Maskot "Kuispi" si Rubah Petualang Pixel / Pokémon Style -->
+  <!-- Rounded Shield Base / Background Badge -->
+  <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <!-- Inner Warm Background -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+
+  <!-- Scout Feather / Compass Arrow on Ear -->
+  <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+
+  <!-- Fox Ears Outer -->
+  <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Fox Ears Inner (Cream) -->
+  <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+  <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+
+  <!-- Fox Head Shape (Geometric Adventure Cap + Cheeks) -->
+  <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Cream Cheeks / Muzzle -->
+  <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Explorer Cap Visor / Front Band -->
+  <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+  <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+
+  <!-- Big Curious Pixel-Style Eyes -->
+  <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <!-- Eye Catchlights -->
+  <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+
+  <!-- Cute Nose & Smile -->
+  <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+  <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="624.667" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="682.667" y="742" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B: Maskot "Kuispi" si Rubah Petualang Pixel / Pokémon Style -->
+  <!-- Rounded Shield Base / Background Badge -->
+  <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <!-- Inner Warm Background -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+
+  <!-- Scout Feather / Compass Arrow on Ear -->
+  <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+
+  <!-- Fox Ears Outer -->
+  <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Fox Ears Inner (Cream) -->
+  <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+  <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+
+  <!-- Fox Head Shape (Geometric Adventure Cap + Cheeks) -->
+  <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Cream Cheeks / Muzzle -->
+  <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Explorer Cap Visor / Front Band -->
+  <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+  <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+
+  <!-- Big Curious Pixel-Style Eyes -->
+  <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <!-- Eye Catchlights -->
+  <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+
+  <!-- Cute Nose & Smile -->
+  <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+  <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="698.667" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="740.667" y="758" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept B: Maskot "Kuispi" si Rubah Petualang Pixel / Pokémon Style -->
+  <!-- Rounded Shield Base / Background Badge -->
+  <rect x="20" y="20" width="216" height="216" rx="48" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <!-- Inner Warm Background -->
+  <rect x="32" y="32" width="192" height="192" rx="36" fill="#faf6ee"/>
+
+  <!-- Scout Feather / Compass Arrow on Ear -->
+  <path d="M128 42l16 28h-32l16-28Z" fill="#f59e0b" stroke="#16211b" stroke-width="4"/>
+
+  <!-- Fox Ears Outer -->
+  <polygon points="56,76 96,44 104,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="200,76 160,44 152,96" fill="#c2410c" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Fox Ears Inner (Cream) -->
+  <polygon points="68,76 94,54 100,90" fill="#fef08a"/>
+  <polygon points="188,76 162,54 156,90" fill="#fef08a"/>
+
+  <!-- Fox Head Shape (Geometric Adventure Cap + Cheeks) -->
+  <path d="M80 84h96c24 0 36 20 36 44 0 32-34 68-84 76-50-8-84-44-84-76 0-24 12-44 36-44Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- Cream Cheeks / Muzzle -->
+  <path d="M72 134c8 22 28 46 56 54 28-8 48-32 56-54 0 0-14-16-32-12-16 4-32 4-48-12-18-4-32 12-32 12Z" fill="#faf6ee" stroke="#16211b" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Explorer Cap Visor / Front Band -->
+  <path d="M72 100c18-6 38-8 56-8s38 2 56 8v12c-18-5-38-6-56-6s-38 1-56 6v-12Z" fill="#15803d" stroke="#16211b" stroke-width="5"/>
+  <circle cx="128" cy="98" r="7" fill="#fef08a" stroke="#16211b" stroke-width="3"/>
+
+  <!-- Big Curious Pixel-Style Eyes -->
+  <ellipse cx="102" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <ellipse cx="154" cy="132" rx="7" ry="11" fill="#16211b"/>
+  <!-- Eye Catchlights -->
+  <circle cx="104" cy="128" r="3" fill="#ffffff"/>
+  <circle cx="156" cy="128" r="3" fill="#ffffff"/>
+
+  <!-- Cute Nose & Smile -->
+  <polygon points="128,154 122,146 134,146" fill="#16211b"/>
+  <path d="M123 158c3 3 7 3 10 0" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>
+</g><text x="748.667" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="592.6666666666667" y="830" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">B · Konsep B: Maskot Kuispi</text><text x="592.6666666666667" y="858" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#161616" letter-spacing="1.5">RECOMMENDED</text><text x="592.6666666666667" y="892" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Maskot rubah petualang bertopi ranger</text><rect x="1065.33" y="150" width="474.667" height="824" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="1095.33" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept C: Emblem Monogram "PK" + Grid Peta 2D Isometric ("Geometris Petualang") -->
+  <!-- Outer Rounded Diamond Shield -->
+  <rect x="36" y="36" width="184" height="184" rx="42" transform="rotate(45 128 128)" fill="#16211b"/>
+  <!-- Inner Colored Shield -->
+  <rect x="44" y="44" width="168" height="168" rx="36" transform="rotate(45 128 128)" fill="#faf6ee"/>
+
+  <!-- Mini Map Isometric Grid Lines -->
+  <path d="M128 42L214 128 128 214 42 128Z" stroke="#e2d9c8" stroke-width="6" fill="#f4ede0"/>
+  <!-- River / Route through Map -->
+  <path d="M42 128c30 0 40-30 86-30s56 30 86 30" stroke="#38bdf8" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Combined Monogram "P" & "K" carved boldly in Forest Green & Amber -->
+  <!-- Letter P (Left side) -->
+  <path d="M82 76h34c16 0 26 9 26 24s-10 24-26 24H98v32H82V76Zm16 14v20h16c6 0 10-3 10-10s-4-10-10-10H98Z" fill="#15803d"/>
+  <!-- Letter K (Right side interlocking) -->
+  <path d="M136 76h16v32l24-32h20l-28 36 30 44h-21l-23-34-2 3v31h-16V76Z" fill="#f59e0b"/>
+
+  <!-- North Star / Quest Sparkle at top apex -->
+  <circle cx="128" cy="38" r="6" fill="#f59e0b" stroke="#16211b" stroke-width="3"/>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 540 256" x="1095.33" y="514" width="414.667" height="170" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept C Lockup: Monogram PK + Logotype PETAKUIS -->
+  <g transform="translate(16, 20) scale(0.84)">
+    <rect x="36" y="36" width="184" height="184" rx="42" transform="rotate(45 128 128)" fill="#16211b"/>
+    <rect x="44" y="44" width="168" height="168" rx="36" transform="rotate(45 128 128)" fill="#faf6ee"/>
+    <path d="M128 42L214 128 128 214 42 128Z" stroke="#e2d9c8" stroke-width="6" fill="#f4ede0"/>
+    <path d="M42 128c30 0 40-30 86-30s56 30 86 30" stroke="#38bdf8" stroke-width="12" stroke-linecap="round"/>
+    <path d="M82 76h34c16 0 26 9 26 24s-10 24-26 24H98v32H82V76Zm16 14v20h16c6 0 10-3 10-10s-4-10-10-10H98Z" fill="#15803d"/>
+    <path d="M136 76h16v32l24-32h20l-28 36 30 44h-21l-23-34-2 3v31h-16V76Z" fill="#f59e0b"/>
+    <circle cx="128" cy="38" r="6" fill="#f59e0b" stroke="#16211b" stroke-width="3"/>
+  </g>
+  <!-- Geometric Logotype PETAKUIS -->
+  <g fill="#16211b" transform="translate(225, 96) scale(0.70)">
+    <!-- P -->
+    <path d="M0 0h28c11 0 18 7 18 17s-7 17-18 17H14v26H0V0Zm14 12v10h12c4 0 6-2 6-5s-2-5-6-5H14Z"/>
+    <!-- E -->
+    <path d="M54 0h38v12H68v12h20v12H68v14h24v12H54V0Z"/>
+    <!-- T -->
+    <path d="M100 0h40v12h-13v60h-14V12h-13V0Z"/>
+    <!-- A -->
+    <path d="M152 72l18-72h15l18 72h-15l-4-16h-18l-4 16h-14Zm19-27h11l-5.5-23-5.5 23Z"/>
+    <!-- K (Accent Gold) -->
+    <path d="M211 0h14v30l19-30h17l-22 34 24 38h-18l-18-29-2 3v26h-14V0Z" fill="#f59e0b"/>
+    <!-- U -->
+    <path d="M272 0h14v44c0 10 5 16 13 16s13-6 13-16V0h14v44c0 19-11 29-27 29s-27-10-27-29V0Z"/>
+    <!-- I -->
+    <path d="M334 0h14v72h-14V0Z"/>
+    <!-- S (True S Curve) -->
+    <path d="M394 14c-1-8-8-14-18-14-11 0-18 6-18 16 0 11 8 16 20 19 12 3 18 7 18 17 0 12-9 20-21 20-13 0-21-8-22-19h14c1 6 5 10 9 10 5 0 9-3 9-8 0-6-4-9-15-12-14-4-22-9-22-22 0-12 9-21 22-21 12 0 20 7 21 14h-17Z"/>
+  </g>
+  <!-- Subtitle Tagline -->
+  <g fill="#435249" transform="translate(226, 168)">
+    <text font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="#f59e0b">PETUALANGAN KUIS KELAS INDONESIA</text>
+  </g>
+</svg>
+</g><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="1095.33" y="710" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept C: Emblem Monogram "PK" + Grid Peta 2D Isometric ("Geometris Petualang") -->
+  <!-- Outer Rounded Diamond Shield -->
+  <rect x="36" y="36" width="184" height="184" rx="42" transform="rotate(45 128 128)" fill="#16211b"/>
+  <!-- Inner Colored Shield -->
+  <rect x="44" y="44" width="168" height="168" rx="36" transform="rotate(45 128 128)" fill="#faf6ee"/>
+
+  <!-- Mini Map Isometric Grid Lines -->
+  <path d="M128 42L214 128 128 214 42 128Z" stroke="#e2d9c8" stroke-width="6" fill="#f4ede0"/>
+  <!-- River / Route through Map -->
+  <path d="M42 128c30 0 40-30 86-30s56 30 86 30" stroke="#38bdf8" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Combined Monogram "P" & "K" carved boldly in Forest Green & Amber -->
+  <!-- Letter P (Left side) -->
+  <path d="M82 76h34c16 0 26 9 26 24s-10 24-26 24H98v32H82V76Zm16 14v20h16c6 0 10-3 10-10s-4-10-10-10H98Z" fill="#15803d"/>
+  <!-- Letter K (Right side interlocking) -->
+  <path d="M136 76h16v32l24-32h20l-28 36 30 44h-21l-23-34-2 3v31h-16V76Z" fill="#f59e0b"/>
+
+  <!-- North Star / Quest Sparkle at top apex -->
+  <circle cx="128" cy="38" r="6" fill="#f59e0b" stroke="#16211b" stroke-width="3"/>
+</svg>
+</g><text x="1127.33" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="1185.33" y="742" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept C: Emblem Monogram "PK" + Grid Peta 2D Isometric ("Geometris Petualang") -->
+  <!-- Outer Rounded Diamond Shield -->
+  <rect x="36" y="36" width="184" height="184" rx="42" transform="rotate(45 128 128)" fill="#16211b"/>
+  <!-- Inner Colored Shield -->
+  <rect x="44" y="44" width="168" height="168" rx="36" transform="rotate(45 128 128)" fill="#faf6ee"/>
+
+  <!-- Mini Map Isometric Grid Lines -->
+  <path d="M128 42L214 128 128 214 42 128Z" stroke="#e2d9c8" stroke-width="6" fill="#f4ede0"/>
+  <!-- River / Route through Map -->
+  <path d="M42 128c30 0 40-30 86-30s56 30 86 30" stroke="#38bdf8" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Combined Monogram "P" & "K" carved boldly in Forest Green & Amber -->
+  <!-- Letter P (Left side) -->
+  <path d="M82 76h34c16 0 26 9 26 24s-10 24-26 24H98v32H82V76Zm16 14v20h16c6 0 10-3 10-10s-4-10-10-10H98Z" fill="#15803d"/>
+  <!-- Letter K (Right side interlocking) -->
+  <path d="M136 76h16v32l24-32h20l-28 36 30 44h-21l-23-34-2 3v31h-16V76Z" fill="#f59e0b"/>
+
+  <!-- North Star / Quest Sparkle at top apex -->
+  <circle cx="128" cy="38" r="6" fill="#f59e0b" stroke="#16211b" stroke-width="3"/>
+</svg>
+</g><text x="1201.33" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 256 256" x="1243.33" y="758" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+  <!-- Concept C: Emblem Monogram "PK" + Grid Peta 2D Isometric ("Geometris Petualang") -->
+  <!-- Outer Rounded Diamond Shield -->
+  <rect x="36" y="36" width="184" height="184" rx="42" transform="rotate(45 128 128)" fill="#16211b"/>
+  <!-- Inner Colored Shield -->
+  <rect x="44" y="44" width="168" height="168" rx="36" transform="rotate(45 128 128)" fill="#faf6ee"/>
+
+  <!-- Mini Map Isometric Grid Lines -->
+  <path d="M128 42L214 128 128 214 42 128Z" stroke="#e2d9c8" stroke-width="6" fill="#f4ede0"/>
+  <!-- River / Route through Map -->
+  <path d="M42 128c30 0 40-30 86-30s56 30 86 30" stroke="#38bdf8" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Combined Monogram "P" & "K" carved boldly in Forest Green & Amber -->
+  <!-- Letter P (Left side) -->
+  <path d="M82 76h34c16 0 26 9 26 24s-10 24-26 24H98v32H82V76Zm16 14v20h16c6 0 10-3 10-10s-4-10-10-10H98Z" fill="#15803d"/>
+  <!-- Letter K (Right side interlocking) -->
+  <path d="M136 76h16v32l24-32h20l-28 36 30 44h-21l-23-34-2 3v31h-16V76Z" fill="#f59e0b"/>
+
+  <!-- North Star / Quest Sparkle at top apex -->
+  <circle cx="128" cy="38" r="6" fill="#f59e0b" stroke="#16211b" stroke-width="3"/>
+</svg>
+</g><text x="1251.33" y="794" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="1095.3333333333335" y="830" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">C · Konsep C: Monogram PK</text><text x="1095.3333333333335" y="864" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Monogram PK geometris berpadu peta</text></svg>

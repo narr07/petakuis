@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <!-- Concept A: Peta Pin + Kompas Pixel ("Peta-Pin Navigasi") -->
+  <!-- Outer Shield / Compass Pin Outline -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M128 20C72.772 20 28 64.772 28 120c0 42.186 26.31 82.234 68.212 110.158a56 56 0 0 0 63.576 0C201.69 202.234 228 162.186 228 120 228 64.772 183.228 20 128 20Zm0 28c39.765 0 72 32.235 72 72 0 32.613-20.916 67.228-56.12 90.722a28 28 0 0 1-31.76 0C76.916 187.228 56 152.613 56 120c0-39.765 32.235-72 72-72Z" fill="#16211b"/>
+  <!-- Central 4-Point Compass Star / Pin Core -->
+  <path d="M128 68l13 39 39 13-39 13-13 39-13-39-39-13 39-13 13-39Z" fill="#15803d"/>
+  <!-- Center Core Ring / Quiz Marker -->
+  <circle cx="128" cy="120" r="14" fill="#faf6ee" stroke="#16211b" stroke-width="6"/>
+  <circle cx="128" cy="120" r="5" fill="#f59e0b"/>
+</svg>

@@ -1,0 +1,14 @@
+{$DOMAIN:localhost} {
+	encode zstd gzip
+
+	@socketio {
+		path /socket.io/*
+	}
+	handle @socketio {
+		reverse_proxy game-server:3001
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}

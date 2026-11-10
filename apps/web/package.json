@@ -1,0 +1,36 @@
+{
+	"name": "@petakuis/web",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "nuxt dev --port 3000",
+		"build": "nuxt build",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare",
+		"lint": "eslint .",
+		"typecheck": "nuxt typecheck"
+	},
+	"dependencies": {
+		"@iconify-json/lucide": "latest",
+		"@nuxt/ui": "latest",
+		"@petakuis/shared": "workspace:*",
+		"@pinia/nuxt": "latest",
+		"@vueuse/core": "latest",
+		"@vueuse/nuxt": "latest",
+		"consola": "latest",
+		"drizzle-orm": "latest",
+		"nuxt": "latest",
+		"pinia": "latest",
+		"socket.io-client": "latest",
+		"tailwindcss": "latest",
+		"zod": "latest"
+	},
+	"devDependencies": {
+		"@nuxt/eslint": "latest",
+		"drizzle-kit": "latest",
+		"eslint": "latest",
+		"typescript": "latest",
+		"vue-tsc": "latest"
+	}
+}

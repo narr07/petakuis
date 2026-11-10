@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <title>Petakuis Mascot - Kuispi</title>
+  <!-- 1. Squircle Shield Badge (Forest Green Frame) -->
+  <rect x="16" y="16" width="224" height="224" rx="56" fill="#15803d" stroke="#16211b" stroke-width="8"/>
+  <rect x="28" y="28" width="200" height="200" rx="44" fill="#faf6ee"/>
+
+  <!-- 2. Fox Ears (Clean Symmetrical Outlines) -->
+  <!-- Left Ear Outer -->
+  <path d="M52 82C48 54 62 34 86 32c12 18 16 38 14 56L52 82Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Left Ear Inner (Gold) -->
+  <path d="M62 76C60 56 68 44 82 42c8 12 10 24 8 36L62 76Z" fill="#facc15"/>
+  
+  <!-- Right Ear Outer -->
+  <path d="M204 82C208 54 194 34 170 32c-12 18-16 38-14 56l48-6Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Right Ear Inner (Gold) -->
+  <path d="M194 76C196 56 188 44 174 42c-8 12-10 24-8 36l28-2Z" fill="#facc15"/>
+
+  <!-- 3. Fox Head Silhouette (Vibrant Orange Fur) -->
+  <path d="M68 86c0-12 18-18 60-18s60 6 60 18c18 24 22 52 8 78-18 34-44 50-68 56-24-6-50-22-68-56-14-26-10-54 8-78Z" fill="#ea580c" stroke="#16211b" stroke-width="8" stroke-linejoin="round"/>
+
+  <!-- 4. Ranger Explorer Cap (Emerald Cap) -->
+  <path d="M66 94c18-10 40-14 62-14s44 4 62 14v12c-18-8-40-11-62-11s-44 3-62 11V94Z" fill="#15803d" stroke="#16211b" stroke-width="7"/>
+  <!-- Cap Front Badge (Compass Star) -->
+  <circle cx="128" cy="98" r="9" fill="#facc15" stroke="#16211b" stroke-width="3.5"/>
+  <path d="M128 92l2.5 4 4 2.5-4 2.5-2.5 4-2.5-4-4-2.5 4-2.5 2.5-4Z" fill="#16211b"/>
+  <!-- Scout Feather on Cap -->
+  <path d="M142 90c12-16 26-22 34-24-2 10-6 22-18 28l-16-4Z" fill="#f59e0b" stroke="#16211b" stroke-width="3.5"/>
+
+  <!-- 5. Cheerful Cream Muzzle & Face Mask -->
+  <path d="M72 136c12 28 32 50 56 56 24-6 44-28 56-56 0 0-14-16-32-12-14 3-28 3-48-12-14-4-32 24-32 24Z" fill="#faf6ee" stroke="#16211b" stroke-width="7" stroke-linejoin="round"/>
+
+  <!-- 6. Expressive Big Friendly Eyes (Scalable > 16px) -->
+  <g>
+    <!-- Left Eye -->
+    <ellipse cx="104" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="106.5" cy="133" r="3.5" fill="#faf6ee"/>
+
+    <!-- Right Eye -->
+    <ellipse cx="152" cy="138" rx="8.5" ry="12" fill="#16211b"/>
+    <circle cx="154.5" cy="133" r="3.5" fill="#faf6ee"/>
+  </g>
+
+  <!-- 7. Sweet Rosy Cheeks (Solid Pastel Red) -->
+  <circle cx="86" cy="150" r="7" fill="#f87171"/>
+  <circle cx="170" cy="150" r="7" fill="#f87171"/>
+
+  <!-- 8. Button Nose & Warm Smile -->
+  <path d="M124 153c0-3 8-3 8 0l-4 4-4-4Z" fill="#16211b"/>
+  <path d="M120 160c3 3 6 4 8 4s5-1 8-4" stroke="#16211b" stroke-width="4" stroke-linecap="round"/>
+</svg>

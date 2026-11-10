@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <!-- Concept C: Emblem Monogram "PK" + Grid Peta 2D Isometric ("Geometris Petualang") -->
+  <!-- Outer Rounded Diamond Shield -->
+  <rect x="36" y="36" width="184" height="184" rx="42" transform="rotate(45 128 128)" fill="#16211b"/>
+  <!-- Inner Colored Shield -->
+  <rect x="44" y="44" width="168" height="168" rx="36" transform="rotate(45 128 128)" fill="#faf6ee"/>
+
+  <!-- Mini Map Isometric Grid Lines -->
+  <path d="M128 42L214 128 128 214 42 128Z" stroke="#e2d9c8" stroke-width="6" fill="#f4ede0"/>
+  <!-- River / Route through Map -->
+  <path d="M42 128c30 0 40-30 86-30s56 30 86 30" stroke="#38bdf8" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Combined Monogram "P" & "K" carved boldly in Forest Green & Amber -->
+  <!-- Letter P (Left side) -->
+  <path d="M82 76h34c16 0 26 9 26 24s-10 24-26 24H98v32H82V76Zm16 14v20h16c6 0 10-3 10-10s-4-10-10-10H98Z" fill="#15803d"/>
+  <!-- Letter K (Right side interlocking) -->
+  <path d="M136 76h16v32l24-32h20l-28 36 30 44h-21l-23-34-2 3v31h-16V76Z" fill="#f59e0b"/>
+
+  <!-- North Star / Quest Sparkle at top apex -->
+  <circle cx="128" cy="38" r="6" fill="#f59e0b" stroke="#16211b" stroke-width="3"/>
+</svg>

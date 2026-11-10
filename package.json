@@ -1,0 +1,19 @@
+{
+	"name": "petakuis",
+	"private": true,
+	"version": "0.1.0",
+	"description": "Platform kuis kelas interaktif 2D pixel art 100% gratis untuk guru dan siswa Indonesia",
+	"packageManager": "bun@1.3.14",
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"dev:web": "bun --filter @petakuis/web dev",
+		"dev:server": "bun --filter @petakuis/game-server dev",
+		"build:web": "bun --filter @petakuis/web build",
+		"build:server": "bun --filter @petakuis/game-server build",
+		"typecheck": "bun --filter '*' typecheck",
+		"test": "bun test"
+	}
+}

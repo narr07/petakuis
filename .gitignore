@@ -1,0 +1,31 @@
+node_modules/
+.nuxt/
+.output/
+.nitro/
+.cache/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+pgdata/
+redisdata/
+
+# AI tool configurations
+.agents/
+.claude/
+.gemini/
+.codex/
+.roo/
+.mcp.json
+AGENTS.md
+GEMINI.md
+CLAUDE.md
+
+# Large external binary raw asset packs
+Farm RPG FREE 16x16 - Tiny Asset Pack/
+Modern tiles_Free/
+Sunnyside_World_ARCHIVED_ASSETS/
+Sunnyside_World_ASSET_PACK_V2.1/
+*.aseprite

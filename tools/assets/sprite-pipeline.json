@@ -1,0 +1,27 @@
+{
+	"pipeline": "aldegad/sprite-gen",
+	"repository": "https://github.com/aldegad/sprite-gen",
+	"tileGrid": {
+		"baseTilePx": 16,
+		"renderScale": 3,
+		"effectiveTilePx": 48
+	},
+	"characterAtlas": {
+		"workflow": "Pipeline A (prepare -> gen-set -> extract -> compose-atlas)",
+		"lattice": "Backbone Lattice (pixel-grid locked)",
+		"idleAnimation": "Breathe (deterministic squash & stretch)",
+		"rows": ["idle_down", "walk_down", "walk_left", "walk_right", "walk_up"],
+		"framesPerRow": 4,
+		"exportFormat": "phaser3-atlas-json"
+	},
+	"recolorPresets": [
+		{ "id": "merah-putih", "primary": "#dc2626", "secondary": "#f8fafc" },
+		{ "id": "pramuka", "primary": "#92400e", "secondary": "#fde68a" },
+		{ "id": "batik-biru", "primary": "#1d4ed8", "secondary": "#93c5fd" },
+		{ "id": "hijau-rimba", "primary": "#15803d", "secondary": "#bbf7d0" },
+		{ "id": "ungu-senja", "primary": "#7e22ce", "secondary": "#e9d5ff" },
+		{ "id": "kuning-emas", "primary": "#ca8a04", "secondary": "#fef08a" },
+		{ "id": "toska-laut", "primary": "#0f766e", "secondary": "#99f6e4" },
+		{ "id": "oranye-bata", "primary": "#c2410c", "secondary": "#fed7aa" }
+	]
+}
