@@ -15,6 +15,13 @@
       "when": 1794400063469,
       "tag": "0001_akun_better_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794406584652,
+      "tag": "0002_pengaturan_sekolah",
+      "breakpoints": true
     }
   ]
 }

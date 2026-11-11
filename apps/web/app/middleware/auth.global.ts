@@ -1,10 +1,14 @@
 /**
  * Penjaga halaman:
- * - /dashboard dan /build: wajib masuk sebagai Guru atau Admin.
+ * - /dashboard dan /build: wajib masuk sebagai Guru atau Admin; ADMIN_PAGES hanya Admin.
  * - Akun yang belum memilih peran diarahkan ke /auth/pilih-peran.
  * - Halaman login/daftar dilewati bila sudah masuk.
  */
+/** Halaman dashboard khusus admin; menunya juga tidak ditampilkan untuk guru. */
+const ADMIN_PAGES = ['/dashboard/teachers', '/dashboard/students', '/dashboard/settings', '/dashboard/logs']
+
 export default defineNuxtRouteMiddleware(async (to) => {
+
 	const { user, refresh } = useCurrentUser()
 	if (user.value === undefined) {
 		await refresh().catch(() => {
@@ -36,5 +40,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
 	}
 	if (current.role === 'student') {
 		return navigateTo({ path: '/join', query: { info: 'khusus-guru' } })
+	}
+	if (ADMIN_PAGES.some(p => to.path === p || to.path.startsWith(`${p}/`)) && current.role !== 'admin') {
+		return navigateTo('/dashboard')
 	}
 })

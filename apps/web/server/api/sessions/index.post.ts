@@ -1,6 +1,6 @@
 import { randomInt, randomUUID } from 'node:crypto'
 import type { GameMode } from '@petakuis/shared'
-import { getQuizById, recordGameSession } from '../../utils/store'
+import { getQuizRecord, recordGameSession } from '../../utils/store'
 
 const MAX_CODE_ATTEMPTS = 5
 
@@ -14,14 +14,16 @@ export default defineEventHandler(async (event) => {
 		autoStart?: boolean
 	}>(event)
 
-	const quiz = await getQuizById(body.quizId)
-	if (!quiz) {
+	const record = await getQuizRecord(body.quizId)
+	// Kuis publik boleh dipakai guru mana pun; kuis privat hanya oleh pemiliknya (dan admin).
+	if (!record || (record.quiz.visibility !== 'public' && !canManageQuiz(current, record.ownerId))) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Kuis tidak ditemukan.'
 		})
 	}
 
+	const quiz = record.quiz
 	const sessionQuiz = {
 		...quiz,
 		mode: body.mode || quiz.mode,

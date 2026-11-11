@@ -3,7 +3,9 @@ export default defineEventHandler(async (event) => {
 	const query = getQuery(event)
 	const code = String(query.code || '').trim()
 
-	if (!code) {
+	assertPinAttemptAllowed(event)
+	if (!/^\d{6}$/.test(code)) {
+		recordPinFailure(event)
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Masukkan kode ruangan 6 digit.'
@@ -15,6 +17,7 @@ export default defineEventHandler(async (event) => {
 			`${config.gameServerInternalUrl}/rooms/${encodeURIComponent(code)}`
 		)
 		if (!resp.ok) {
+			recordPinFailure(event)
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Kode ruangan tidak ditemukan atau sesi sudah berakhir.'

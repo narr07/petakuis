@@ -10,7 +10,9 @@
 
 	const { launchingId, launch } = useLaunchSession()
 
-	const { data, status } = await useFetch<{ quizzes: QuizDefinition[] }>('/api/quizzes', {
+	const toast = useToast()
+
+	const { data, status, refresh } = await useFetch<{ quizzes: QuizDefinition[] }>('/api/quizzes', {
 		key: 'dashboard-quizzes',
 		// Hanya kuis milik guru yang masuk (admin: semua kuis).
 		query: { mine: 1 }
@@ -55,9 +57,49 @@
 				{ label: 'Coba sebagai siswa', icon: 'i-lucide-gamepad-2', to: '/play/123456?nickname=GuruDemo&colorway=merah-putih' }
 			],
 			[
+				{ label: 'Edit kuis', icon: 'i-lucide-pencil', to: `/build?edit=${encodeURIComponent(quiz.id)}` },
 				{ label: 'Kuis baru di peta ini', icon: 'i-lucide-map-pin', to: `/build?mapId=${quiz.mapId}` }
+			],
+			[
+				{ label: 'Hapus kuis', icon: 'i-lucide-trash-2', color: 'error', onSelect: () => askDelete(quiz) }
 			]
 		]
+	}
+
+	// ---------------------------------------------------------------- hapus kuis
+	const deleteTarget = ref<QuizDefinition | null>(null)
+	const deleteOpen = computed({
+		get: () => deleteTarget.value !== null,
+		set: (open: boolean) => {
+			if (!open && !deleting.value) deleteTarget.value = null
+		}
+	})
+	const deleting = ref(false)
+
+	function askDelete(quiz: QuizDefinition) {
+		deleteTarget.value = quiz
+	}
+
+	async function confirmDelete() {
+		const quiz = deleteTarget.value
+		if (!quiz) return
+		deleting.value = true
+		try {
+			await $fetch(`/api/quizzes/${encodeURIComponent(quiz.id)}`, { method: 'DELETE' })
+			toast.add({ title: 'Kuis dihapus', description: quiz.title, icon: 'i-lucide-trash-2' })
+			deleteTarget.value = null
+			await refresh()
+		} catch (err: unknown) {
+			const e = err as { data?: { statusMessage?: string } }
+			toast.add({
+				title: 'Kuis belum terhapus',
+				description: e?.data?.statusMessage || 'Coba lagi sebentar lagi.',
+				icon: 'i-lucide-circle-alert',
+				color: 'error'
+			})
+		} finally {
+			deleting.value = false
+		}
 	}
 
 	const columns: TableColumn<QuizDefinition>[] = [
@@ -140,6 +182,13 @@
 				<template #actions-cell="{ row }">
 					<div class="flex items-center justify-end gap-1">
 						<UButton
+							icon="i-lucide-pencil"
+							color="neutral"
+							variant="ghost"
+							aria-label="Edit kuis"
+							:to="`/build?edit=${encodeURIComponent(row.original.id)}`"
+						/>
+						<UButton
 							label="Mulai"
 							icon="i-lucide-play"
 							size="sm"
@@ -177,6 +226,20 @@
 					:total="filtered.length"
 				/>
 			</div>
+
+			<UModal
+				v-model:open="deleteOpen"
+				title="Hapus kuis ini?"
+				:description="deleteTarget ? `«${deleteTarget.title}» beserta ${deleteTarget.questions.length} soalnya akan dihapus permanen. Laporan nilai dari sesi yang sudah berjalan tetap tersimpan.` : ''"
+				:dismissible="!deleting"
+			>
+				<template #footer="{ close }">
+					<div class="flex w-full justify-end gap-2">
+						<UButton label="Batal" color="neutral" variant="outline" :disabled="deleting" @click="close" />
+						<UButton label="Hapus kuis" icon="i-lucide-trash-2" color="error" :loading="deleting" @click="confirmDelete" />
+					</div>
+				</template>
+			</UModal>
 		</template>
 	</UDashboardPanel>
 </template>

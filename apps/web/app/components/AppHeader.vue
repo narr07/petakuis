@@ -10,8 +10,7 @@
 	const items = computed<NavigationMenuItem[]>(() => [
 		{ label: 'Fitur', to: '/#fitur', active: route.path === '/' && route.hash === '#fitur' },
 		{ label: 'Peta', to: '/#peta', active: route.path === '/' && route.hash === '#peta' },
-		{ label: 'Jelajah Kuis', to: '/explore' },
-		{ label: 'Status', to: '/logs' }
+		{ label: 'Jelajah Kuis', to: '/explore' }
 	])
 </script>
 

@@ -119,6 +119,10 @@ export default defineNuxtConfig({
 			contactEmail: ''
 		}
 	},
+	routeRules: {
+		// Halaman status lama pindah ke dashboard admin.
+		'/logs': { redirect: { to: '/dashboard/logs', statusCode: 301 } }
+	},
 	app: {
 		head: {
 			htmlAttrs: {

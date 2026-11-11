@@ -1,6 +1,9 @@
 import { getWebLogs } from '../utils/logger'
 
-export default defineEventHandler(async () => {
+/** Log server langsung. Khusus admin: berisi alamat request dan aktivitas pemain. */
+export default defineEventHandler(async (event) => {
+	await requireUser(event, ['admin'])
+
 	const config = useRuntimeConfig()
 	let gameServerLogs: unknown[] = []
 

@@ -6,6 +6,7 @@
 		type GameMode,
 		type MapTemplate,
 		type QuestionType,
+		type QuizDefinition,
 		type QuizQuestion,
 		type SchoolLevel,
 		type TilePosition
@@ -18,13 +19,30 @@
 	const { data: mapsData } = await useFetch<{ maps: MapTemplate[] }>('/api/maps')
 	const maps = computed(() => mapsData.value?.maps || [])
 
+	// Mode edit: /build?edit=<id>. Hanya pemilik kuis (atau admin) yang menerima kuis utuh.
+	const editId = typeof route.query.edit === 'string' ? route.query.edit : ''
+	let editQuiz: QuizDefinition | null = null
+	if (editId) {
+		const { data: editData } = await useFetch<{ quiz: QuizDefinition, canManage: boolean }>(
+			`/api/quizzes/${encodeURIComponent(editId)}`,
+			{ key: `edit-quiz-${editId}` }
+		)
+		if (!editData.value?.canManage) {
+			throw createError({ statusCode: 404, statusMessage: 'Kuis tidak ditemukan atau bukan milikmu.', fatal: true })
+		}
+		editQuiz = editData.value.quiz
+	}
+	const isEditing = Boolean(editQuiz)
+
+	useSeoMeta({ title: isEditing ? 'Edit Kuis' : 'Buat Kuis' })
+
 	const currentStep = ref<1 | 2 | 3>(
-		([1, 2, 3].includes(Number(route.query.step)) ? Number(route.query.step) : 1) as 1 | 2 | 3
+		([1, 2, 3].includes(Number(route.query.step)) ? Number(route.query.step) : isEditing ? 3 : 1) as 1 | 2 | 3
 	)
 	const modeFilter = ref<'all' | GameMode>('all')
 
 	const selectedMapId = ref(
-		String(route.query.mapId || 'map-pesisir-karang')
+		editQuiz?.mapId ?? String(route.query.mapId || 'map-pesisir-karang')
 	)
 
 	const steps = [
@@ -55,17 +73,17 @@
 		q.answer = value.split(',').map(s => s.trim()).filter(Boolean)
 	}
 
-	const selectedMode = ref<GameMode>('free')
-	const schoolLevel = ref<SchoolLevel>('sd')
-	const gradeLabel = ref('Kelas 5')
-	const subject = ref('Ilmu Pengetahuan Alam (IPA)')
-	const title = ref('')
-	const description = ref('')
-	const ownerName = ref('Guru Kreatif Indonesia')
+	const selectedMode = ref<GameMode>(editQuiz?.mode ?? 'free')
+	const schoolLevel = ref<SchoolLevel>(editQuiz?.schoolLevel ?? 'sd')
+	const gradeLabel = ref(editQuiz?.gradeLabel ?? 'Kelas 5')
+	const subject = ref(editQuiz?.subject ?? 'Ilmu Pengetahuan Alam (IPA)')
+	const title = ref(editQuiz?.title ?? '')
+	const description = ref(editQuiz?.description ?? '')
+	const ownerName = ref(editQuiz?.ownerName ?? 'Guru Kreatif Indonesia')
 
-	const isAllowPass = ref(true)
-	const showIncorrectAnswer = ref(true)
-	const shuffleQuestions = ref(true)
+	const isAllowPass = ref(editQuiz?.settings.isAllowPass ?? true)
+	const showIncorrectAnswer = ref(editQuiz?.settings.showIncorrectAnswer ?? true)
+	const shuffleQuestions = ref(editQuiz?.settings.shuffleQuestions ?? true)
 
 	const aiTopic = ref('')
 	const aiSourceText = ref('')
@@ -76,7 +94,7 @@
 	const saving = ref(false)
 	const statusBanner = ref<string | null>(null)
 
-	const questions = ref<QuizQuestion[]>([
+	const questions = ref<QuizQuestion[]>(editQuiz ? structuredClone(editQuiz.questions) : [
 		{
 			id: 'q-demo-1',
 			type: 'multiple',
@@ -304,10 +322,11 @@
 			const saved = await $fetch<{
 				ok: boolean
 				quiz: { id: string }
-			}>('/api/quizzes', {
-				method: 'POST',
+			}>(editQuiz ? `/api/quizzes/${encodeURIComponent(editQuiz.id)}` : '/api/quizzes', {
+				method: editQuiz ? 'PATCH' : 'POST',
 				body: {
 					ownerName: ownerName.value,
+					visibility: editQuiz?.visibility ?? 'public',
 					title: title.value,
 					description:
 						description.value
@@ -345,8 +364,21 @@
 				rememberHostToken(session.code, session.hostToken)
 				await router.push(`/host/${session.code}`)
 			} else {
-				await router.push('/explore')
+				toast.add({
+					title: isEditing ? 'Perubahan tersimpan' : 'Kuis tersimpan',
+					icon: 'i-lucide-circle-check',
+					color: 'success'
+				})
+				await router.push('/dashboard/quizzes')
 			}
+		} catch (err: unknown) {
+			const e = err as { data?: { statusMessage?: string } }
+			toast.add({
+				title: 'Kuis belum tersimpan',
+				description: e?.data?.statusMessage || 'Periksa koneksi lalu coba lagi.',
+				icon: 'i-lucide-circle-alert',
+				color: 'error'
+			})
 		} finally {
 			saving.value = false
 		}
@@ -358,7 +390,7 @@
 		<!-- Header Halaman -->
 		<UPageHeader
 			headline="Penyusun Petualangan Kuis"
-			title="Buat Kuis Baru untuk Kelas"
+			:title="isEditing ? `Edit Kuis: ${title || 'Tanpa judul'}` : 'Buat Kuis Baru untuk Kelas'"
 			description="Rancang pos tantangan interaktif 2D dalam 3 langkah mudah: pilih kawasan peta, tentukan jenjang materi, dan isi soal."
 			:ui="{ root: 'border-b-0 pb-0' }"
 		>
@@ -692,7 +724,7 @@
 							variant="outline"
 							size="md"
 							:loading="saving"
-							label="Simpan Draf"
+							:label="isEditing ? 'Simpan Perubahan' : 'Simpan Draf'"
 							@click="saveAndLaunch(false)"
 						/>
 						<UButton

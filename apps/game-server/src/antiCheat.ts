@@ -1,32 +1,11 @@
-import { GAME_CONSTANTS } from '@petakuis/shared'
+import { GAME_CONSTANTS, isNicknameOffensive, tidyNickname } from '@petakuis/shared'
 
-const BLOCKED_WORDS = [
-	'anjing',
-	'babi',
-	'bangsat',
-	'bajingan',
-	'goblog',
-	'goblok',
-	'tolol',
-	'kontol',
-	'memek',
-	'ngentot',
-	'asu',
-	'kampret',
-	'fuck',
-	'shit',
-	'bitch'
-]
-
-export function sanitizeNickname(raw: string): string {
-	const cleaned = raw.trim().replace(/\s+/g, ' ').slice(0, 20)
+/** Nama panggilan rapi; nama yang mengandung kata kasar diganti nama netral. */
+export function sanitizeNickname(raw: unknown): string {
+	const cleaned = tidyNickname(typeof raw === 'string' ? raw : '')
 	if (!cleaned) return 'Petualang'
-
-	const lower = cleaned.toLowerCase()
-	for (const word of BLOCKED_WORDS) {
-		if (lower.includes(word)) {
-			return 'Siswa-' + Math.floor(100 + Math.random() * 899)
-		}
+	if (isNicknameOffensive(cleaned)) {
+		return 'Siswa-' + Math.floor(100 + Math.random() * 899)
 	}
 	return cleaned
 }

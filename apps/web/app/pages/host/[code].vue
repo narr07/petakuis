@@ -231,17 +231,20 @@
 					</div>
 				</div>
 
-				<!-- Kotak PIN Proyektor -->
-				<div class="flex flex-col items-center justify-center rounded-2xl border-2 border-primary bg-default px-8 py-4 text-center shadow-sm">
-					<span class="text-xs font-black tracking-widest text-primary uppercase">
-						PIN Ruangan Kelas
-					</span>
-					<span class="font-mono text-4xl sm:text-5xl font-black tracking-widest text-highlighted">
-						{{ code }}
-					</span>
-					<span class="mt-1 text-xs font-bold text-muted">
-						Tampilkan di Proyektor
-					</span>
+				<!-- Kotak PIN + QR Proyektor -->
+				<div class="flex items-center gap-4 rounded-2xl border-2 border-primary bg-default px-5 py-3 shadow-sm">
+					<div class="flex flex-col items-center justify-center text-center">
+						<span class="text-xs font-black tracking-widest text-primary uppercase">
+							PIN Ruangan Kelas
+						</span>
+						<span class="font-mono text-4xl sm:text-5xl font-black tracking-widest text-highlighted">
+							{{ code }}
+						</span>
+						<span class="mt-1 text-xs font-bold text-muted">
+							Klik QR untuk layar penuh
+						</span>
+					</div>
+					<SessionQrCode :code="code" />
 				</div>
 			</div>
 		</UCard>

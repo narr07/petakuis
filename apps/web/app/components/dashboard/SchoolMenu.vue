@@ -5,18 +5,24 @@
 		collapsed?: boolean
 	}>()
 
-	const school = {
-		label: DEMO_SCHOOL.name,
+	const { data } = await useFetch<{ school: { name: string } }>('/api/school', { key: 'school-profile' })
+	const school = computed(() => ({
+		label: data.value?.school.name || 'Petakuis',
 		avatar: { src: '/mascot.svg', alt: 'Petakuis' }
-	}
+	}))
 
-	const items: DropdownMenuItem[][] = [
-		[{ type: 'label', label: 'Sekolah aktif' }, { ...school, type: 'checkbox', checked: true }],
-		[
-			{ label: 'Pengaturan sekolah', icon: 'i-lucide-settings', to: '/dashboard/settings' },
-			{ label: 'Daftar guru', icon: 'i-lucide-graduation-cap', to: '/dashboard/teachers' }
-		]
-	]
+	const { isAdmin } = useDashboardRole()
+
+	// Tautan administrasi hanya untuk admin.
+	const items = computed<DropdownMenuItem[][]>(() => [
+		[{ type: 'label', label: 'Sekolah aktif' }, { ...school.value, type: 'checkbox', checked: true }],
+		...(isAdmin.value
+			? [[
+					{ label: 'Pengaturan sekolah', icon: 'i-lucide-settings', to: '/dashboard/settings' },
+					{ label: 'Daftar guru', icon: 'i-lucide-graduation-cap', to: '/dashboard/teachers' }
+				]]
+			: [])
+	])
 </script>
 
 <template>

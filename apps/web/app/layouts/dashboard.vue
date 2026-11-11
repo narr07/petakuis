@@ -15,28 +15,16 @@
 			{ label: 'Koleksi Kuis', icon: 'i-lucide-book-open', to: '/dashboard/quizzes', onSelect: close },
 			{ label: 'Peta 2D', icon: 'i-lucide-map', to: '/dashboard/maps', onSelect: close },
 			{ label: 'Laporan & Nilai', icon: 'i-lucide-file-spreadsheet', to: '/dashboard/reports', onSelect: close },
-			{ label: 'Administrasi', type: 'label' },
-			{
-				label: 'Guru',
-				icon: 'i-lucide-graduation-cap',
-				to: '/dashboard/teachers',
-				badge: isAdmin.value ? undefined : 'Admin',
-				onSelect: close
-			},
-			{
-				label: 'Siswa',
-				icon: 'i-lucide-users',
-				to: '/dashboard/students',
-				badge: isAdmin.value ? undefined : 'Admin',
-				onSelect: close
-			},
-			{
-				label: 'Pengaturan Sekolah',
-				icon: 'i-lucide-settings',
-				to: '/dashboard/settings',
-				badge: isAdmin.value ? undefined : 'Admin',
-				onSelect: close
-			}
+			// Menu administrasi hanya ditampilkan untuk admin (halamannya juga dijaga middleware dan server).
+			...(isAdmin.value
+				? [
+						{ label: 'Administrasi', type: 'label' as const },
+						{ label: 'Guru', icon: 'i-lucide-graduation-cap', to: '/dashboard/teachers', onSelect: close },
+						{ label: 'Siswa', icon: 'i-lucide-users', to: '/dashboard/students', onSelect: close },
+						{ label: 'Pengaturan Sekolah', icon: 'i-lucide-settings', to: '/dashboard/settings', onSelect: close },
+						{ label: 'Log Server', icon: 'i-lucide-terminal', to: '/dashboard/logs', onSelect: close }
+					]
+				: [])
 		],
 		[
 			{ label: 'Buat Kuis Baru', icon: 'i-lucide-circle-plus', to: '/build' },
@@ -58,8 +46,7 @@
 			label: 'Aksi cepat',
 			items: [
 				{ label: 'Halaman masuk PIN siswa', icon: 'i-lucide-gamepad-2', to: '/join' },
-				{ label: 'Coba room demo', icon: 'i-lucide-play', to: '/play/123456?nickname=GuruDemo&colorway=merah-putih' },
-				{ label: 'Status pengembangan', icon: 'i-lucide-activity', to: '/logs' }
+				{ label: 'Coba room demo', icon: 'i-lucide-play', to: '/play/123456?nickname=GuruDemo&colorway=merah-putih' }
 			]
 		}
 	])

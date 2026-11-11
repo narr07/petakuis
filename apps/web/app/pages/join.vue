@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { AVATAR_COLORWAYS, type AvatarColorway } from '@petakuis/shared'
+	import { AVATAR_COLORWAYS, NICKNAME_MAX_LENGTH, isNicknameOffensive, tidyNickname, type AvatarColorway } from '@petakuis/shared'
 
 	const route = useRoute()
 	const router = useRouter()
@@ -20,6 +20,13 @@
 		}
 	})
 
+	// Nama panggilan juga disaring ulang di game server; ini hanya umpan balik langsung.
+	const nicknameError = computed(() =>
+		isNicknameOffensive(nickname.value)
+			? 'Nama panggilan ini tidak pantas untuk kelas. Pakai nama aslimu atau nama lain yang sopan.'
+			: undefined
+	)
+
 	const selectedPreset = computed(() =>
 		AVATAR_COLORWAYS.find(p => p.id === selectedColorway.value)
 	)
@@ -36,7 +43,11 @@
 			errorMessage.value = 'Masukkan kode ruangan 6 digit terlebih dahulu.'
 			return
 		}
-		const cleanName = nickname.value.trim() || 'Petualang'
+		if (nicknameError.value) {
+			errorMessage.value = nicknameError.value
+			return
+		}
+		const cleanName = tidyNickname(nickname.value) || 'Petualang'
 
 		loading.value = true
 		try {
@@ -115,13 +126,13 @@
 					</UFormField>
 
 					<!-- Nama -->
-					<UFormField label="Nama panggilan di kelas">
+					<UFormField label="Nama panggilan di kelas" :error="nicknameError">
 						<UInput
 							v-model="nickname"
 							size="xl"
 							class="w-full"
 							icon="i-lucide-smile"
-							maxlength="20"
+							:maxlength="NICKNAME_MAX_LENGTH"
 							placeholder="Contoh: Budi Kelas 5A"
 						/>
 					</UFormField>

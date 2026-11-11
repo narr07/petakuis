@@ -5,7 +5,9 @@
 export async function sendEmail(message: { to: string, subject: string, html: string, text: string }): Promise<void> {
 	const config = useRuntimeConfig()
 	if (!config.resendApiKey) {
-		recordWebLog('warn', 'email', `NUXT_RESEND_API_KEY kosong; email ke ${message.to} tidak dikirim. Isi: ${message.text}`)
+		// Isi email (berisi tautan sekali pakai) hanya dicatat saat pengembangan.
+		const content = process.env.NODE_ENV === 'production' ? '' : ` Isi: ${message.text}`
+		recordWebLog('warn', 'email', `NUXT_RESEND_API_KEY kosong; email ke ${message.to} tidak dikirim.${content}`)
 		return
 	}
 	const resp = await fetch('https://api.resend.com/emails', {

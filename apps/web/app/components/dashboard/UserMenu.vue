@@ -51,8 +51,7 @@
 			}
 		],
 		[
-			{ label: 'Kembali ke beranda', icon: 'i-lucide-house', to: '/' },
-			{ label: 'Status pengembangan', icon: 'i-lucide-activity', to: '/logs' }
+			{ label: 'Kembali ke beranda', icon: 'i-lucide-house', to: '/' }
 		],
 		[
 			{

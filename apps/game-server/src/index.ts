@@ -2,6 +2,8 @@ import { randomUUID, timingSafeEqual } from 'node:crypto'
 import { createServer } from 'node:http'
 import {
 	STARTER_QUIZZES,
+	createFailureLimiter,
+	describeWait,
 	type AnswerSubmitPayload,
 	type Direction,
 	type HostControlPayload,
@@ -9,7 +11,7 @@ import {
 	type QuizDefinition,
 	type SessionReportData
 } from '@petakuis/shared'
-import { Server } from 'socket.io'
+import { Server, type Socket } from 'socket.io'
 import { getGameLogs, logGameEvent } from './logger'
 import { QuizRoom } from './rooms/QuizRoom'
 
@@ -201,6 +203,15 @@ const httpServer = createServer(async (req, res) => {
 	res.end(JSON.stringify({ error: 'Not Found' }))
 })
 
+/** 40 PIN salah per 10 menit per IP (satu kelas bisa memakai satu IP sekolah). */
+const pinFailures = createFailureLimiter({ max: 40, windowMs: 10 * 60_000 })
+
+/** IP pemain. Di produksi diisi Cloudflare; port game server hanya terikat ke 127.0.0.1. */
+function socketIp(socket: Socket): string {
+	const header = socket.handshake.headers['cf-connecting-ip']
+	return (Array.isArray(header) ? header[0] : header) || socket.handshake.address || 'unknown'
+}
+
 const io = new Server(httpServer, {
 	cors: {
 		origin: ALLOWED_ORIGINS,
@@ -213,11 +224,20 @@ io.on('connection', (socket) => {
 	let activeRoomCode: string | null = null
 
 	socket.on('join', (payload: JoinRoomPayload) => {
-		const code = String(payload?.code || '').trim()
-		const room = rooms.get(code)
-		if (!room) {
+		const ip = socketIp(socket)
+		const wait = pinFailures.retryAfterMs(ip)
+		if (wait > 0) {
 			socket.emit('room:error', {
-				message: `Kode ruangan "${code}" tidak ditemukan. Pastikan kode 6 digit benar.`
+				message: `Terlalu banyak PIN salah. Coba lagi dalam ${describeWait(wait)}.`
+			})
+			return
+		}
+		const code = String(payload?.code || '').trim()
+		const room = /^\d{6}$/.test(code) ? rooms.get(code) : undefined
+		if (!room) {
+			pinFailures.fail(ip)
+			socket.emit('room:error', {
+				message: `Kode ruangan "${code.slice(0, 6)}" tidak ditemukan. Pastikan kode 6 digit benar.`
 			})
 			return
 		}

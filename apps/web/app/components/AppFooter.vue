@@ -23,7 +23,6 @@
 			children: [
 				{ label: 'Fitur', to: '/#fitur' },
 				{ label: 'Katalog Peta', to: '/#peta' },
-				{ label: 'Status Pengembangan', to: '/logs' },
 				{ label: 'Kebijakan Privasi', to: '/privasi' },
 				{ label: 'Ketentuan Layanan', to: '/ketentuan' }
 			]
@@ -81,16 +80,6 @@
 			<p class="text-sm text-muted">
 				© {{ new Date().getFullYear() }} Petakuis · Gratis untuk guru dan siswa Indonesia
 			</p>
-		</template>
-
-		<template #right>
-			<UButton
-				to="/logs"
-				icon="i-lucide-activity"
-				label="Status"
-				color="neutral"
-				variant="ghost"
-			/>
 		</template>
 	</UFooter>
 </template>

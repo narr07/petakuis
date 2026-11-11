@@ -10,30 +10,51 @@
 
 	const toast = useToast()
 
+	const { data, refresh } = await useFetch<{
+		school: { name: string, npsn: string, city: string }
+		stats: { users: number, quizzes: number, sessions: number }
+	}>('/api/admin/school', { key: 'admin-school' })
+
 	const schema = z.object({
-		name: z.string().min(3, 'Nama sekolah terlalu pendek'),
-		npsn: z.string().regex(/^\d{8}$/, 'NPSN terdiri dari 8 digit angka'),
-		city: z.string().min(3, 'Isi kota atau kabupaten')
+		name: z.string().trim().min(3, 'Nama sekolah terlalu pendek').max(120, 'Maksimal 120 karakter'),
+		npsn: z.string().trim().regex(/^(\d{8})?$/, 'NPSN terdiri dari 8 digit angka (boleh dikosongkan)'),
+		city: z.string().trim().max(120, 'Maksimal 120 karakter')
 	})
 
 	type Schema = z.output<typeof schema>
 
 	const state = reactive<Schema>({
-		name: DEMO_SCHOOL.name,
-		npsn: DEMO_SCHOOL.npsn,
-		city: DEMO_SCHOOL.city
+		name: data.value?.school.name ?? '',
+		npsn: data.value?.school.npsn ?? '',
+		city: data.value?.school.city ?? ''
 	})
 
-	const quotaPercent = Math.round((DEMO_SCHOOL.aiQuotaUsed / DEMO_SCHOOL.aiQuotaLimit) * 100)
+	const saving = ref(false)
 
-	function onSubmit(_event: FormSubmitEvent<Schema>) {
-		toast.add({
-			title: 'Belum tersimpan permanen',
-			description: 'Isian valid, tetapi database belum tersambung sehingga perubahan hilang saat halaman dimuat ulang.',
-			icon: 'i-lucide-database-zap',
-			color: 'warning'
-		})
+	async function onSubmit(event: FormSubmitEvent<Schema>) {
+		saving.value = true
+		try {
+			await $fetch('/api/admin/school', { method: 'PUT', body: event.data })
+			toast.add({ title: 'Profil sekolah tersimpan', icon: 'i-lucide-circle-check', color: 'success' })
+			await Promise.all([refresh(), refreshNuxtData('school-profile')])
+		} catch (err: unknown) {
+			const e = err as { data?: { statusMessage?: string } }
+			toast.add({
+				title: 'Belum tersimpan',
+				description: e?.data?.statusMessage || 'Coba lagi sebentar lagi.',
+				icon: 'i-lucide-circle-alert',
+				color: 'error'
+			})
+		} finally {
+			saving.value = false
+		}
 	}
+
+	const statItems = computed(() => [
+		{ label: 'Akun terdaftar', value: data.value?.stats.users ?? 0, icon: 'i-lucide-users', to: '/dashboard/teachers' },
+		{ label: 'Kuis tersimpan', value: data.value?.stats.quizzes ?? 0, icon: 'i-lucide-book-open', to: '/dashboard/quizzes' },
+		{ label: 'Sesi live', value: data.value?.stats.sessions ?? 0, icon: 'i-lucide-radio-tower', to: '/dashboard/reports' }
+	])
 </script>
 
 <template>
@@ -57,7 +78,7 @@
 					>
 						<UPageCard
 							title="Profil sekolah"
-							description="Tampil di laporan nilai dan undangan guru."
+							description="Tampil di menu dashboard dan laporan nilai."
 							variant="naked"
 							orientation="horizontal"
 							class="mb-4"
@@ -67,6 +88,7 @@
 								label="Simpan"
 								color="neutral"
 								type="submit"
+								:loading="saving"
 								class="w-fit lg:ms-auto"
 							/>
 						</UPageCard>
@@ -86,7 +108,6 @@
 								name="npsn"
 								label="NPSN"
 								description="Nomor Pokok Sekolah Nasional, 8 digit."
-								required
 								class="flex items-start justify-between gap-4 max-sm:flex-col"
 							>
 								<UInput v-model="state.npsn" inputmode="numeric" maxlength="8" autocomplete="off" />
@@ -95,7 +116,6 @@
 							<UFormField
 								name="city"
 								label="Kota / kabupaten"
-								required
 								class="flex items-start justify-between gap-4 max-sm:flex-col"
 							>
 								<UInput v-model="state.city" autocomplete="off" />
@@ -105,24 +125,24 @@
 
 					<div>
 						<UPageCard
-							title="Kuota generator AI"
-							description="Kuota harian gratis untuk seluruh guru di sekolah ini. Guru juga bisa memakai API key pribadi."
+							title="Ringkasan"
+							description="Jumlah data yang tersimpan di Petakuis saat ini."
 							variant="naked"
 							class="mb-4"
 						/>
 
-						<UPageCard variant="subtle">
-							<div class="flex items-center justify-between text-sm">
-								<span class="text-muted">Terpakai hari ini</span>
-								<span class="font-semibold text-highlighted">
-									{{ DEMO_SCHOOL.aiQuotaUsed }} / {{ DEMO_SCHOOL.aiQuotaLimit }} soal
-								</span>
-							</div>
-							<UProgress :model-value="quotaPercent" />
-							<p class="text-xs text-muted">
-								Kuota direset setiap pukul 00.00 WIB. Angka ini masih contoh.
-							</p>
-						</UPageCard>
+						<UPageGrid class="lg:grid-cols-3">
+							<UPageCard
+								v-for="stat in statItems"
+								:key="stat.label"
+								:icon="stat.icon"
+								:title="stat.label"
+								:to="stat.to"
+								variant="subtle"
+							>
+								<span class="text-2xl font-semibold text-highlighted">{{ stat.value }}</span>
+							</UPageCard>
+						</UPageGrid>
 					</div>
 				</div>
 			</DashboardAdminOnly>

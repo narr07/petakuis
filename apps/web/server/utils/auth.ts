@@ -46,6 +46,20 @@ function createAuth(db: Database) {
 			schema: { user, session, account, verification }
 		}),
 		telemetry: { enabled: false },
+		advanced: {
+			// Di produksi situs hanya bisa diakses lewat Cloudflare Tunnel (port terikat ke 127.0.0.1),
+			// jadi cf-connecting-ip selalu diisi Cloudflare dan tidak bisa dipalsukan pengunjung.
+			ipAddress: { ipAddressHeaders: ['cf-connecting-ip', 'x-forwarded-for'] }
+		},
+		rateLimit: {
+			// Bawaan 3 percobaan masuk/daftar per 10 detik per IP terlalu ketat untuk satu kelas
+			// yang keluar lewat satu IP sekolah. Kirim email (reset, verifikasi) tetap 3 per menit.
+			customRules: {
+				'/sign-in/email': { window: 60, max: 30 },
+				'/sign-in/social': { window: 60, max: 30 },
+				'/sign-up/email': { window: 60, max: 20 }
+			}
+		},
 		user: {
 			additionalFields: {
 				// Boleh dikirim saat daftar (Guru/Siswa); disaring di databaseHooks di bawah.

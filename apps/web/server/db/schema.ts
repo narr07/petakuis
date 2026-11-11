@@ -107,6 +107,17 @@ export const verification = sqliteTable('verification', {
 	updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull()
 }, table => [index('verification_identifier_idx').on(table.identifier)])
 
+// ---------------------------------------------------------------- pengaturan sekolah
+
+/** Profil sekolah (satu baris, id "default"), diubah admin dari dashboard. */
+export const schoolSettings = sqliteTable('school_settings', {
+	id: text('id').primaryKey(),
+	name: text('name').notNull(),
+	npsn: text('npsn').notNull().default(''),
+	city: text('city').notNull().default(''),
+	updatedAt: text('updated_at').notNull()
+})
+
 export type QuizRow = typeof quizzes.$inferSelect
 export type GameSessionRow = typeof gameSessions.$inferSelect
 export type UserRow = typeof user.$inferSelect

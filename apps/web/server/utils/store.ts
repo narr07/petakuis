@@ -43,11 +43,15 @@ export async function listQuizzes(filters?: {
 	search?: string
 	/** Hanya kuis milik guru ini. */
 	ownerId?: string
+	visibility?: QuizDefinition['visibility']
 }): Promise<QuizDefinition[]> {
 	const db = await useDb()
 	const where: SQL[] = []
 	if (filters?.ownerId) {
 		where.push(eq(quizzes.ownerId, filters.ownerId))
+	}
+	if (filters?.visibility) {
+		where.push(eq(quizzes.visibility, filters.visibility))
 	}
 	if (filters?.schoolLevel && filters.schoolLevel !== 'all') {
 		where.push(eq(quizzes.schoolLevel, filters.schoolLevel))
@@ -77,7 +81,29 @@ export async function getQuizById(id: string): Promise<QuizDefinition | undefine
 	return row ? toQuiz(row) : undefined
 }
 
-/** Menyimpan kuis baru. Mengedit kuis yang sudah ada menunggu login guru (cek pemilik). */
+/** Kuis beserta pemiliknya, untuk pemeriksaan hak ubah/hapus. */
+export async function getQuizRecord(id: string): Promise<{ quiz: QuizDefinition, ownerId: string | null } | undefined> {
+	const db = await useDb()
+	const [row] = await db.select().from(quizzes).where(eq(quizzes.id, id)).limit(1)
+	return row ? { quiz: toQuiz(row), ownerId: row.ownerId } : undefined
+}
+
+/** Mengubah isi kuis. Pemilik, nama pembuat, dan tanggal dibuat tidak berubah. */
+export async function updateQuiz(
+	id: string,
+	input: Omit<QuizDefinition, 'id' | 'ownerName' | 'createdAt' | 'updatedAt'>
+): Promise<QuizDefinition | undefined> {
+	const db = await useDb()
+	await db.update(quizzes).set({ ...input, updatedAt: new Date().toISOString() }).where(eq(quizzes.id, id))
+	return getQuizById(id)
+}
+
+export async function deleteQuiz(id: string): Promise<void> {
+	const db = await useDb()
+	await db.delete(quizzes).where(eq(quizzes.id, id))
+}
+
+/** Menyimpan kuis baru (pemilik = guru yang masuk). */
 export async function createQuiz(quiz: QuizDefinition, ownerId: string): Promise<QuizDefinition> {
 	const db = await useDb()
 	await db.insert(quizzes).values({
