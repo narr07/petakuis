@@ -43,7 +43,7 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 | 2 | ~~Pengaman kelas~~ | Selesai di lokal (0.15); tangkapan layar QR & peringatan nama belum diperiksa |
 | 3 | ~~Backup database harian di VPS~~ | Selesai (0.16): cron 02.30 WIB |
 | 4 | Halaman kuis dengan Nuxt UI | Penyusun kuis, layar host, layar main |
-| 5 | ~~Uji beban 200 siswa~~ | Selesai di lokal (0.17); perbaikan batas 200 siswa belum di-deploy |
+| 5 | ~~Uji beban 200 siswa~~ | Selesai (0.17); perbaikan batas 200 siswa sudah online |
 | 6 | Generator tilemap | Membuat peta baru otomatis dari pipeline Godot |
 | 7 | Fase berikutnya | Mode PR tanpa host live, efek suara + tombol mute, i18n (id/en), PWA |
 
@@ -416,7 +416,7 @@ Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudfla
 - Diuji di VPS (dijalankan lewat stdin, tanpa menyimpan file di repo VPS): cadangan pertama `petakuis-20261111-170720.db.gz` (8 KB), file sementara di container terhapus.
 - Di-push (`90f21ec`), di VPS `git pull` dan cron `30 19 * * *` (02.30 WIB) terpasang; entri crontab lain tidak diubah. Jalan kedua juga berhasil.
 
-### 0.17 Uji beban 200 siswa (12 November 2026) — perbaikan belum di-commit
+### 0.17 Uji beban 200 siswa (12 November 2026)
 
 **Alat:** `apps/web/scripts/load-test.ts` (`bun scripts/load-test.ts --url <game server> --code <PIN> --bots 200 --seconds 60`): bot Socket.IO masuk bertahap lalu berjalan acak 5 langkah/detik; mengukur join, latensi `state`, laju update per bot, error.
 
@@ -424,5 +424,5 @@ Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudfla
 
 **Bug ditemukan dan diperbaiki (`QuizRoom.ts`):** pemain yang sudah keluar tetap dihitung ke batas 200 dan room demo tidak pernah menghapus mereka, sehingga putaran uji kedua ditolak "Ruang kelas sudah penuh". Di produksi, room demo publik akan penuh permanen setelah 200 pengunjung. Sekarang batas hanya menghitung pemain tersambung (pemain yang keluar tetap disimpan agar nilainya masuk laporan), dan room demo menghapus pemain yang keluar lebih dari 10 menit. Diuji: dua putaran 200 bot berturut-turut di room yang sama, keduanya 200/200 tanpa error.
 
-**Belum:** commit + push + deploy game server (ditahan pengaman otomatis), uji dari luar lewat Cloudflare ke VPS.
+**Deploy:** `18a486d` terpasang di VPS (game server dibangun ulang). Uji asap 3 bot lewat Cloudflare: 3/3 masuk, 15 update/detik tepat (Linux), 0 error. Uji beban penuh 200 bot ke VPS belum dilakukan; jadwalkan di luar jam kelas.
 
