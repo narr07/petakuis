@@ -41,7 +41,7 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 | --- | --- | --- |
 | 1 | ~~Halaman admin Guru, Siswa, Pengaturan Sekolah~~ | Selesai di lokal (0.15) |
 | 2 | ~~Pengaman kelas~~ | Selesai di lokal (0.15); tangkapan layar QR & peringatan nama belum diperiksa |
-| 3 | Backup database harian di VPS | Volume `petakuis_webdata` belum dicadangkan otomatis |
+| 3 | Backup database harian di VPS | Skrip `scripts/backup-db.sh` selesai & diuji di VPS (0.16); cron menunggu skrip di-push |
 | 4 | Halaman kuis dengan Nuxt UI | Penyusun kuis, layar host, layar main |
 | 5 | Uji beban 200 siswa | Gerbang 1 PRD, belum pernah dijalankan |
 | 6 | Generator tilemap | Membuat peta baru otomatis dari pipeline Godot |
@@ -408,4 +408,11 @@ Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudfla
 **Lanjutan berikutnya:** periksa tangkapan layar QR & peringatan nama (sudah diambil di scratchpad: `shots/host-qr.png`, `shots/join-nama.png`), lalu commit + push + deploy semua pekerjaan 0.13–0.15 (situs online masih membocorkan kunci jawaban), hapus blokir sementara `/logs` di Cloudflare. Setelah itu: backup database harian, halaman kuis Nuxt UI, uji beban 200 siswa, generator tilemap.
 
 **Deploy 0.13–0.15 (11 November 2026):** commit `ec3011e` terpasang di VPS. Diuji online: `/api/quizzes` tanpa kunci jawaban, `/api/logs` 401 untuk tamu, `/dashboard/logs` diarahkan ke login, `/logs` dialihkan 301, `/api/internal/` 403, PIN salah 404; permadi.dev, majalengka.tech, gurukampung.my.id tetap 200. Blokir sementara `/logs` di Cloudflare sudah dicabut. Sisa: periksa tampilan QR & peringatan nama, backup database harian, halaman kuis Nuxt UI, uji beban 200 siswa, generator tilemap.
+
+### 0.16 Cadangan database harian (12 November 2026)
+
+- Tampilan QR code di layar host dan peringatan nama panggilan di `/join` diperiksa lewat tangkapan layar: sesuai.
+- `scripts/backup-db.sh`: `VACUUM INTO` di dalam container web (salinan konsisten walau aplikasi berjalan), `PRAGMA integrity_check` pada salinan, disalin ke `~/petakuis-backups` di VPS, dikompres gzip, disimpan 14 hari (`BACKUP_DIR`, `BACKUP_KEEP_DAYS`). Cara memulihkan ditulis di kepala skrip. Catatan: `require()` gagal karena Nitro hanya membawa versi ESM `@libsql/client`, jadi skrip memakai `import()`.
+- Diuji di VPS (dijalankan lewat stdin, tanpa menyimpan file di repo VPS): cadangan pertama `petakuis-20261111-170720.db.gz` (8 KB), file sementara di container terhapus.
+- **Belum:** commit + push skrip (ditahan pengaman otomatis, menunggu izin), lalu di VPS `git pull` dan pasang cron `30 19 * * *` (02.30 WIB).
 

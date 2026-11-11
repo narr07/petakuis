@@ -72,7 +72,7 @@ services:
       - game-server
 
 volumes:
-  # Berkas database SQLite. Cadangkan isi volume ini secara berkala.
+  # Berkas database SQLite. Dicadangkan harian oleh scripts/backup-db.sh (cron di VPS).
   webdata:
   caddy_data:
   caddy_config:
