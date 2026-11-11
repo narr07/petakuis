@@ -20,6 +20,13 @@
 	const showHint = ref(false)
 	const remainingS = ref(props.question.remainingTimeS)
 
+	const open = computed({
+		get: () => true,
+		set: (value: boolean) => {
+			if (!value) emit('close')
+		}
+	})
+
 	let timer: ReturnType<typeof setInterval> | null = null
 
 	watch(
@@ -52,10 +59,8 @@
 		emit('submit', [optionId])
 	}
 
+	// Esc ditangani UModal; tombol 1-4 memilih jawaban pilihan ganda.
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
-			emit('close')
-		}
 		if (!props.result && props.question.type === 'multiple') {
 			const idx = ['1', '2', '3', '4'].indexOf(e.key)
 			if (idx !== -1 && props.question.options[idx]) {
@@ -80,187 +85,141 @@
 </script>
 
 <template>
-	<Teleport to="body">
-		<div
-			class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 p-4"
-			style="z-index: 99999"
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="question-modal-title"
-		>
-			<!-- Jendela dialog bergaris ganda -->
-			<div
-				class="relative z-[100000] w-full max-w-xl rounded-2xl border-4 border-[#283040] bg-[#f8f8f8] p-1.5 shadow-[6px_6px_0px_#16211b]"
-			>
-				<div class="rounded-xl border-2 border-[#6888a8] bg-[#f8f8f0] p-5 text-[#202830]">
-					<!-- GBA Battle Header Bar -->
-					<div class="flex items-center justify-between border-b-2 border-[#283040] pb-3">
-						<div class="flex items-center gap-2.5">
-							<GameNpcSprite
-								:npc-id="question.npcId"
-								:scale="2"
-							/>
-							<span class="text-xs font-extrabold text-[#283040]">
-								{{ getNpcCharacter(question.npcId).label }}
-							</span>
-							<span
-								class="rounded bg-[#283040] px-2.5 py-1 font-pixel text-[10px] text-[#f8d030]"
-							>
-								POS #{{ question.orderIndex }}/{{ question.totalQuestions }}
-							</span>
-							<span
-								class="rounded border border-[#283040] bg-[#e0f0e8] px-2 py-0.5 text-xs font-extrabold text-[#14532d]"
-							>
-								+{{ question.points }} EXP
-							</span>
-						</div>
-
-						<div class="flex items-center gap-2.5">
-							<span
-								class="font-mono-num rounded border-2 border-[#283040] px-2.5 py-1 text-xs font-extrabold"
-								:class="
-									remainingS <= 7
-										? 'bg-[#fee2e2] text-[#991b1b]'
-										: 'bg-[#fef08a] text-[#16211b]'
-								"
-							>
-								⏱ {{ remainingS }}s
-							</span>
-							<button
-								type="button"
-								class="rounded border-2 border-[#283040] bg-white px-2.5 py-1 text-xs font-extrabold hover:bg-[#e6decb]"
-								@click="emit('close')"
-							>
-								Batal (Esc)
-							</button>
-						</div>
-					</div>
-
-					<!-- Prompt Box -->
-					<div class="relative mt-4 rounded-xl border-2 border-[#283040] bg-white p-4">
-						<h2
-							id="question-modal-title"
-							class="text-base font-extrabold leading-relaxed sm:text-lg"
-						>
-							{{ question.prompt }}
-						</h2>
-
-						<div
-							v-if="question.hint"
-							class="mt-3"
-						>
-							<button
-								v-if="!showHint"
-								type="button"
-								class="text-xs font-extrabold text-[#15803d] underline"
-								@click="showHint = true"
-							>
-								▶ Buka Petunjuk
-							</button>
-							<p
-								v-else
-								class="rounded-lg border border-[#15803d] bg-[#dcfce7] px-3 py-2 text-xs font-bold text-[#14532d]"
-							>
-								Petunjuk: {{ question.hint.value }}
-							</p>
-						</div>
-					</div>
-
-					<!-- Answer Result Banner -->
-					<div
-						v-if="result"
-						class="mt-4 rounded-xl border-2 border-[#283040] p-4"
-						:class="result.isCorrect ? 'bg-[#dcfce7]' : 'bg-[#fee2e2]'"
-					>
-						<div class="flex items-center justify-between">
-							<p
-								class="text-base font-extrabold"
-								:class="result.isCorrect ? 'text-[#14532d]' : 'text-[#991b1b]'"
-							>
-								{{
-									result.isCorrect
-										? `Super Effective! +${result.pointsEarned} Poin`
-										: 'Belum Tepat! (0 Poin)'
-								}}
-							</p>
-							<span
-								v-if="result.speedRank"
-								class="rounded border border-[#283040] bg-[#fef08a] px-2 py-0.5 text-xs font-extrabold text-[#16211b]"
-							>
-								Tercepat #{{ result.speedRank }} (+{{ result.speedBonus }})
-							</span>
-						</div>
-						<p
-							v-if="!result.isCorrect && result.correctAnswer"
-							class="mt-1 text-xs font-bold text-[#7f1d1d]"
-						>
-							Jawaban yang benar: {{ result.correctAnswer.join(', ').toUpperCase() }}
-						</p>
-						<button
-							type="button"
-							class="pixel-btn mt-4 w-full rounded-xl bg-[#15803d] py-2.5 text-sm font-extrabold text-white"
-							@click="emit('close')"
-						>
-							▶ Lanjutkan Petualangan
-						</button>
-					</div>
-
-					<!-- Interactive GBA Command Menu Choices -->
-					<div
-						v-else
-						class="mt-4"
-					>
-						<div
-							v-if="question.type === 'multiple' || question.type === 'ox'"
-							class="grid gap-2.5"
-							:class="question.type === 'ox' ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'"
-						>
-							<button
-								v-for="(opt, idx) in question.options"
-								:key="opt.id"
-								type="button"
-								class="pixel-btn group flex items-center gap-2.5 rounded-xl bg-white px-4 py-3 text-left text-sm font-extrabold text-[#16211b] hover:bg-[#fef08a]"
-								@click="selectAndSubmit(opt.id)"
-							>
-								<span class="font-pixel text-[10px] text-[#dc2626]">▶</span>
-								<span
-									class="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-[#283040] bg-[#f8f8f0] font-mono-num text-xs font-extrabold uppercase"
-								>
-									{{ question.type === 'ox' ? opt.id.toUpperCase() : idx + 1 }}
-								</span>
-								<span>{{ opt.text }}</span>
-							</button>
-						</div>
-
-						<form
-							v-else
-							class="space-y-3"
-							@submit.prevent="handleSubmit"
-						>
-							<label
-								for="subjective-answer-input"
-								class="block text-xs font-extrabold uppercase tracking-wider text-[#435249]"
-							>
-								Ketik Jawaban Singkat (Huruf besar/kecil & spasi diabaikan)
-							</label>
-							<input
-								id="subjective-answer-input"
-								v-model="subjectiveInput"
-								type="text"
-								autofocus
-								placeholder="Ketik jawabanmu di sini..."
-								class="w-full rounded-xl border-2 border-[#283040] bg-white px-4 py-3 text-base font-bold text-[#16211b]"
-							>
-							<button
-								type="submit"
-								class="pixel-btn w-full rounded-xl bg-[#dc2626] py-3 text-sm font-extrabold text-white"
-							>
-								▶ Kirim Jawaban
-							</button>
-						</form>
-					</div>
+	<!-- z-index tinggi: jendela soal harus di atas HUD dan sprite peta -->
+	<UModal
+		v-model:open="open"
+		:ui="{ overlay: 'z-[99998]', content: 'z-[99999] sm:max-w-xl' }"
+		:close="false"
+	>
+		<template #header>
+			<div class="flex w-full flex-wrap items-center justify-between gap-2">
+				<div class="flex items-center gap-2">
+					<GameNpcSprite :npc-id="question.npcId" :scale="2" />
+					<span class="text-sm font-semibold text-highlighted">
+						{{ getNpcCharacter(question.npcId).label }}
+					</span>
+					<UBadge :label="`Pos #${question.orderIndex}/${question.totalQuestions}`" color="neutral" variant="solid" />
+					<UBadge :label="`+${question.points} poin`" color="success" variant="subtle" />
+				</div>
+				<div class="flex items-center gap-2">
+					<UBadge
+						:label="`${remainingS} detik`"
+						icon="i-lucide-timer"
+						:color="remainingS <= 7 ? 'error' : 'warning'"
+						variant="subtle"
+						class="font-mono"
+					/>
+					<UButton
+						label="Batal (Esc)"
+						color="neutral"
+						variant="outline"
+						size="xs"
+						@click="emit('close')"
+					/>
 				</div>
 			</div>
-		</div>
-	</Teleport>
+		</template>
+
+		<template #body>
+			<div class="space-y-4">
+				<div class="space-y-3">
+					<h2 id="question-modal-title" class="text-base leading-relaxed font-bold text-highlighted sm:text-lg">
+						{{ question.prompt }}
+					</h2>
+					<template v-if="question.hint">
+						<UButton
+							v-if="!showHint"
+							label="Buka petunjuk"
+							icon="i-lucide-lightbulb"
+							color="success"
+							variant="link"
+							class="px-0"
+							@click="showHint = true"
+						/>
+						<UAlert
+							v-else
+							icon="i-lucide-lightbulb"
+							color="success"
+							variant="subtle"
+							:description="`Petunjuk: ${question.hint.value}`"
+						/>
+					</template>
+				</div>
+
+				<!-- Hasil jawaban -->
+				<template v-if="result">
+					<UAlert
+						:icon="result.isCorrect ? 'i-lucide-party-popper' : 'i-lucide-circle-x'"
+						:color="result.isCorrect ? 'success' : 'error'"
+						variant="subtle"
+						:title="result.isCorrect ? `Hebat! +${result.pointsEarned} poin` : 'Belum tepat (0 poin)'"
+						:description="!result.isCorrect && result.correctAnswer
+							? `Jawaban yang benar: ${result.correctAnswer.join(', ').toUpperCase()}`
+							: undefined"
+					>
+						<template v-if="result.speedRank" #actions>
+							<UBadge
+								:label="`Tercepat #${result.speedRank} (+${result.speedBonus})`"
+								icon="i-lucide-zap"
+								color="warning"
+								variant="solid"
+							/>
+						</template>
+					</UAlert>
+					<UButton
+						label="Lanjutkan petualangan"
+						trailing-icon="i-lucide-arrow-right"
+						size="lg"
+						block
+						@click="emit('close')"
+					/>
+				</template>
+
+				<!-- Pilihan jawaban -->
+				<div
+					v-else-if="question.type === 'multiple' || question.type === 'ox'"
+					class="grid gap-2.5"
+					:class="question.type === 'ox' ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2'"
+				>
+					<UButton
+						v-for="(opt, idx) in question.options"
+						:key="opt.id"
+						color="neutral"
+						variant="outline"
+						size="lg"
+						class="justify-start text-left whitespace-normal"
+						@click="selectAndSubmit(opt.id)"
+					>
+						<UKbd :value="question.type === 'ox' ? opt.id.toUpperCase() : String(idx + 1)" />
+						<span>{{ opt.text }}</span>
+					</UButton>
+				</div>
+
+				<!-- Isian singkat -->
+				<UForm v-else :state="{ subjectiveInput }" class="space-y-3" @submit="handleSubmit">
+					<UFormField
+						label="Jawaban singkat"
+						description="Huruf besar/kecil dan spasi diabaikan."
+						name="subjectiveInput"
+					>
+						<UInput
+							v-model="subjectiveInput"
+							autofocus
+							size="xl"
+							placeholder="Ketik jawabanmu di sini..."
+							class="w-full"
+						/>
+					</UFormField>
+					<UButton
+						type="submit"
+						label="Kirim jawaban"
+						icon="i-lucide-send"
+						size="lg"
+						block
+						:disabled="!subjectiveInput.trim()"
+					/>
+				</UForm>
+			</div>
+		</template>
+	</UModal>
 </template>

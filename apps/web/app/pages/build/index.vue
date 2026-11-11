@@ -274,9 +274,17 @@
 		}
 	}
 
-	function handleCsvImport(event: Event) {
-		const file = (event.target as HTMLInputElement).files?.[0]
+	// Impor CSV lewat UFileUpload: berkas diproses saat dipilih, lalu kotak dikosongkan lagi.
+	const csvFile = ref<File | null>(null)
+	watch(csvFile, (file) => {
 		if (!file) return
+		importCsvFile(file)
+		nextTick(() => {
+			csvFile.value = null
+		})
+	})
+
+	function importCsvFile(file: File) {
 
 		const reader = new FileReader()
 		reader.onload = () => {
@@ -503,11 +511,8 @@
 
 				<div class="grid gap-6 sm:grid-cols-2">
 					<!-- Pilihan Jenjang -->
-					<div class="sm:col-span-2">
-						<label class="block text-xs font-bold uppercase tracking-wider text-muted">
-							Jenjang Pendidikan
-						</label>
-						<div class="mt-2.5 flex flex-wrap gap-2">
+					<UFormField label="Jenjang Pendidikan" class="sm:col-span-2">
+						<div class="flex flex-wrap gap-2">
 							<UButton
 								v-for="lvl in SCHOOL_LEVEL_OPTIONS"
 								:key="lvl.id"
@@ -518,7 +523,7 @@
 								@click="schoolLevel = lvl.id"
 							/>
 						</div>
-					</div>
+					</UFormField>
 
 					<!-- Tingkat Kelas -->
 					<UFormField label="Tingkat Kelas">
@@ -544,11 +549,8 @@
 					</UFormField>
 
 					<!-- Mata Pelajaran -->
-					<div class="sm:col-span-2">
-						<label class="block text-xs font-bold uppercase tracking-wider text-muted">
-							Mata Pelajaran Kurikulum Indonesia
-						</label>
-						<div class="mt-2.5 flex flex-wrap gap-2">
+					<UFormField label="Mata Pelajaran Kurikulum Indonesia" class="sm:col-span-2">
+						<div class="flex flex-wrap gap-2">
 							<UButton
 								v-for="subj in INDONESIAN_SUBJECTS"
 								:key="subj"
@@ -559,7 +561,7 @@
 								@click="subject = subj"
 							/>
 						</div>
-					</div>
+					</UFormField>
 
 					<!-- Judul Kuis -->
 					<UFormField label="Judul Kuis">
@@ -688,15 +690,15 @@
 					</div>
 
 					<div class="pt-4 border-t border-default">
-						<label class="block text-xs font-bold text-highlighted mb-1.5">
-							Impor Cepat Soal dari CSV
-						</label>
-						<input
-							type="file"
+						<UFileUpload
+							v-model="csvFile"
 							accept=".csv,.txt"
-							class="block w-full text-xs text-muted file:mr-2 file:rounded-lg file:border-0 file:bg-primary/20 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-primary"
-							@change="handleCsvImport"
-						>
+							icon="i-lucide-file-spreadsheet"
+							label="Impor Cepat Soal dari CSV"
+							description="Satu baris per soal: pertanyaan,jawaban"
+							:preview="false"
+							class="min-h-28 w-full"
+						/>
 					</div>
 				</UCard>
 			</div>
@@ -807,13 +809,14 @@
 									label="Acak"
 									@click="q.npcId = undefined"
 								/>
-								<button
+								<UButton
 									v-for="npc in NPC_CHARACTERS"
 									:key="npc.id"
-									type="button"
-									class="flex h-11 items-end rounded-lg border px-1.5 pb-1 transition-all"
-									:class="q.npcId === npc.id ? 'border-primary bg-primary/20 ring-2 ring-primary' : 'border-default bg-default'"
-									:title="npc.label"
+									:color="q.npcId === npc.id ? 'primary' : 'neutral'"
+									:variant="q.npcId === npc.id ? 'subtle' : 'outline'"
+									:aria-label="npc.label"
+									:aria-pressed="q.npcId === npc.id"
+									class="h-11 items-end px-1.5 pb-1"
 									@click="q.npcId = npc.id"
 								>
 									<GameNpcSprite
@@ -821,7 +824,7 @@
 										:scale="2"
 										:animated="q.npcId === npc.id"
 									/>
-								</button>
+								</UButton>
 							</div>
 						</div>
 
@@ -833,13 +836,15 @@
 								class="flex items-center gap-2 rounded-xl border border-default p-2.5 bg-default"
 								:class="q.answer[0] === opt.id ? 'border-primary ring-1 ring-primary' : ''"
 							>
-								<input
-									:checked="q.answer[0] === opt.id"
-									type="radio"
-									:name="`correct-${q.id}`"
-									class="size-4 text-primary"
-									@change="q.answer = [opt.id]"
-								>
+								<UButton
+									:icon="q.answer[0] === opt.id ? 'i-lucide-circle-check-big' : 'i-lucide-circle'"
+									:color="q.answer[0] === opt.id ? 'primary' : 'neutral'"
+									variant="ghost"
+									size="sm"
+									:aria-label="`Jadikan pilihan ${opt.id.toUpperCase()} jawaban benar`"
+									:aria-pressed="q.answer[0] === opt.id"
+									@click="q.answer = [opt.id]"
+								/>
 								<UInput
 									v-model="opt.text"
 									:placeholder="`Pilihan ${opt.id.toUpperCase()}`"

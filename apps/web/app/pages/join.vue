@@ -27,9 +27,6 @@
 			: undefined
 	)
 
-	const selectedPreset = computed(() =>
-		AVATAR_COLORWAYS.find(p => p.id === selectedColorway.value)
-	)
 
 	function fillDemoPin() {
 		code.value = '123456'
@@ -138,57 +135,32 @@
 					</UFormField>
 
 					<!-- Karakter -->
-					<div>
-						<div class="flex items-center justify-between">
-							<span id="avatar-label" class="text-sm font-medium text-highlighted">
-								Pilih karaktermu
-							</span>
-							<UBadge v-if="selectedPreset" color="secondary" variant="subtle" size="sm">
-								{{ selectedPreset.label }}
-							</UBadge>
-						</div>
-
-						<div
-							role="radiogroup"
-							aria-labelledby="avatar-label"
-							class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4"
+					<UFormField label="Pilih karaktermu">
+						<URadioGroup
+							v-model="selectedColorway"
+							:items="AVATAR_COLORWAYS"
+							value-key="id"
+							variant="card"
+							indicator="hidden"
+							:ui="{ fieldset: 'grid grid-cols-2 gap-3 sm:grid-cols-4', item: 'p-2.5', label: 'w-full min-w-0' }"
 						>
-							<button
-								v-for="preset in AVATAR_COLORWAYS"
-								:key="preset.id"
-								type="button"
-								role="radio"
-								:aria-checked="selectedColorway === preset.id"
-								class="relative flex items-center gap-2.5 rounded-xl border-2 p-2.5 text-left text-xs font-bold transition-all focus-visible:outline-3 focus-visible:outline-primary/40"
-								:class="
-									selectedColorway === preset.id
-										? 'border-[var(--ui-text-highlighted)] bg-primary/15 shadow-[3px_3px_0px_0px_var(--ui-text-highlighted)]'
-										: 'border-accented bg-default hover:-translate-y-0.5 hover:border-[var(--ui-text-highlighted)]'
-								"
-								@click="selectedColorway = preset.id"
-							>
-								<span
-									class="relative flex size-10 shrink-0 items-center justify-center rounded-lg border-2 border-[var(--ui-text-highlighted)] bg-success/20"
-								>
-									<span class="relative block size-8 overflow-hidden">
-										<img
-											:src="preset.spriteUrl"
-											:alt="preset.label"
-											class="absolute left-0 top-0 h-8 max-w-none"
-											style="image-rendering: pixelated; width: 288px"
-										>
+							<template #label="{ item }">
+								<span class="flex w-full min-w-0 flex-col items-center gap-1.5">
+									<span class="block size-10 overflow-hidden rounded-lg bg-success/20 p-1">
+										<span class="relative block size-8 overflow-hidden">
+											<img
+												:src="item.spriteUrl"
+												:alt="item.label"
+												class="absolute left-0 top-0 h-8 max-w-none"
+												style="image-rendering: pixelated; width: 288px"
+											>
+										</span>
 									</span>
+									<span class="block w-full truncate text-xs font-semibold">{{ item.label }}</span>
 								</span>
-								<span class="truncate">{{ preset.label }}</span>
-
-								<UIcon
-									v-if="selectedColorway === preset.id"
-									name="i-lucide-circle-check"
-									class="absolute -right-2 -top-2 size-5 rounded-full bg-default text-primary"
-								/>
-							</button>
-						</div>
-					</div>
+							</template>
+						</URadioGroup>
+					</UFormField>
 
 					<!-- Error -->
 					<UAlert

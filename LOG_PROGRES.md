@@ -42,7 +42,7 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 | 1 | ~~Halaman admin Guru, Siswa, Pengaturan Sekolah~~ | Selesai di lokal (0.15) |
 | 2 | ~~Pengaman kelas~~ | Selesai di lokal (0.15); tangkapan layar QR & peringatan nama belum diperiksa |
 | 3 | ~~Backup database harian di VPS~~ | Selesai (0.16): cron 02.30 WIB |
-| 4 | Halaman kuis dengan Nuxt UI | Penyusun kuis, layar host, layar main |
+| 4 | ~~Halaman kuis dengan Nuxt UI~~ | Selesai di lokal (0.18), belum di-push |
 | 5 | ~~Uji beban 200 siswa~~ | Selesai (0.17); perbaikan batas 200 siswa sudah online |
 | 6 | Generator tilemap | Membuat peta baru otomatis dari pipeline Godot |
 | 7 | Fase berikutnya | Mode PR tanpa host live, efek suara + tombol mute, i18n (id/en), PWA |
@@ -425,4 +425,20 @@ Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudfla
 **Bug ditemukan dan diperbaiki (`QuizRoom.ts`):** pemain yang sudah keluar tetap dihitung ke batas 200 dan room demo tidak pernah menghapus mereka, sehingga putaran uji kedua ditolak "Ruang kelas sudah penuh". Di produksi, room demo publik akan penuh permanen setelah 200 pengunjung. Sekarang batas hanya menghitung pemain tersambung (pemain yang keluar tetap disimpan agar nilainya masuk laporan), dan room demo menghapus pemain yang keluar lebih dari 10 menit. Diuji: dua putaran 200 bot berturut-turut di room yang sama, keduanya 200/200 tanpa error.
 
 **Deploy:** `18a486d` terpasang di VPS (game server dibangun ulang). Uji asap 3 bot lewat Cloudflare: 3/3 masuk, 15 update/detik tepat (Linux), 0 error. Uji beban penuh 200 bot ke VPS belum dilakukan; jadwalkan di luar jam kelas.
+
+### 0.18 Halaman kuis memakai Nuxt UI (12 November 2026) — lokal, belum di-commit
+
+Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah Nuxt UI; sisanya diganti:
+
+- **Penyusun kuis (`build`):** label jenjang & mapel → `UFormField`; impor CSV → `UFileUpload` (berkas diproses saat dipilih/di-drop lalu kotak dikosongkan); pemilih karakter NPC → `UButton` dengan sprite; radio kunci jawaban → `UButton` ikon (`aria-pressed`).
+- **Layar main (`play`):** HUD dibangun ulang: `UButton` (keluar, ganti peta demo, mode aksesibel, peringkat), `UBadge` (PIN, sisa pos, skor), pesan galat `UAlert`, papan peringkat `USlideover`, layar selesai `UModal` (tidak bisa ditutup), tombol buka soal `UButton` xl.
+- **Jendela soal (`QuestionModal`):** `UModal` (z-index di atas HUD & sprite; Esc dan klik luar ditangani UModal), pilihan jawaban `UButton` + `UKbd` (tombol 1–4 tetap jalan), petunjuk & hasil `UAlert`, isian singkat `UForm` + `UInput`.
+- **Pemilih posisi di peta:** `UModal` dengan tombol `UButton`; area peta per tile tetap elemen sendiri (tidak ada padanan Nuxt UI).
+- **D-Pad kanvas:** `UButton` ikon chevron.
+- **Halaman join:** pilihan karakter → `URadioGroup` varian kartu (indikator tersembunyi, sprite di atas nama).
+- Tetap native karena tidak ada padanan: judul `h1–h3`, gambar sprite/peta, permukaan klik peta.
+
+**Verifikasi:** lint & typecheck bersih; tangkapan layar diperiksa: penyusun kuis (mode edit), pemilih posisi, join, layar main + peringkat, jendela soal isian. Di dev server, pemuatan pertama layar main bisa >5 detik sehingga peta tampak gelap di tangkapan layar awal; bukan regresi (dibandingkan dengan situs online).
+
+**Belum:** commit + push + deploy web (ditahan pengaman otomatis).
 

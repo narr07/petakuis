@@ -567,39 +567,47 @@
 			@pointerdown.stop
 		>
 			<div />
-			<button
-				type="button"
-				class="pixel-btn flex h-12 w-12 items-center justify-center rounded-lg bg-white/95 font-bold text-[#16211b]"
+			<UButton
+				icon="i-lucide-chevron-up"
+				color="neutral"
+				variant="solid"
+				size="xl"
+				square
+				class="size-12 justify-center shadow-md"
 				aria-label="Gerak Atas"
 				@click="stepDpad('up')"
-			>
-				▲
-			</button>
+			/>
 			<div />
-			<button
-				type="button"
-				class="pixel-btn flex h-12 w-12 items-center justify-center rounded-lg bg-white/95 font-bold text-[#16211b]"
+			<UButton
+				icon="i-lucide-chevron-left"
+				color="neutral"
+				variant="solid"
+				size="xl"
+				square
+				class="size-12 justify-center shadow-md"
 				aria-label="Gerak Kiri"
 				@click="stepDpad('left')"
-			>
-				◀
-			</button>
-			<button
-				type="button"
-				class="pixel-btn flex h-12 w-12 items-center justify-center rounded-lg bg-white/95 font-bold text-[#16211b]"
+			/>
+			<UButton
+				icon="i-lucide-chevron-down"
+				color="neutral"
+				variant="solid"
+				size="xl"
+				square
+				class="size-12 justify-center shadow-md"
 				aria-label="Gerak Bawah"
 				@click="stepDpad('down')"
-			>
-				▼
-			</button>
-			<button
-				type="button"
-				class="pixel-btn flex h-12 w-12 items-center justify-center rounded-lg bg-white/95 font-bold text-[#16211b]"
+			/>
+			<UButton
+				icon="i-lucide-chevron-right"
+				color="neutral"
+				variant="solid"
+				size="xl"
+				square
+				class="size-12 justify-center shadow-md"
 				aria-label="Gerak Kanan"
 				@click="stepDpad('right')"
-			>
-				▶
-			</button>
+			/>
 		</div>
 	</div>
 </template>

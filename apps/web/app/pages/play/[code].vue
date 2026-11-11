@@ -31,6 +31,18 @@
 
 	const showLeaderboardDrawer = ref(false)
 
+	// Layar selesai: sesi diakhiri guru, atau semua pos soal milik siswa ini sudah dijawab.
+	const showFinished = computed(() =>
+		store.sessionStatus === 'ended'
+		|| (store.assignedObjects.length > 0 && store.unansweredObjects.length === 0 && !store.activeQuestion)
+	)
+
+	const showActionPrompt = computed(() =>
+		store.sessionStatus === 'active'
+		&& !store.activeQuestion
+		&& Boolean(store.nearestInteractableObject || (store.isAccessibleMode && store.nextTargetObject))
+	)
+
 	const mapShortLabels: Record<string, string> = {
 		'map-pesisir-karang': '1. Pesisir Karang (64×48)',
 		'map-desa-sunnyside': '2. Lembah Sunnyside (64×48)',
@@ -108,99 +120,89 @@
 
 <template>
 	<div class="relative h-screen w-screen overflow-hidden bg-[#0f172a]">
-		<!-- Top HUD Bar -->
+		<!-- HUD atas -->
 		<header
-			class="absolute inset-x-0 top-0 z-[1000] flex items-center justify-between gap-2 border-b-2 border-[#16211b] bg-[#faf6ee]/95 px-3 py-1.5 sm:px-4"
+			class="absolute inset-x-0 top-0 z-[1000] flex items-center justify-between gap-2 border-b border-default bg-default/95 px-3 py-1.5 backdrop-blur sm:px-4"
 		>
-			<div class="flex items-center gap-2 min-w-0">
-				<NuxtLink
+			<div class="flex min-w-0 items-center gap-2">
+				<UButton
 					to="/"
-					class="shrink-0 rounded-lg border-2 border-[#16211b] bg-white px-2.5 py-1 text-xs font-extrabold text-[#16211b]"
-				>
-					← Keluar
-				</NuxtLink>
-				<div class="flex items-center gap-1.5 min-w-0">
-					<span class="shrink-0 font-mono-num text-xs font-extrabold text-[#15803d]">
-						PIN {{ code }}
-					</span>
-					<span class="hidden md:inline-block text-xs font-extrabold text-[#16211b] truncate max-w-44">
-						{{ store.quizTitle || 'Memuat Peta...' }}
-					</span>
-				</div>
+					icon="i-lucide-log-out"
+					label="Keluar"
+					color="neutral"
+					variant="outline"
+					size="sm"
+				/>
+				<UBadge
+					:label="`PIN ${code}`"
+					color="primary"
+					variant="subtle"
+					class="shrink-0 font-mono"
+				/>
+				<span class="hidden max-w-44 truncate text-sm font-semibold text-highlighted md:inline-block">
+					{{ store.quizTitle || 'Memuat peta...' }}
+				</span>
 			</div>
 
-			<!-- Live Multi-Region Tilemap Switcher (hanya di room demo) -->
-			<div v-if="store.isDemoRoom" class="flex items-center gap-1 rounded-xl border-2 border-[#16211b] bg-white p-0.5 shrink-0">
-				<span class="hidden xl:inline-block px-2 text-[10px] font-extrabold uppercase tracking-wider text-[#435249] whitespace-nowrap">
-					Demo Tilemap:
-				</span>
-				<button
+			<!-- Ganti peta (hanya di room demo) -->
+			<div v-if="store.isDemoRoom" class="hidden shrink-0 items-center gap-1 lg:flex">
+				<UButton
 					v-for="m in MAP_CATALOG"
 					:key="m.id"
-					type="button"
-					class="whitespace-nowrap rounded-lg px-2 py-1 text-[11px] font-extrabold transition-colors"
-					:class="
-						store.mapConfig?.id === m.id
-							? 'bg-[#15803d] text-white shadow-[1px_1px_0px_#16211b]'
-							: 'bg-transparent text-[#16211b] hover:bg-[#faf6ee]'
-					"
+					:label="mapShortLabels[m.id] || m.name"
+					:color="store.mapConfig?.id === m.id ? 'primary' : 'neutral'"
+					:variant="store.mapConfig?.id === m.id ? 'solid' : 'ghost'"
+					size="xs"
 					@click="handleSelectDemoMap(m.id)"
-				>
-					{{ mapShortLabels[m.id] || m.name }}
-				</button>
+				/>
 			</div>
 
-			<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-				<!-- Progress Counter -->
-				<div
-					class="whitespace-nowrap rounded-lg border-2 border-[#16211b] bg-white px-2.5 py-1 font-mono-num text-xs font-extrabold text-[#16211b]"
-				>
-					Sisa Pos: {{ store.unansweredObjects.length }} /
-					{{ store.assignedObjects.length }}
-				</div>
-
-				<!-- Score Badge -->
-				<div
-					class="whitespace-nowrap rounded-lg border-2 border-[#16211b] bg-[#fef08a] px-2.5 py-1 font-mono-num text-xs font-extrabold text-[#16211b]"
-				>
-					Skor: {{ store.myScore }}
-				</div>
-
-				<!-- Accessible Mode Toggle -->
-				<button
-					type="button"
-					class="hidden lg:inline-flex whitespace-nowrap rounded-lg border-2 border-[#16211b] px-2.5 py-1 text-xs font-extrabold"
-					:class="
-						store.isAccessibleMode
-							? 'bg-[#dcfce7] text-[#14532d]'
-							: 'bg-white text-[#16211b]'
-					"
+			<div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
+				<UBadge
+					:label="`Sisa pos: ${store.unansweredObjects.length}/${store.assignedObjects.length}`"
+					icon="i-lucide-map-pin"
+					color="neutral"
+					variant="outline"
+					class="font-mono"
+				/>
+				<UBadge
+					:label="`Skor: ${store.myScore}`"
+					icon="i-lucide-star"
+					color="warning"
+					variant="solid"
+					class="font-mono"
+				/>
+				<UButton
+					:label="store.isAccessibleMode ? 'Aksesibel: aktif' : 'Mode aksesibel'"
+					icon="i-lucide-accessibility"
+					:color="store.isAccessibleMode ? 'success' : 'neutral'"
+					:variant="store.isAccessibleMode ? 'subtle' : 'outline'"
+					size="sm"
+					class="hidden lg:inline-flex"
 					@click="toggleAccessibleMode(!store.isAccessibleMode)"
-				>
-					{{ store.isAccessibleMode ? 'Aksesibel: Aktif' : 'Mode Aksesibel' }}
-				</button>
-
-				<!-- Leaderboard Drawer Toggle -->
-				<button
-					type="button"
-					class="whitespace-nowrap pixel-btn rounded-lg bg-[#16211b] px-2.5 py-1 text-xs font-extrabold text-[#fef08a]"
+				/>
+				<UButton
+					label="Peringkat"
+					icon="i-lucide-trophy"
+					color="neutral"
+					size="sm"
 					@click="showLeaderboardDrawer = !showLeaderboardDrawer"
-				>
-					Peringkat
-				</button>
+				/>
 			</div>
 		</header>
 
-		<!-- Error Toast Banner -->
-		<div
+		<!-- Pesan galat -->
+		<UAlert
 			v-if="store.errorBanner"
 			role="status"
-			class="fixed left-1/2 top-28 z-40 -translate-x-1/2 rounded-xl border-2 border-[#16211b] bg-[#fee2e2] px-4 py-2 text-xs font-extrabold text-[#991b1b] shadow-[3px_3px_0px_#16211b]"
-		>
-			{{ store.errorBanner }}
-		</div>
+			color="error"
+			variant="solid"
+			icon="i-lucide-circle-alert"
+			:description="store.errorBanner"
+			class="fixed left-1/2 top-16 z-[1001] w-auto max-w-md -translate-x-1/2"
+		/>
 
-		<!-- Interactive 2D Pixel Map Canvas -->
+		<!-- Peta 2D -->
 		<ClientOnly>
 			<GameCanvas
 				v-if="store.mapConfig"
@@ -218,65 +220,51 @@
 			/>
 		</ClientOnly>
 
-		<!-- Floating Action Prompt when near a quiz object OR in Accessible Mode -->
-		<div
-			v-if="
-				store.sessionStatus === 'active' &&
-				!store.activeQuestion &&
-				(store.nearestInteractableObject ||
-					(store.isAccessibleMode && store.nextTargetObject))
-			"
-			class="fixed bottom-6 right-6 z-30"
-		>
-			<button
-				type="button"
-				class="pixel-btn rounded-2xl bg-[#f59e0b] px-6 py-4 text-sm font-extrabold text-[#16211b]"
-				@click="
-					store.isAccessibleMode
-						? handleAccessibleNextQuestion()
-						: handleOpenObject(store.nearestInteractableObject!.objectId)
-				"
-			>
-				{{
-					store.isAccessibleMode
-						? `Buka Soal #${store.nextTargetObject?.orderIndex} (Aksesibel)`
-						: `Buka Pos Soal #${store.nearestInteractableObject?.orderIndex} (Spasi / Ketuk)`
-				}}
-			</button>
+		<!-- Tombol buka soal saat dekat pos (atau mode aksesibel) -->
+		<div v-if="showActionPrompt" class="fixed bottom-6 right-6 z-30">
+			<UButton
+				size="xl"
+				color="warning"
+				icon="i-lucide-scroll-text"
+				class="shadow-lg"
+				:label="store.isAccessibleMode
+					? `Buka Soal #${store.nextTargetObject?.orderIndex} (Aksesibel)`
+					: `Buka Pos Soal #${store.nearestInteractableObject?.orderIndex} (Spasi / Ketuk)`"
+				@click="store.isAccessibleMode
+					? handleAccessibleNextQuestion()
+					: handleOpenObject(store.nearestInteractableObject!.objectId)"
+			/>
 		</div>
 
-		<!-- Live Leaderboard Side Drawer -->
-		<aside
-			v-if="showLeaderboardDrawer"
-			class="fixed right-4 top-14 z-30 w-72 rounded-2xl border-2 border-[#16211b] bg-[#faf6ee] p-4 shadow-[4px_4px_0px_#16211b]"
+		<!-- Peringkat kelas -->
+		<USlideover
+			v-model:open="showLeaderboardDrawer"
+			title="Peringkat Kelas Live"
+			description="Diperbarui otomatis selama sesi berjalan."
+			:overlay="false"
 		>
-			<div class="flex items-center justify-between border-b border-[#16211b] pb-2">
-				<h2 class="text-xs font-extrabold uppercase tracking-wider text-[#16211b]">
-					Peringkat Kelas Live
-				</h2>
-				<button
-					type="button"
-					class="text-xs font-bold text-[#435249]"
-					@click="showLeaderboardDrawer = false"
-				>
-					Tutup
-				</button>
-			</div>
-			<ul class="mt-3 space-y-2">
-				<li
-					v-for="(item, idx) in store.leaderboard"
-					:key="item.id"
-					class="flex items-center justify-between rounded-lg border border-[#16211b] bg-white px-3 py-1.5 text-xs font-bold"
-				>
-					<span>#{{ idx + 1 }} {{ item.nickname }}</span>
-					<span class="font-mono-num font-extrabold text-[#15803d]">
-						{{ item.score }} pts
-					</span>
-				</li>
-			</ul>
-		</aside>
+			<template #body>
+				<ol class="space-y-2">
+					<li
+						v-for="(item, idx) in store.leaderboard"
+						:key="item.id"
+						class="flex items-center justify-between gap-3 rounded-lg border border-default px-3 py-2 text-sm"
+					>
+						<span class="truncate font-medium text-highlighted">#{{ idx + 1 }} {{ item.nickname }}</span>
+						<UBadge :label="`${item.score} poin`" color="success" variant="subtle" class="shrink-0 font-mono" />
+					</li>
+				</ol>
+				<UEmpty
+					v-if="!store.leaderboard.length"
+					icon="i-lucide-trophy"
+					title="Belum ada skor"
+					description="Jawab soal pertama untuk masuk papan peringkat."
+					variant="naked"
+				/>
+			</template>
+		</USlideover>
 
-		<!-- Question Modal -->
+		<!-- Jendela soal -->
 		<GameQuestionModal
 			v-if="store.activeQuestion"
 			:question="store.activeQuestion"
@@ -288,57 +276,49 @@
 			"
 		/>
 
-		<!-- Session End Podium Overlay -->
-		<div
-			v-if="
-				store.sessionStatus === 'ended' ||
-				(store.assignedObjects.length > 0 && store.unansweredObjects.length === 0 && !store.activeQuestion)
-			"
-			class="fixed inset-0 z-40 flex items-center justify-center bg-black/75 p-4"
+		<!-- Layar selesai -->
+		<UModal
+			:open="showFinished"
+			:dismissible="false"
+			:close="false"
+			title="Petualangan selesai!"
+			description="Seluruh pos soal sudah kamu jawab."
 		>
-			<div class="pixel-card w-full max-w-lg rounded-2xl p-6 text-center">
-				<span class="font-pixel text-xs text-[#15803d]">PETUALANGAN SELESAI</span>
-				<h2 class="mt-2 text-2xl font-extrabold text-[#16211b]">
-					Seluruh Pos Soal Telah Dijawab!
-				</h2>
-				<p class="mt-1 text-sm text-[#435249]">
-					Total Skor Akhir Kamu:
-					<strong class="font-mono-num text-lg text-[#15803d]">
-						{{ store.myScore }} Poin
-					</strong>
-				</p>
+			<template #body>
+				<div class="space-y-5">
+					<div class="text-center">
+						<p class="text-sm text-muted">
+							Total skor akhirmu
+						</p>
+						<p class="font-mono text-4xl font-black text-primary">
+							{{ store.myScore }} poin
+						</p>
+					</div>
 
-				<div class="mt-5 space-y-2 text-left">
-					<p class="text-xs font-extrabold uppercase text-[#435249]">
-						Podium Kelas Saat Ini:
-					</p>
-					<div
-						v-for="(entry, idx) in store.leaderboard.slice(0, 5)"
-						:key="entry.id"
-						class="flex items-center justify-between rounded-xl border-2 border-[#16211b] bg-[#faf6ee] px-4 py-2.5 text-sm font-extrabold"
-					>
-						<span>#{{ idx + 1 }} {{ entry.nickname }}</span>
-						<span class="font-mono-num text-[#15803d]">
-							{{ entry.score }} Poin ({{ entry.correctCount }}/{{ entry.totalQuestions }} Benar)
-						</span>
+					<div class="space-y-2">
+						<p class="text-xs font-semibold uppercase text-muted">
+							Podium kelas saat ini
+						</p>
+						<div
+							v-for="(entry, idx) in store.leaderboard.slice(0, 5)"
+							:key="entry.id"
+							class="flex items-center justify-between gap-3 rounded-lg border border-default px-3 py-2 text-sm"
+						>
+							<span class="truncate font-medium text-highlighted">#{{ idx + 1 }} {{ entry.nickname }}</span>
+							<span class="shrink-0 font-mono text-muted">
+								{{ entry.score }} poin ({{ entry.correctCount }}/{{ entry.totalQuestions }} benar)
+							</span>
+						</div>
 					</div>
 				</div>
+			</template>
 
-				<div class="mt-6 flex flex-wrap justify-center gap-3">
-					<NuxtLink
-						:to="`/report/${code}`"
-						class="pixel-btn rounded-xl bg-[#15803d] px-5 py-3 text-xs font-extrabold text-white"
-					>
-						Lihat Laporan Lengkap & CSV
-					</NuxtLink>
-					<NuxtLink
-						to="/"
-						class="pixel-btn rounded-xl bg-white px-5 py-3 text-xs font-extrabold text-[#16211b]"
-					>
-						Kembali ke Beranda
-					</NuxtLink>
+			<template #footer>
+				<div class="flex w-full flex-wrap justify-end gap-2">
+					<UButton to="/" label="Kembali ke beranda" color="neutral" variant="outline" />
+					<UButton :to="`/report/${code}`" icon="i-lucide-file-spreadsheet" label="Lihat laporan lengkap" />
 				</div>
-			</div>
-		</div>
+			</template>
+		</UModal>
 	</div>
 </template>
