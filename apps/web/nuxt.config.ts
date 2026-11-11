@@ -32,7 +32,6 @@ export default defineNuxtConfig({
 			htmlAttrs: {
 				lang: 'id'
 			},
-			title: 'Petakuis · Kuis Kelas Petualangan 2D Gratis untuk Sekolah Indonesia',
 			meta: [
 				{
 					name: 'description',

@@ -1,25 +1,26 @@
 <script setup lang="ts">
-	const route = useRoute()
-	const isFullscreenGame = computed(() => route.path.startsWith('/play/'))
-	const isDashboard = computed(() => route.path.startsWith('/dashboard'))
+	const colorMode = useColorMode()
+	const themeColor = computed(() => (colorMode.value === 'dark' ? '#09090b' : '#ffffff'))
+
+	useHead({
+		meta: [{ key: 'theme-color', name: 'theme-color', content: themeColor }],
+		link: [{ rel: 'icon', href: '/favicon.ico' }]
+	})
+
+	useSeoMeta({
+		titleTemplate: (title?: string) =>
+			title
+				? `${title} · Petakuis`
+				: 'Petakuis · Kuis Kelas Petualangan 2D Gratis untuk Sekolah Indonesia'
+	})
 </script>
 
 <template>
 	<UApp>
-		<div
-			v-if="!isFullscreenGame && !isDashboard"
-			class="min-h-screen flex flex-col bg-default text-default"
-		>
-			<AppNavbar />
-			<UMain>
-				<NuxtPage />
-			</UMain>
-		</div>
-		<div
-			v-else
-			class="h-screen w-screen overflow-hidden bg-default text-default"
-		>
+		<NuxtLoadingIndicator color="var(--ui-primary)" />
+
+		<NuxtLayout>
 			<NuxtPage />
-		</div>
+		</NuxtLayout>
 	</UApp>
 </template>

@@ -6,6 +6,10 @@
 	} from '@petakuis/shared'
 	import { useSessionStore } from '~/stores/useSessionStore'
 
+	definePageMeta({
+		layout: 'game'
+	})
+
 	const route = useRoute()
 	const store = useSessionStore()
 	const {
