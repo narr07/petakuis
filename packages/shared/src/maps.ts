@@ -1,4 +1,7 @@
 import { DATARAN_ANGIN_LAYOUT } from './generated/map-dataran-angin'
+import { DESA_LADANG_LAYOUT } from './generated/map-desa-ladang'
+import { DESA_TEPI_SUNGAI_LAYOUT } from './generated/map-desa-tepi-sungai'
+import { KAMPUNG_DANAU_LAYOUT } from './generated/map-kampung-danau'
 import { KOTA_PASAR_LAYOUT } from './generated/map-kota-pasar'
 import { LEMBAH_SUNNYSIDE_LAYOUT } from './generated/map-lembah-sunnyside'
 import { PESISIR_KARANG_LAYOUT } from './generated/map-pesisir-karang'
@@ -320,6 +323,62 @@ export const MAP_CATALOG: MapTemplate[] = [
 			}
 		},
 		KOTA_PASAR_LAYOUT
+	),
+	// Tiga peta berikut dibuat generator (tools/godot-maps/scripts/generate_map.gd);
+	// seed tercatat di sini supaya bisa dibangun ulang persis sama.
+	godotMap(
+		{
+			id: 'map-desa-tepi-sungai',
+			slug: 'desa-tepi-sungai',
+			name: 'Desa Tepi Sungai · Jembatan & Ladang',
+			description:
+				'Desa berpetak (64x48 tile) dengan sungai berkelok di selatan, dua jembatan papan, jalan di seberang sungai, dan 21 rumah beragam. Generator: tema sungai, seed 12.',
+			defaultMode: 'free',
+			palette: {
+				floorPrimary: '#62c44c',
+				floorSecondary: '#c98f5a',
+				wallPrimary: '#c8443c',
+				wallAccent: '#30d8e8',
+				accentColor: '#0ea5e9'
+			}
+		},
+		DESA_TEPI_SUNGAI_LAYOUT
+	),
+	godotMap(
+		{
+			id: 'map-kampung-danau',
+			slug: 'kampung-danau',
+			name: 'Kampung Danau · Kincir & Kebun',
+			description:
+				'Kampung (64x48 tile) dengan danau di tengah selatan, kebun di kedua tepinya, kincir angin, dan 20 rumah menghadap jalan. Generator: tema danau, seed 21.',
+			defaultMode: 'free',
+			palette: {
+				floorPrimary: '#62c44c',
+				floorSecondary: '#5ab846',
+				wallPrimary: '#8b5cf6',
+				wallAccent: '#30d8e8',
+				accentColor: '#14b8a6'
+			}
+		},
+		KAMPUNG_DANAU_LAYOUT
+	),
+	godotMap(
+		{
+			id: 'map-desa-ladang',
+			slug: 'desa-ladang',
+			name: 'Desa Ladang · Kolam, Kebun & Kincir',
+			description:
+				'Desa pertanian (64x48 tile) dengan kolam kecil, enam petak kebun, ternak, dua kincir angin, dan 19 rumah. Generator: tema desa, seed 99.',
+			defaultMode: 'linear',
+			palette: {
+				floorPrimary: '#62c44c',
+				floorSecondary: '#c98f5a',
+				wallPrimary: '#c8443c',
+				wallAccent: '#facc15',
+				accentColor: '#84cc16'
+			}
+		},
+		DESA_LADANG_LAYOUT
 	)
 ]
 

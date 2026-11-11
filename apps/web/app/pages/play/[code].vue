@@ -48,8 +48,13 @@
 		'map-desa-sunnyside': '2. Lembah Sunnyside (64×48)',
 		'map-kampus-modern': '3. Kampus Modern (48×36)',
 		'map-dataran-angin': '4. Dataran Angin (64×48)',
-		'map-kota-pasar': '5. Kota Pasar (64×48)'
+		'map-kota-pasar': '5. Kota Pasar (64×48)',
+		'map-desa-tepi-sungai': '6. Desa Tepi Sungai (64×48)',
+		'map-kampung-danau': '7. Kampung Danau (64×48)',
+		'map-desa-ladang': '8. Desa Ladang (64×48)'
 	}
+
+	const demoMapItems = MAP_CATALOG.map(m => ({ label: mapShortLabels[m.id] || m.name, value: m.id }))
 
 	function handleSelectDemoMap(mapId: string) {
 		changeRoomMap(mapId)
@@ -145,17 +150,16 @@
 			</div>
 
 			<!-- Ganti peta (hanya di room demo) -->
-			<div v-if="store.isDemoRoom" class="hidden shrink-0 items-center gap-1 lg:flex">
-				<UButton
-					v-for="m in MAP_CATALOG"
-					:key="m.id"
-					:label="mapShortLabels[m.id] || m.name"
-					:color="store.mapConfig?.id === m.id ? 'primary' : 'neutral'"
-					:variant="store.mapConfig?.id === m.id ? 'solid' : 'ghost'"
-					size="xs"
-					@click="handleSelectDemoMap(m.id)"
-				/>
-			</div>
+			<USelect
+				v-if="store.isDemoRoom"
+				:model-value="store.mapConfig?.id"
+				:items="demoMapItems"
+				icon="i-lucide-map"
+				size="sm"
+				aria-label="Ganti peta demo"
+				class="hidden w-60 md:flex"
+				@update:model-value="(id) => id && handleSelectDemoMap(String(id))"
+			/>
 
 			<div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
 				<UBadge

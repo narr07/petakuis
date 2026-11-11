@@ -446,5 +446,17 @@ Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah
 
 - `tools/godot-maps/scripts/generate_map.gd` di atas `sunnyside_kit.gd` + katalog `buildings.gd`: input `slug`, `seed`, `tema` (desa/sungai/danau), `nama`, `lebar`, `tinggi`. Menyusun jalan utama, jalan kedua, 2–3 jalan tembus; air sesuai tema (sungai berkelok dengan jembatan otomatis dan jalan di seberang, danau, atau kolam); bangunan acak berderet menghadap jalan dengan jarak satu sel (tiap jenis maks. 2, tidak berurutan); ladang, ternak, cincin hutan, dekor; 24 pos soal otomatis. Pemeriksaan: semua pos terjangkau dari titik mulai, area jalan ≥ 30%, pos ≥ 20, bangunan ≥ 6; bila gagal coba seed berikutnya (maks. 12).
 - `run.sh --gen slug=... seed=... tema=...`: generate + ekspor PNG/TS + cetak potongan kode pendaftaran untuk `maps.ts`. README diperbarui.
-- **Diuji:** tiga tema (sungai seed 7, danau seed 21, desa seed 99) lolos di percobaan pertama: 14–20 bangunan, area jalan 51–55%, 24 pos soal; PNG diperiksa visual (jembatan di tiap persilangan sungai, rumah menghadap jalan, variasi bangunan). Berkas uji dihapus; belum ada peta hasil generator yang didaftarkan ke katalog.
+- **Diuji:** tiga tema (sungai seed 7, danau seed 21, desa seed 99) lolos di percobaan pertama: 14–20 bangunan, area jalan 51–55%, 24 pos soal; PNG diperiksa visual (jembatan di tiap persilangan sungai, rumah menghadap jalan, variasi bangunan). Berkas uji dihapus.
+
+### 0.20 Tiga peta baru dari generator (12 November 2026)
+
+| Peta | Tema / seed | Isi | Mode bawaan |
+| --- | --- | --- | --- |
+| `map-desa-tepi-sungai` Desa Tepi Sungai · Jembatan & Ladang | sungai / 12 | sungai di selatan, 2 jembatan, jalan seberang, 21 rumah | bebas |
+| `map-kampung-danau` Kampung Danau · Kincir & Kebun | danau / 21 | danau di selatan, kebun di kedua tepi, kincir, 20 rumah | bebas |
+| `map-desa-ladang` Desa Ladang · Kolam, Kebun & Kincir | desa / 99 | kolam kecil, 6 petak kebun, ternak, 2 kincir, 19 rumah | berurutan |
+
+- Seed sungai dipilih dari 6 percobaan (seed 7 hanya 14 bangunan; seed 12 terbanyak, 21). Seed tercatat di deskripsi `maps.ts` supaya bisa dibangun ulang persis: `bash tools/godot-maps/run.sh --gen slug=<slug> seed=<seed> tema=<tema>`.
+- Katalog kini 8 peta. Pemilih peta demo di HUD layar main diganti `USelect` (8 tombol terlalu lebar).
+- **Verifikasi:** typecheck bersih; unit test 45 lulus (pengecekan naik 848 → 1217 karena uji tabrakan & pos soal ikut memeriksa peta baru); peta sungai dan danau dibuka di layar main lewat `?map=` (pemain muncul di persimpangan, petunjuk arah pos soal jalan).
 
