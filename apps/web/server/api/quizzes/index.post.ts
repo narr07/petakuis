@@ -3,6 +3,7 @@ import { NPC_CHARACTERS, type QuizDefinition } from '@petakuis/shared'
 import { createQuiz } from '../../utils/store'
 
 export default defineEventHandler(async (event) => {
+	const current = await requireUser(event, ['teacher', 'admin'])
 	const body = await readBody<Partial<QuizDefinition>>(event)
 
 	if (!body.title || !body.questions || body.questions.length === 0) {
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
 	const quiz: QuizDefinition = {
 		id,
-		ownerName: body.ownerName || 'Guru Petakuis',
+		ownerName: current.name,
 		title: body.title.trim(),
 		description: (body.description || '').trim(),
 		schoolLevel: body.schoolLevel || 'sd',
@@ -59,7 +60,7 @@ export default defineEventHandler(async (event) => {
 		updatedAt: now
 	}
 
-	await createQuiz(quiz)
+	await createQuiz(quiz, current.id)
 	return {
 		ok: true,
 		quiz

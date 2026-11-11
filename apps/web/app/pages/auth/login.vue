@@ -1,6 +1,6 @@
 <script setup lang="ts">
 	import * as z from 'zod'
-	import type { AuthFormField, FormSubmitEvent, TabsItem } from '@nuxt/ui'
+	import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 
 	definePageMeta({
 		layout: 'auth'
@@ -8,105 +8,99 @@
 
 	useSeoMeta({
 		title: 'Masuk',
-		description: 'Masuk ke Petakuis sebagai guru, admin sekolah, atau siswa.'
+		description: 'Masuk ke Petakuis untuk membuat kuis dan membuka kelas live.'
 	})
 
-	type LoginRole = 'teacher' | 'admin' | 'student'
+	const route = useRoute()
+	const config = useRuntimeConfig()
+	const { refresh } = useCurrentUser()
 
-	const router = useRouter()
-	const toast = useToast()
-	const { setRole } = useDashboardRole()
+	const loading = ref(false)
+	const errorMessage = ref('')
+	const unverifiedEmail = ref('')
+	const resendState = ref<'idle' | 'sending' | 'sent'>('idle')
 
-	const role = ref<LoginRole>('teacher')
-	const step = ref<'email' | 'otp'>('email')
-	const pendingEmail = ref('')
-
-	const roleTabs: TabsItem[] = [
-		{ label: 'Guru', value: 'teacher', icon: 'i-lucide-graduation-cap' },
-		{ label: 'Admin', value: 'admin', icon: 'i-lucide-shield-check' },
-		{ label: 'Siswa', value: 'student', icon: 'i-lucide-gamepad-2' }
-	]
-
-	watch(role, () => {
-		step.value = 'email'
+	const redirectTo = computed(() => {
+		const r = String(route.query.redirect || '')
+		// Hanya alamat di situs ini, supaya tautan login tidak bisa dipakai untuk mengalihkan ke situs lain.
+		return r.startsWith('/') && !r.startsWith('//') ? r : ''
 	})
 
-	// Langkah 1 guru/admin: email sekolah
-	const emailFields: AuthFormField[] = [
+	const notice = computed(() => {
+		if (route.query.reset === 'ok') return 'Kata sandi baru tersimpan. Silakan masuk.'
+		if (route.query.error === 'google') return 'Masuk dengan Google gagal atau dibatalkan. Coba lagi.'
+		return ''
+	})
+
+	const fields: AuthFormField[] = [
 		{
 			name: 'email',
 			type: 'email',
-			label: 'Email sekolah atau belajar.id',
+			label: 'Email',
 			placeholder: 'nama@sekolah.sch.id',
+			autocomplete: 'email',
 			required: true
 		},
 		{
-			name: 'school',
-			type: 'text',
-			label: 'Nama sekolah',
-			placeholder: 'Contoh: SMPN 5 Bandung'
+			name: 'password',
+			type: 'password',
+			label: 'Kata sandi',
+			placeholder: 'Kata sandimu',
+			autocomplete: 'current-password',
+			required: true
 		}
 	]
 
-	const emailSchema = z.object({
+	const schema = z.object({
 		email: z.email('Format email belum benar'),
-		school: z.string().optional()
+		password: z.string().min(1, 'Isi kata sandi')
 	})
 
-	// Langkah 2 guru/admin: kode OTP
-	const otpFields: AuthFormField[] = [
-		{
-			name: 'otp',
-			type: 'otp',
-			label: 'Kode verifikasi',
-			length: 6,
-			size: 'xl'
-		}
-	]
-
-	const otpSchema = z.object({
-		otp: z.array(z.string()).length(6, 'Isi 6 digit kode')
-	})
-
-	// Siswa: cukup PIN ruangan
-	const pinFields: AuthFormField[] = [
-		{
-			name: 'pin',
-			type: 'otp',
-			label: 'PIN ruangan dari guru',
-			length: 6,
-			size: 'xl'
-		}
-	]
-
-	const pinSchema = z.object({
-		pin: z.array(z.string()).length(6, 'Isi 6 digit PIN')
-	})
-
-	const providers = computed(() =>
-		step.value === 'email'
-			? [{ label: 'Masuk dengan Google', icon: 'i-lucide-circle-user-round', onClick: () => finishLogin() }]
-			: []
-	)
-
-	function onEmailSubmit(event: FormSubmitEvent<z.output<typeof emailSchema>>) {
-		pendingEmail.value = event.data.email
-		step.value = 'otp'
-		toast.add({
-			title: 'Kode terkirim (pratinjau)',
-			description: `Pada versi final, kode 6 digit dikirim ke ${event.data.email}. Untuk sekarang isi angka apa saja.`,
-			icon: 'i-lucide-mail-check',
-			color: 'info'
+	async function signInWithGoogle() {
+		errorMessage.value = ''
+		await useAuthClient().signIn.social({
+			provider: 'google',
+			callbackURL: redirectTo.value || '/dashboard',
+			newUserCallbackURL: '/auth/pilih-peran',
+			errorCallbackURL: '/auth/login?error=google'
 		})
 	}
 
-	function finishLogin() {
-		setRole(role.value === 'admin' ? 'admin' : 'teacher')
-		router.push('/dashboard')
+	const providers = computed<ButtonProps[]>(() =>
+		config.public.googleLoginEnabled
+			? [{ label: 'Masuk dengan Google', icon: 'i-lucide-chrome', onClick: signInWithGoogle }]
+			: []
+	)
+
+	async function onSubmit(event: FormSubmitEvent<z.output<typeof schema>>) {
+		loading.value = true
+		errorMessage.value = ''
+		unverifiedEmail.value = ''
+		try {
+			const { error } = await useAuthClient().signIn.email({
+				email: event.data.email,
+				password: event.data.password
+			})
+			if (error) {
+				errorMessage.value = authErrorMessage(error)
+				if (error.code === 'EMAIL_NOT_VERIFIED') unverifiedEmail.value = event.data.email
+				return
+			}
+			const current = await refresh()
+			await navigateTo(redirectTo.value || homeForRole(current?.role ?? null))
+		} finally {
+			loading.value = false
+		}
 	}
 
-	function onPinSubmit(event: FormSubmitEvent<z.output<typeof pinSchema>>) {
-		router.push({ path: '/join', query: { code: event.data.pin.join('') } })
+	async function resendVerification() {
+		resendState.value = 'sending'
+		const { error } = await useAuthClient().sendVerificationEmail({
+			email: unverifiedEmail.value,
+			callbackURL: '/dashboard'
+		})
+		resendState.value = error ? 'idle' : 'sent'
+		if (error) errorMessage.value = authErrorMessage(error)
 	}
 </script>
 
@@ -116,78 +110,60 @@
 			<AppLogo />
 		</NuxtLink>
 
-		<UTabs
-			v-model="role"
-			:items="roleTabs"
-			:content="false"
-			color="neutral"
-			size="sm"
-			class="w-full"
+		<UAlert
+			v-if="notice"
+			:color="route.query.error ? 'warning' : 'success'"
+			variant="subtle"
+			:icon="route.query.error ? 'i-lucide-triangle-alert' : 'i-lucide-check'"
+			:title="notice"
 		/>
 
 		<UAuthForm
-			v-if="role === 'student'"
-			:fields="pinFields"
-			:schema="pinSchema"
-			title="Masuk sebagai siswa"
-			description="Siswa tidak perlu akun. Masukkan PIN dari layar guru, lalu pilih avatar."
-			icon="i-lucide-gamepad-2"
-			:submit="{ label: 'Masuk ke Ruangan', trailingIcon: 'i-lucide-arrow-right', block: true }"
-			@submit="onPinSubmit"
-		/>
-
-		<UAuthForm
-			v-else-if="step === 'email'"
-			:key="`email-${role}`"
-			:fields="emailFields"
-			:schema="emailSchema"
+			:fields="fields"
+			:schema="schema"
 			:providers="providers"
 			separator="atau"
-			:title="role === 'admin' ? 'Masuk sebagai admin sekolah' : 'Masuk sebagai guru'"
-			:description="role === 'admin'
-				? 'Kelola guru, siswa, dan kuota AI untuk sekolahmu.'
-				: 'Simpan kuis, buka kelas live, dan unduh laporan nilai.'"
+			title="Masuk ke Petakuis"
 			icon="i-lucide-lock"
-			:submit="{ label: 'Kirim Kode Masuk', block: true }"
-			@submit="onEmailSubmit"
-		>
-			<template #footer>
-				Dengan masuk, kamu menyetujui penggunaan data seperlunya untuk keperluan kelas.
-			</template>
-		</UAuthForm>
-
-		<UAuthForm
-			v-else
-			:key="`otp-${role}`"
-			:fields="otpFields"
-			:schema="otpSchema"
-			title="Cek email kamu"
-			icon="i-lucide-mail-check"
-			:submit="{ label: 'Verifikasi & Masuk', block: true }"
-			@submit="finishLogin"
+			:loading="loading"
+			:submit="{ label: 'Masuk', block: true }"
+			@submit="onSubmit"
 		>
 			<template #description>
-				Masukkan kode 6 digit yang dikirim ke <span class="font-medium text-highlighted">{{ pendingEmail }}</span>.
+				Belum punya akun?
+				<ULink to="/auth/daftar" class="font-medium text-primary">Daftar sebagai guru atau siswa</ULink>.
+			</template>
+
+			<template #password-hint>
+				<ULink to="/auth/lupa-sandi" class="font-medium text-primary" tabindex="-1">Lupa kata sandi?</ULink>
+			</template>
+
+			<template #validation>
+				<UAlert
+					v-if="errorMessage"
+					color="error"
+					variant="subtle"
+					icon="i-lucide-circle-alert"
+					:title="errorMessage"
+				>
+					<template v-if="unverifiedEmail" #actions>
+						<UButton
+							:label="resendState === 'sent' ? 'Tautan terkirim' : 'Kirim ulang tautan konfirmasi'"
+							:loading="resendState === 'sending'"
+							:disabled="resendState === 'sent'"
+							size="xs"
+							color="neutral"
+							variant="outline"
+							@click="resendVerification"
+						/>
+					</template>
+				</UAlert>
 			</template>
 
 			<template #footer>
-				<UButton
-					label="Ganti email"
-					icon="i-lucide-arrow-left"
-					color="neutral"
-					variant="link"
-					size="sm"
-					@click="step = 'email'"
-				/>
+				Siswa yang hanya ingin bermain cukup memakai
+				<ULink to="/join" class="font-medium text-primary">PIN dari guru</ULink>, tanpa akun.
 			</template>
 		</UAuthForm>
-
-		<UAlert
-			color="warning"
-			variant="subtle"
-			icon="i-lucide-flask-conical"
-			title="Mode pratinjau"
-			description="Login belum tersambung ke server. Tombol masuk langsung membuka dashboard dengan data contoh."
-		/>
 	</div>
 </template>

@@ -11,7 +11,9 @@
 	const { launchingId, launch } = useLaunchSession()
 
 	const { data, status } = await useFetch<{ quizzes: QuizDefinition[] }>('/api/quizzes', {
-		key: 'dashboard-quizzes'
+		key: 'dashboard-quizzes',
+		// Hanya kuis milik guru yang masuk (admin: semua kuis).
+		query: { mine: 1 }
 	})
 
 	const search = ref('')

@@ -41,9 +41,14 @@ export async function listQuizzes(filters?: {
 	schoolLevel?: string
 	subject?: string
 	search?: string
+	/** Hanya kuis milik guru ini. */
+	ownerId?: string
 }): Promise<QuizDefinition[]> {
 	const db = await useDb()
 	const where: SQL[] = []
+	if (filters?.ownerId) {
+		where.push(eq(quizzes.ownerId, filters.ownerId))
+	}
 	if (filters?.schoolLevel && filters.schoolLevel !== 'all') {
 		where.push(eq(quizzes.schoolLevel, filters.schoolLevel))
 	}
@@ -73,10 +78,11 @@ export async function getQuizById(id: string): Promise<QuizDefinition | undefine
 }
 
 /** Menyimpan kuis baru. Mengedit kuis yang sudah ada menunggu login guru (cek pemilik). */
-export async function createQuiz(quiz: QuizDefinition): Promise<QuizDefinition> {
+export async function createQuiz(quiz: QuizDefinition, ownerId: string): Promise<QuizDefinition> {
 	const db = await useDb()
 	await db.insert(quizzes).values({
 		id: quiz.id,
+		ownerId,
 		ownerName: quiz.ownerName,
 		title: quiz.title,
 		description: quiz.description,
@@ -100,6 +106,7 @@ export async function recordGameSession(input: {
 	code: string
 	quiz: QuizDefinition
 	status: GameSessionRow['status']
+	ownerId: string
 }): Promise<void> {
 	const db = await useDb()
 	await db.insert(gameSessions).values({
@@ -107,6 +114,7 @@ export async function recordGameSession(input: {
 		code: input.code,
 		quizId: input.quiz.id,
 		quizTitle: input.quiz.title,
+		ownerId: input.ownerId,
 		mapId: input.quiz.mapId,
 		mode: input.quiz.mode,
 		status: input.status,
@@ -151,7 +159,8 @@ export async function getSavedReport(code: string): Promise<SessionReportData | 
 	return row?.report ?? undefined
 }
 
-export async function listGameSessions(limit = 50) {
+/** Riwayat sesi terbaru; `ownerId` membatasi ke sesi milik satu guru (kosong = semua, untuk admin). */
+export async function listGameSessions(limit = 50, ownerId?: string) {
 	const db = await useDb()
 	return db
 		.select({
@@ -165,6 +174,7 @@ export async function listGameSessions(limit = 50) {
 			totalPlayers: gameSessions.totalPlayers
 		})
 		.from(gameSessions)
+		.where(ownerId ? eq(gameSessions.ownerId, ownerId) : undefined)
 		.orderBy(desc(gameSessions.createdAt))
 		.limit(limit)
 }

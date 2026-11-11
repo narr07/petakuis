@@ -1,6 +1,8 @@
 import type { QuizQuestion } from '@petakuis/shared'
 
 export default defineEventHandler(async (event) => {
+	// Memakai kunci Gemini milik server: hanya untuk guru/admin yang sudah masuk.
+	await requireUser(event, ['teacher', 'admin'])
 	const config = useRuntimeConfig()
 	const body = await readBody<{
 		topic: string

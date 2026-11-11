@@ -6,54 +6,23 @@
 	}>()
 
 	const colorMode = useColorMode()
-	const router = useRouter()
-	const { role, roleLabel, setRole } = useDashboardRole()
+	const { user, roleLabel, signOut } = useCurrentUser()
 
-	const user = computed(() => {
-		const profile = DEMO_USERS[role.value]
-		return {
-			name: profile.name,
-			description: roleLabel.value,
-			avatar: { alt: profile.name }
-		}
-	})
+	const avatar = computed(() => ({
+		src: user.value?.image || undefined,
+		alt: user.value?.name || 'Pengguna'
+	}))
 
 	const items = computed<DropdownMenuItem[][]>(() => [
 		[
 			{
 				type: 'label',
-				label: user.value.name,
-				description: DEMO_USERS[role.value].email,
-				avatar: user.value.avatar
+				label: user.value?.name || 'Pengguna',
+				description: `${user.value?.email ?? ''} · ${roleLabel.value}`,
+				avatar: avatar.value
 			}
 		],
 		[
-			{
-				label: 'Ganti peran',
-				icon: 'i-lucide-repeat',
-				children: [
-					{
-						label: 'Guru',
-						icon: 'i-lucide-graduation-cap',
-						type: 'checkbox',
-						checked: role.value === 'teacher',
-						onSelect(e: Event) {
-							e.preventDefault()
-							setRole('teacher')
-						}
-					},
-					{
-						label: 'Admin Sekolah',
-						icon: 'i-lucide-shield-check',
-						type: 'checkbox',
-						checked: role.value === 'admin',
-						onSelect(e: Event) {
-							e.preventDefault()
-							setRole('admin')
-						}
-					}
-				]
-			},
 			{
 				label: 'Tampilan',
 				icon: 'i-lucide-sun-moon',
@@ -89,7 +58,7 @@
 			{
 				label: 'Keluar',
 				icon: 'i-lucide-log-out',
-				onSelect: () => router.push('/auth/login')
+				onSelect: () => signOut()
 			}
 		]
 	])
@@ -99,18 +68,18 @@
 	<UDropdownMenu
 		:items="items"
 		:content="{ align: 'center', collisionPadding: 12 }"
-		:ui="{ content: collapsed ? 'w-48' : 'w-(--reka-dropdown-menu-trigger-width)' }"
+		:ui="{ content: collapsed ? 'w-56' : 'w-(--reka-dropdown-menu-trigger-width)' }"
 	>
 		<UButton
-			:avatar="user.avatar"
-			:label="collapsed ? undefined : user.name"
+			:avatar="avatar"
+			:label="collapsed ? undefined : (user?.name || 'Pengguna')"
 			:trailing-icon="collapsed ? undefined : 'i-lucide-chevrons-up-down'"
 			color="neutral"
 			variant="ghost"
 			block
 			:square="collapsed"
 			class="data-[state=open]:bg-elevated"
-			:ui="{ trailingIcon: 'text-dimmed' }"
+			:ui="{ trailingIcon: 'text-dimmed', label: 'truncate' }"
 		/>
 	</UDropdownMenu>
 </template>

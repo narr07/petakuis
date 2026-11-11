@@ -5,6 +5,7 @@ import { getQuizById, recordGameSession } from '../../utils/store'
 const MAX_CODE_ATTEMPTS = 5
 
 export default defineEventHandler(async (event) => {
+	const current = await requireUser(event, ['teacher', 'admin'])
 	const config = useRuntimeConfig()
 	const body = await readBody<{
 		quizId: string
@@ -67,7 +68,8 @@ export default defineEventHandler(async (event) => {
 		await recordGameSession({
 			code,
 			quiz: sessionQuiz,
-			status: body.autoStart ? 'active' : 'lobby'
+			status: body.autoStart ? 'active' : 'lobby',
+			ownerId: current.id
 		})
 
 		return {

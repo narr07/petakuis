@@ -3,6 +3,8 @@
 
 	const route = useRoute()
 	const open = ref(false)
+	const { user } = useCurrentUser()
+	const home = computed(() => homeForRole(user.value?.role ?? null))
 
 	// Tautan hash (#fitur, #peta) diberi `active` eksplisit agar tidak ikut aktif di setiap halaman beranda
 	const items = computed<NavigationMenuItem[]>(() => [
@@ -56,10 +58,20 @@
 			/>
 
 			<UButton
+				v-if="!user"
 				label="Masuk"
 				color="neutral"
 				variant="outline"
 				to="/auth/login"
+				class="hidden lg:inline-flex"
+			/>
+			<UButton
+				v-else
+				:to="home"
+				:avatar="{ src: user.image || undefined, alt: user.name }"
+				:label="user.role === 'student' ? 'Main' : 'Dashboard'"
+				color="neutral"
+				variant="outline"
 				class="hidden lg:inline-flex"
 			/>
 
@@ -90,11 +102,21 @@
 					block
 				/>
 				<UButton
-					label="Masuk sebagai Guru"
+					v-if="!user"
+					label="Masuk"
 					icon="i-lucide-log-in"
 					color="neutral"
 					variant="outline"
 					to="/auth/login"
+					block
+				/>
+				<UButton
+					v-else
+					:to="home"
+					:avatar="{ src: user.image || undefined, alt: user.name }"
+					:label="user.role === 'student' ? 'Main' : 'Dashboard'"
+					color="neutral"
+					variant="outline"
 					block
 				/>
 				<UButton

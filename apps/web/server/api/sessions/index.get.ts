@@ -1,6 +1,7 @@
 import { listGameSessions } from '../../utils/store'
 
-/** Riwayat sesi live terbaru (sementara untuk semua guru, sampai login guru aktif). */
-export default defineEventHandler(async () => {
-	return { sessions: await listGameSessions(50) }
+/** Riwayat sesi live: guru melihat sesinya sendiri, admin melihat semua. */
+export default defineEventHandler(async (event) => {
+	const current = await requireUser(event, ['teacher', 'admin'])
+	return { sessions: await listGameSessions(50, current.role === 'admin' ? undefined : current.id) }
 })

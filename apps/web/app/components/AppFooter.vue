@@ -23,7 +23,9 @@
 			children: [
 				{ label: 'Fitur', to: '/#fitur' },
 				{ label: 'Katalog Peta', to: '/#peta' },
-				{ label: 'Status Pengembangan', to: '/logs' }
+				{ label: 'Status Pengembangan', to: '/logs' },
+				{ label: 'Kebijakan Privasi', to: '/privasi' },
+				{ label: 'Ketentuan Layanan', to: '/ketentuan' }
 			]
 		}
 	]

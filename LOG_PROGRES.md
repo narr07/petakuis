@@ -273,3 +273,62 @@ Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudfla
 **Berikutnya:** login guru dengan Better Auth (tabel akun ditambahkan lewat migrasi baru), lalu kuis dan riwayat sesi difilter per guru, plus fitur edit/hapus kuis dengan cek pemilik.
 
 **Status 0.9 & 0.10:** di-commit dan di-push ke `main` pada 11 November 2026 dalam satu commit, karena perubahan keamanan host dan database bersinggungan di berkas yang sama (game server, `package.json`, `bun.lock`).
+
+### 0.11 Deploy ke VPS Oracle: https://petakuis.permadi.dev (11 November 2026)
+
+**Lingkungan:** VPS Oracle Cloud, Ubuntu 24.04 ARM64 (2 CPU, 11 GB RAM), Docker 29 + Compose 2.40. VPS yang sama menjalankan `majalengka-tech` (`127.0.0.1:3000`) dan `gurukampung` (`127.0.0.1:3001`); situs dibuka ke internet lewat **Cloudflare Tunnel `majalengka-vps`** yang dikelola dari dashboard (bukan port terbuka; firewall hanya membuka SSH).
+
+**Susunan Petakuis:**
+
+- Kode di `~/petakuis` (clone dari GitHub), `.env` berisi `PUBLIC_URL=https://petakuis.permadi.dev`, `INTERNAL_SECRET` acak (dibuat `openssl rand -hex 32`, izin berkas 600), `WEB_PORT=3100`, `GAME_PORT=3101`.
+- `docker compose up -d --build` → `petakuis-web-1` di `127.0.0.1:3100`, `petakuis-game-server-1` di `127.0.0.1:3101`, database SQLite di volume `petakuis_webdata` (`/data/petakuis.db`). Caddy di Compose tidak dipakai (profil `caddy` hanya untuk VPS tanpa proxy).
+- Cloudflare Tunnel, aturan ditambahkan sebelum aturan 404 (aturan situs lain tidak diubah):
+  1. `petakuis.permadi.dev` path `^/socket.io` → `http://localhost:3101`
+  2. `petakuis.permadi.dev` → `http://localhost:3100`
+- DNS: `CNAME petakuis.permadi.dev → <tunnel-id>.cfargotunnel.com` (proxied).
+- Pemakaian memori awal: web ±35 MB, game server ±24 MB.
+
+**Masalah yang ditemukan saat deploy dan sudah diperbaiki:**
+
+1. Docker Compose lama mengikat Caddy ke port 80/443 dan aplikasi ke port 3000/3001; di VPS ini keduanya sudah dipakai situs lain. Compose diubah: port lokal bisa diatur, Caddy jadi opsional (`d3caeed`).
+2. Di build Linux, paket `ws` milik `@libsql/isomorphic-ws` tidak ikut ke `.output` sehingga semua API yang memakai database gagal (500). Penyebabnya **Bun punya modul `ws` bawaan**, jadi saat build berjalan di Bun, `require.resolve('ws')` tidak menunjuk ke paket. Perbaikan: hook Nitro `compiled` mencari paket `ws` langsung di `node_modules` terdekat dari `isomorphic-ws` lalu menyalinnya ke `.output` (`407682f`, `7f13356`, `daae668`; dua yang pertama tidak cukup, yang ketiga berhasil).
+
+**Verifikasi:**
+
+- Di VPS: kuis terbaca dari database, sesi bisa dibuat (token host ada, room muncul di game server, tercatat di riwayat), `POST /rooms` tanpa rahasia ditolak 401, semua halaman 200, tidak ada error di log. Sesi uji dihapus lagi dari database produksi.
+- Dari internet: semua halaman 200 (0,2–1 detik), API dan handshake Socket.IO lewat HTTPS berhasil, endpoint internal game server tidak terbuka. Uji WebSocket publik 5/5 lulus (tersambung lewat Cloudflare dengan transport websocket, siswa bisa masuk room demo, layar host room demo hanya mode pantau, orang luar tidak bisa mengakhiri sesi). Tangkapan layar game di `https://petakuis.permadi.dev/play/123456` menampilkan peta, avatar, dan kompas.
+- `majalengka.tech` dan `gurukampung.my.id` tetap 200 sebelum, selama, dan sesudah deploy.
+
+**Operasional:**
+
+- Memperbarui: `ssh ubuntu@<ip-vps>` → `cd ~/petakuis && git pull && docker compose up -d --build`. Build web sekitar 1 menit di VPS ini.
+- Log: `cd ~/petakuis && docker compose logs -f web game-server`.
+- Cadangan database: salin isi volume `petakuis_webdata` (berkas `petakuis.db*`) secara berkala; belum diotomatiskan.
+- Membatalkan rute: hapus dua aturan `petakuis.permadi.dev` di Cloudflare Zero Trust → Networks → Tunnels → `majalengka-vps` → Public Hostname, lalu hapus record DNS `petakuis` di zona `permadi.dev`. Mematikan aplikasi: `cd ~/petakuis && docker compose down` (data tetap di volume).
+
+**Catatan keamanan:** token Cloudflare yang dipakai untuk mengatur Tunnel/DNS ada di berkas lokal pengguna dan tidak disimpan di repo maupun server; sebaiknya dibatasi atau dicabut bila tidak dipakai lagi. Berkas kode cadangan 2FA Cloudflare sebaiknya dipindah ke pengelola kata sandi.
+
+### 0.12 Login guru & siswa dengan Better Auth (11 November 2026)
+
+**Keputusan:** login memakai pustaka **Better Auth 1.7.20 langsung** (bukan modul `@nuxtjs/better-auth` v0.3 yang dokumentasinya belum membahas SQLite). Cara masuk: **email + kata sandi** (dengan lupa kata sandi) dan **Google**. Sesuai permintaan: halaman masuk berupa satu formulir tanpa tab peran; pilihan **Guru / Siswa** (radio, tanpa Admin) ada di halaman daftar dan saat pertama kali masuk dengan Google; admin hanya dari daftar email server.
+
+**Yang dibuat:**
+
+- Tabel `user`, `session`, `account`, `verification` (migrasi `0001_akun_better_auth.sql`), kolom `role` (`teacher`/`student`, kosong untuk akun Google yang belum memilih).
+- `server/utils/auth.ts`: konfigurasi Better Auth (adapter Drizzle SQLite, rate limit bawaan, telemetri mati), `effectiveRole`, `getCurrentUser`, `requireUser`. `server/api/auth/[...all].ts` meneruskan semua endpoint Better Auth. `/api/me` dan `/api/me/role` (pilih Guru/Siswa sekali).
+- `server/utils/email.ts`: pengiriman lewat API Resend; tanpa kunci, isi email dicatat di log (untuk pengembangan).
+- Halaman `/auth/login`, `/auth/daftar`, `/auth/lupa-sandi`, `/auth/reset-sandi`, `/auth/pilih-peran` (semua komponen Nuxt UI), middleware global, `useCurrentUser`, menu pengguna dashboard memakai akun asli (simulasi "ganti peran" dihapus), tombol header berubah menjadi Dashboard/Main saat sudah masuk.
+- Proteksi API: membuat kuis, membuka sesi live, dan generator AI hanya untuk Guru/Admin; kuis dan sesi tercatat atas nama pembuatnya; riwayat sesi dan "kuis milikku" (`/api/quizzes?mine=1`) per guru, admin melihat semua. `/dashboard` dan `/build` wajib Guru/Admin; Siswa diarahkan ke `/join`.
+
+**Keamanan:**
+
+- Akun email + kata sandi **wajib konfirmasi email** sebelum bisa masuk. Ini mencegah orang mendaftar memakai email milik orang lain (termasuk email admin) lalu ikut tergabung saat pemilik asli masuk dengan Google.
+- Peran admin hanya diberikan bila email ada di `NUXT_ADMIN_EMAILS` **dan** sudah terverifikasi. Daftar email admin disimpan di `.env` server, tidak di repo (repo publik).
+- Ditemukan saat pengujian dan diperbaiki: endpoint bawaan `update-user` masih bisa mengubah `role` karena Better Auth menggabungkan data hasil hook dengan data asli. Pembaruan yang membawa `role` kini dibatalkan seluruhnya.
+- Reset kata sandi mengeluarkan semua sesi lama; pesan "lupa kata sandi" sama untuk email terdaftar maupun tidak.
+
+**Verifikasi (server dev lokal):** typecheck dan lint bersih; uji alur 24/24 lulus (daftar → wajib konfirmasi → masuk dengan peran benar; tamu/siswa ditolak dari dashboard dan pembuatan kuis; upaya menaikkan peran lewat daftar, `update-user`, dan `/api/me/role` gagal; email admin terverifikasi menjadi Admin; lupa kata sandi dari permintaan sampai kata sandi lama tidak berlaku dan sesi lama keluar). Tangkapan layar halaman Masuk dan Daftar diperiksa.
+
+**Halaman Kebijakan Privasi dan Ketentuan Layanan** (`/privasi`, `/ketentuan`, komponen `LegalPage`): diwajibkan Google sebelum OAuth bisa *In production*. Isinya mengikuti data yang benar-benar disimpan (akun, sesi, kuis, nama panggilan dan skor siswa; tanpa iklan atau analitik pihak ketiga). Email kontak dibaca dari `CONTACT_EMAIL` di server, tidak ditulis di repo. Tautan ada di footer.
+
+**Google OAuth:** client Web application di project Google Cloud `petakuis` (consent screen External, *In production*, hanya scope dasar `openid email profile` sehingga batas 100 pengguna tidak berlaku). Redirect URI: `https://petakuis.permadi.dev/api/auth/callback/google` dan `http://localhost:3000/api/auth/callback/google`. Diuji lokal: Google menerima client dan redirect URI (302 ke halaman pilih akun). Pengirim email memakai kunci Resend yang sama dengan proyek permadi (domain `permadi.dev` terverifikasi).

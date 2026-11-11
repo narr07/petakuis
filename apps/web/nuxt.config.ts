@@ -98,9 +98,25 @@ export default defineNuxtConfig({
 			process.env.GAME_SERVER_INTERNAL_URL || 'http://localhost:3001',
 		internalSecret: process.env.INTERNAL_SECRET || 'petakuis_internal_secret',
 		geminiApiKey: process.env.GEMINI_API_KEY || '',
+		// ---- login (Better Auth). Diisi lewat NUXT_AUTH_SECRET, NUXT_GOOGLE_CLIENT_ID, dst.
+		/** Rahasia penandatangan sesi; wajib acak di produksi (openssl rand -hex 32). */
+		authSecret: '',
+		googleClientId: '',
+		googleClientSecret: '',
+		/** Email yang otomatis berperan admin, dipisah koma. Jangan ditulis di kode (repo publik). */
+		adminEmails: '',
+		/** Pengirim email reset kata sandi lewat Resend. Tanpa kunci, tautan hanya dicatat di log. */
+		resendApiKey: '',
+		mailFrom: 'Petakuis <noreply@permadi.dev>',
 		public: {
 			gameServerUrl:
-				process.env.NUXT_PUBLIC_GAME_SERVER_URL || 'http://localhost:3001'
+				process.env.NUXT_PUBLIC_GAME_SERVER_URL || 'http://localhost:3001',
+			/** Alamat publik situs, dipakai untuk tautan login Google dan email. */
+			siteUrl: 'http://localhost:3000',
+			/** Tombol "Masuk dengan Google" hanya tampil bila diisi. */
+			googleLoginEnabled: false,
+			/** Email kontak di halaman privasi/ketentuan (NUXT_PUBLIC_CONTACT_EMAIL). */
+			contactEmail: ''
 		}
 	},
 	app: {
