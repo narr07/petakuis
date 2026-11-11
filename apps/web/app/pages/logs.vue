@@ -53,13 +53,17 @@
 		{
 			title: 'Tampilan website dengan Nuxt UI',
 			description: 'Beranda, jelajah, login, dan dashboard mengikuti pola template resmi SaaS dan Dashboard.'
+		},
+		{
+			title: 'Login guru dan siswa',
+			description: 'Email dan kata sandi (dengan konfirmasi email dan lupa kata sandi) atau Google. Kuis dan riwayat sesi tersimpan per akun.'
 		}
 	]
 
 	const pendingItems: PageFeatureProps[] = [
 		{
-			title: 'Login guru',
-			description: 'Google atau kode OTP lewat email, supaya kuis tersimpan per akun.'
+			title: 'Kelola kuis',
+			description: 'Edit dan hapus kuis milik sendiri.'
 		},
 		{
 			title: 'Kelengkapan MVP',
