@@ -1,8 +1,101 @@
 # Log Progres & Status Implementasi — Petakuis
 
-Terakhir diperbarui: **10 November 2026**
+Terakhir diperbarui: **11 November 2026**
 
 Dokumen ini mencatat seluruh riwayat pengerjaan, perbaikan bug, penambahan aset tilemap multi-region, serta daftar fitur yang **sudah selesai** maupun yang **belum selesai (tahap berikutnya)**.
+
+> **Catatan 11 November 2026:** bagian 1–3 di bawah ditulis 10 November dan sebagian klaimnya tidak sesuai kondisi kode. Lihat **bagian 0 (Hasil Audit Kode)** untuk status yang sudah diverifikasi.
+
+---
+
+## 0. Hasil Audit Kode (11 November 2026)
+
+Audit dilakukan langsung terhadap kode, bukan dari klaim log. Perintah yang dijalankan: `bun test`, `bun run lint`, `nuxt typecheck`, dan `tsc --noEmit` di `apps/game-server` serta `packages/shared`.
+
+### 0.1 Hasil pemeriksaan otomatis
+
+| Pemeriksaan | Hasil |
+| --- | --- |
+| `bun test` | ✅ Lolos: 9 tes, **750** pengecekan (bukan 959 seperti tertulis di bagian 1) |
+| `bun run lint` | ✅ Bersih |
+| `nuxt typecheck` (web) | ❌ 5 error: `build/index.vue:117` (`defaultGrades` tidak ada di tipe jenjang), `build/index.vue:493` (parameter `g` bertipe `any`), `explore.vue:217` dan `:222` (objek mungkin `undefined`), `join.vue:108` (`string[]` ke `number[]`) |
+| `tsc` game-server & shared | ❌ Tipe `bun-types` / `bun:test` tidak ditemukan |
+
+### 0.2 Masalah serius (belum tercatat sebelumnya)
+
+1. **Aset dan nama Pokémon ikut ter-commit**, padahal PRD melarangnya:
+   - `apps/web/public/gba/rom_cache/pokeemerald__*` dan `pokefirered__*` (data hasil ekstraksi ROM).
+   - Sprite `red.png`, `oak.png`, `prof_birch.png`, dan lain-lain di `apps/web/public/gba/raw/`.
+   - Peta `pallet-town.png`, `pewter-gym.png`, `viridian-academy.png`, `hoenn-mega-region.png` di `apps/web/public/gba/maps/`.
+   - Nama "Hoenn", "Petalburg", "Rustboro", "Pokéball" di `packages/shared/src/maps.ts`, `apps/web/app/pages/logs.vue`, dan `play/[code].vue`.
+   - Peta pertama (PIN `123456`) harus diganti aset berlisensi sah. Jika repo pernah di-push ke tempat publik, riwayat git juga perlu dibersihkan.
+2. **Kontrol host tidak diamankan:**
+   - `hostToken` dibuat tetapi tidak pernah diperiksa. Siapa pun bisa masuk sebagai host cukup dengan `role: 'host'` (`QuizRoom.ts:182`).
+   - Event `host:control` dan `map:change` diterima dari socket mana saja (`game-server/src/index.ts:195-205`): siswa bisa mengakhiri sesi, mengeluarkan teman, atau mengganti peta.
+   - Endpoint HTTP internal `/rooms` di game-server tidak dilindungi `INTERNAL_SECRET`; CORS masih `origin: '*'`.
+
+### 0.3 Status nyata per modul
+
+| Modul | Status | Keterangan |
+| --- | --- | --- |
+| Monorepo, halaman, mesin game, skor di server, CSV, AI generator, brand | ✅ Ada & jalan | Sesuai bagian 2 |
+| Database (PostgreSQL + Drizzle) | ❌ Belum | Skema `server/db/schema.ts` ada tetapi tidak dipakai; data di `server/utils/store.ts` (memori) |
+| Redis (state sesi, reconnect, leaderboard) | ❌ Belum | Reconnect hanya bertahan selama proses hidup |
+| Login guru | ❌ Simulasi | `auth/login.vue` hanya navigasi; dashboard memakai `STARTER_QUIZZES` statis |
+| QR code masuk sesi | ❌ Belum | |
+| Filter kata kasar nama panggilan | ❌ Belum | |
+| Rate limit `/api/sessions/lookup` & `join` | ❌ Belum | |
+| i18n (`id`/`en`) dan PWA | ❌ Belum | Tidak ada di `nuxt.config.ts` |
+| `PATCH`/`DELETE /api/quizzes/:id`, halaman edit kuis | ❌ Belum | Baru ada `GET` dan `POST` |
+| Endpoint internal simpan hasil sesi | ❌ Belum | |
+| Uji beban 200 bot (Gerbang 1 PRD) | ❌ Belum pernah dijalankan | |
+| Versi dependensi | ⚠️ Semua `latest` | Perlu dikunci |
+| Engine game | ⚠️ Beda dari PRD | Render DOM/CSS sendiri, bukan Phaser 3; PRD perlu diperbarui |
+| Ukuran peta Sunnyside | ⚠️ Tidak konsisten | `56×44` di log, `64×48` di `logs.vue` |
+
+### 0.4 Urutan pengerjaan yang disarankan
+
+1. Ganti seluruh aset dan nama Pokémon (penghalang hukum).
+2. Amankan kontrol host: validasi `hostToken`, batasi `host:control`/`map:change` hanya untuk host, lindungi endpoint internal dengan `INTERNAL_SECRET`, batasi CORS.
+3. Perbaiki typecheck sampai lolos, lalu kunci versi dependensi.
+4. Sambungkan PostgreSQL (Drizzle) dan Redis, termasuk pemulihan progres saat koneksi putus.
+5. Login guru sungguhan (`nuxt-auth-utils`), dashboard membaca kuis milik guru.
+6. Lengkapi sisa MVP: QR, filter kata kasar, rate limit, edit/hapus kuis, simpan hasil sesi.
+7. Uji beban 200 bot, lalu perbarui PRD agar sesuai kenyataan.
+8. Fitur Fase 2: mode PR, audio, mode permainan lain.
+
+### 0.5 Perapian tampilan website dengan Nuxt UI (11 November 2026)
+
+Tahap 1 mencakup halaman website. Halaman alur kuis (`/build`, `/join`, `/play`, `/host`, `/report`) dan komponen game ditunda ke tahap 2. Pola tata letak diambil dari template resmi **Nuxt UI SaaS** (halaman publik) dan **Nuxt UI Dashboard** (dashboard guru), memakai Nuxt UI 4.12.0.
+
+**Struktur baru**
+
+| Berkas | Isi |
+| --- | --- |
+| `app/app.vue` | `UApp` + `NuxtLoadingIndicator` + `NuxtLayout`; `titleTemplate` "… · Petakuis" |
+| `app/layouts/default.vue` | `AppHeader` + `UMain` + `AppFooter` (pola SaaS) |
+| `app/layouts/auth.vue` | Kartu login di tengah layar (pola SaaS) |
+| `app/layouts/dashboard.vue` | `UDashboardGroup`, sidebar bisa diciutkan/diubah lebar, pencarian `Ctrl+K`, pintasan `g h`/`g k`/`g p`/`g l`/`n` (pola Dashboard) |
+| `app/layouts/game.vue` | Layar penuh untuk `/play` (satu baris `definePageMeta` ditambahkan di `play/[code].vue`) |
+| `app/error.vue` | Halaman 404/error berbahasa Indonesia dengan `UError` |
+| `components/AppHeader.vue`, `AppFooter.vue`, `AppLogo.vue` | Menggantikan `AppNavbar.vue` (dihapus); header punya menu ponsel dan tombol mode gelap, footer punya `UFooterColumns` + form PIN |
+| `components/quiz/QuizCard.vue`, `components/map/MapCard.vue` | Kartu kuis (`UPageCard` + `UUser`) dan kartu peta (`UBlogPost`) yang dipakai ulang |
+| `components/dashboard/SchoolMenu.vue`, `UserMenu.vue`, `AdminOnly.vue` | Menu sekolah, menu pengguna (ganti peran, mode terang/gelap), penjaga halaman khusus admin |
+| `composables/useLaunchSession.ts` | Buka kelas live + toast saat gagal (menggantikan `alert()`) |
+| `composables/useDashboardRole.ts` | Peran guru/admin disimpan di cookie (mode pratinjau) |
+| `utils/dashboard-demo.ts` | Data contoh fiktif untuk dashboard sampai database tersambung |
+
+**Halaman**
+
+- `/` landing: `UPageHero` + `UPinInput` untuk PIN, statistik, cara kerja, fitur, katalog peta, kuis, FAQ (`UAccordion`), `UPageCTA`.
+- `/explore`: `UPageHeader`, filter (`UInput`, `USelect`, debounce 300 ms), grid `QuizCard`.
+- `/auth/login`: `UTabs` peran + `UAuthForm` (email → OTP untuk guru/admin, PIN untuk siswa); diberi label "Mode pratinjau" karena login belum tersambung.
+- `/dashboard` dipecah jadi `index`, `quizzes`, `maps`, `reports`, `teachers`, `students`, `settings`. Ringkasan dan koleksi kuis membaca data asli dari `/api/quizzes`; guru, siswa, dan pengaturan memakai data contoh berlabel jelas. Ekspor CSV siswa berfungsi.
+- `/logs`: `UPageFeature` + `UProgress`; isi diselaraskan dengan audit (klaim 959 assertion, ukuran 64×48, dan "Pokéball" dihapus).
+
+**Verifikasi:** `bun run lint` bersih, `bun test` lolos, error typecheck `explore.vue` hilang (sisa error lama hanya di `build/index.vue` dan `join.vue`). Semua rute website merespons 200 saat dijalankan; tangkapan layar beranda, login, dashboard, status, dan 404 sudah diperiksa.
+
+**Elemen native yang sengaja dipertahankan:** `<img>` untuk logo dan pratinjau peta (Nuxt UI tidak punya komponen gambar biasa), serta `div`/`p`/`span` untuk tata letak dan teks.
 
 ---
 
