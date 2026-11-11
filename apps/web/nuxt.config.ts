@@ -43,8 +43,21 @@ function copyLibsqlWs(serverDir: string): void {
 	const target = join(serverDir, 'node_modules', 'ws')
 	if (existsSync(join(target, 'package.json'))) return
 	const fromClient = createRequire(createRequire(import.meta.url).resolve('@libsql/client'))
-	const isoWs = createRequire(fromClient.resolve('@libsql/hrana-client')).resolve('@libsql/isomorphic-ws')
-	const wsDir = realpathSync(dirname(createRequire(isoWs).resolve('ws')))
+	const isoWs = realpathSync(createRequire(fromClient.resolve('@libsql/hrana-client')).resolve('@libsql/isomorphic-ws'))
+	// Jangan pakai require.resolve('ws'): Bun punya modul `ws` bawaan, jadi hasilnya bukan
+	// lokasi paket. Cari folder node_modules/ws terdekat secara manual seperti Node.
+	let wsDir: string | null = null
+	for (let dir = dirname(isoWs); ; dir = dirname(dir)) {
+		const manifest = join(dir, 'node_modules', 'ws', 'package.json')
+		if (existsSync(manifest) && JSON.parse(readFileSync(manifest, 'utf8')).name === 'ws') {
+			wsDir = realpathSync(dirname(manifest))
+			break
+		}
+		if (dirname(dir) === dir) break
+	}
+	if (!wsDir || serverDir.startsWith(wsDir)) {
+		throw new Error(`Paket ws untuk libSQL tidak ditemukan dari ${isoWs}. Jalankan \`bun install\`.`)
+	}
 	cpSync(wsDir, target, { recursive: true, dereference: true })
 	console.info(`[petakuis] paket ws disalin ke ${target}`)
 }
