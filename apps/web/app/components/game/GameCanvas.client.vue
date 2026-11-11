@@ -475,15 +475,16 @@
 					zIndex: getYDepth(p[2], 1)
 				}"
 			>
-				<div class="relative h-16 w-8 overflow-hidden">
+				<!-- Frame avatar 16x16 diperbesar 2,5x -> 40x40 px -->
+				<div class="relative size-10 overflow-hidden">
 					<img
 						:src="getTrainerPreset(p[5]).spriteUrl"
 						:alt="p[4]"
-						class="absolute top-0 h-16 max-w-none"
+						class="absolute top-0 h-10 max-w-none"
 						:style="{
 							imageRendering: 'pixelated',
-							width: '288px',
-							left: `-${getGbaSpriteFrame(p[3], false, 0).frameIdx * 32}px`,
+							width: '360px',
+							left: `-${getGbaSpriteFrame(p[3], false, 0).frameIdx * 40}px`,
 							transform: getGbaSpriteFrame(p[3], false, 0).flipX
 								? 'scaleX(-1)'
 								: 'none'
@@ -514,9 +515,9 @@
 					▼
 				</span>
 
-				<!-- 16x32 GBA Trainer Frame Scaled 2.5x -> 40x80 px -->
+				<!-- Frame avatar 16x16 diperbesar 3x -> 48x48 px (setinggi satu tile) -->
 				<div
-					class="relative h-20 w-10 overflow-hidden"
+					class="relative size-12 overflow-hidden"
 					:style="{
 						transform: mySpriteFrame.flipX ? 'scaleX(-1)' : 'none'
 					}"
@@ -524,11 +525,11 @@
 					<img
 						:src="getTrainerPreset(myColorway).spriteUrl"
 						:alt="myNickname"
-						class="absolute top-0 h-20 max-w-none"
+						class="absolute top-0 h-12 max-w-none"
 						:style="{
 							imageRendering: 'pixelated',
-							width: '360px',
-							left: `-${mySpriteFrame.frameIdx * 40}px`
+							width: '432px',
+							left: `-${mySpriteFrame.frameIdx * 48}px`
 						}"
 					>
 				</div>

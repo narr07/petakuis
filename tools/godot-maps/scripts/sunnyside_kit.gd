@@ -25,7 +25,7 @@ const RIGHT := Vector2i(1, 0)
 
 ## Urutan gambar dari bawah ke atas.
 const LAYERS: Array[String] = [
-	"Ground", "Water", "PathDark", "PathLight", "Edge", "Edge2", "Cliff", "Bridge",
+	"Ground", "Water", "Shore", "Shore2", "PathDark", "PathLight", "Edge", "Edge2", "Cliff", "Bridge",
 	"Shadows", "DecoGround", "Building", "Walls", "Deco", "DecoTop",
 ]
 
@@ -304,6 +304,74 @@ func add_terrain(family: String, mask: Dictionary) -> void:
 		for c: Vector2i in diag:
 			set_blocked(c)
 			fine.erase(c * 2 + corner_cell[diag[c]])
+
+
+## Garis pantai berbuih di sel air yang menempel medan `land` (biasanya pasir = "light"),
+## meniru cara pantai digambar di contoh room paket. Panggil setelah paint_terrains().
+## Tepi lurus memakai tile (20,5) yang diputar; tepi miring memakai (19,5)/(21,5)
+## yang sudah berisi segitiga pasir, ditambah "ekor" (19,6)/(21,6) di sel sebelahnya.
+func shoreline(land := "light") -> void:
+	if not _terrain.has("water") or not _terrain.has(land):
+		return
+	var water_mask: Dictionary = _terrain["water"].mask
+	var water_diag: Dictionary = _terrain["water"].diag
+	var sand: Dictionary = _terrain[land].mask.duplicate()
+	sand.merge(_terrain[land].diag)
+	var straight := Vector2i(20, 5)
+	var water := {}
+	for c: Vector2i in water_mask:
+		water[c] = true
+	for c: Vector2i in water_diag:
+		water[c] = true
+
+	var around: Array[Vector2i] = [UP, DOWN, LEFT, RIGHT,
+		Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(1, 1)]
+	# Pasir miring yang menempel air dibuat penuh: sudut pantai digambar oleh potongan air.
+	var land_def: Dictionary = FAMILY[land]
+	for c: Vector2i in _terrain[land].diag:
+		for d in around:
+			if water.has(c + d):
+				put(land_def.layer, c, land_def.solid[0])
+				break
+
+	for c: Vector2i in water:
+		if cells["Bridge"].has(c):
+			continue
+		if water_diag.has(c):
+			var touches_sand := false
+			for d in around:
+				if sand.has(c + d):
+					touches_sand = true
+					break
+			if touches_sand:
+				var cut: int = water_diag[c]
+				var left_side := cut == CUT_TL or cut == CUT_BL
+				var top_side := cut == CUT_TL or cut == CUT_TR
+				# Tile air diagonal bawaan punya garis rumput; di pantai diganti air penuh.
+				put("Water", c, FAMILY["water"].solid[0])
+				var corner := Vector2i(19, 5) if left_side else Vector2i(21, 5)
+				var tail := Vector2i(19, 6) if left_side else Vector2i(21, 6)
+				var flip := 0 if top_side else FLIP_V
+				_put_shore(c, corner, flip)
+				var tail_cell := c + (DOWN if top_side else UP)
+				if water.has(tail_cell) and not water_diag.has(tail_cell):
+					_put_shore(tail_cell, tail, flip)
+				continue
+		if sand.has(c + UP):
+			_put_shore(c, straight, 0)
+		if sand.has(c + DOWN):
+			_put_shore(c, straight, FLIP_V)
+		if sand.has(c + LEFT):
+			_put_shore(c, straight, TRANSPOSE)
+		if sand.has(c + RIGHT):
+			_put_shore(c, straight, TRANSPOSE | FLIP_H)
+
+
+func _put_shore(cell: Vector2i, atlas: Vector2i, alt: int) -> void:
+	if not cells["Shore"].has(cell):
+		put("Shore", cell, atlas, alt)
+	elif not cells["Shore2"].has(cell):
+		put("Shore2", cell, atlas, alt)
 
 
 func terrain_has(family: String, cell: Vector2i) -> bool:

@@ -92,38 +92,39 @@ describe('Petakuis Authoritative Scoring & Evaluation', () => {
 			}
 		}
 
-		// Specifically test walking up into Pondok Timur (tileX=24..27, tileY=9..12) in Region Hoenn Terpadu
-		const hoenn = MAP_CATALOG[0]!
-		const tilePx = hoenn.tileSizePx * hoenn.renderScale
+		// Berjalan lurus ke atas dari jalan ke rumah merah di Kota Pasar (tile 23..27, baris 13..18;
+		// baris 18 adalah bayangan yang boleh diinjak, dinding mulai baris 17).
+		const town = MAP_CATALOG.find(m => m.id === 'map-kota-pasar')!
+		const tilePx = town.tileSizePx * town.renderScale
 		let px = 25 * tilePx + tilePx / 2
-		let py = 13 * tilePx + tilePx / 2 // Walkable tile directly in front of the house door
-		expect(isFootBoxWalkable(hoenn, px, py)).toBe(true)
+		let py = 19 * tilePx + tilePx / 2 // jalan tepat di depan pintu
+		expect(isFootBoxWalkable(town, px, py)).toBe(true)
 
-		// Try walking straight UP into the building 30 times
 		for (let i = 0; i < 30; i++) {
-			const slid = slideMovePlayer(hoenn, px, py, 0, -12)
+			const slid = slideMovePlayer(town, px, py, 0, -12)
 			px = slid.x
 			py = slid.y
 		}
-		// Player must remain on tileY=13 and NEVER enter tileY=12!
-		expect(Math.floor(py / tilePx)).toBe(13)
-		expect(isFootBoxWalkable(hoenn, px, py)).toBe(true)
+		// Pemain boleh sampai baris bayangan (18) tetapi tidak pernah masuk dinding (baris 17).
+		expect(Math.floor(py / tilePx)).toBe(18)
+		expect(isFootBoxWalkable(town, px, py)).toBe(true)
 
-		// Test BFS pathfinding across multi-region Hoenn (from central plaza to NW Petalburg and SE Littleroot)
-		const pathNW = findTilePathBFS(
-			hoenn,
-			spawnX(hoenn),
-			spawnY(hoenn),
-			7 * tilePx + 24,
-			12 * tilePx + 24
+		// Pencarian jalan dari titik mulai ke pos soal terakhir di kota.
+		const lastTownSpot = town.spawnPoints[town.spawnPoints.length - 1]!
+		const townPath = findTilePathBFS(
+			town,
+			spawnX(town),
+			spawnY(town),
+			lastTownSpot.tileX * tilePx + 24,
+			lastTownSpot.tileY * tilePx + 24
 		)
-		expect(pathNW.length).toBeGreaterThan(0)
-		for (const wp of pathNW) {
-			expect(isFootBoxWalkable(hoenn, wp.x, wp.y)).toBe(true)
+		expect(townPath.length).toBeGreaterThan(0)
+		for (const wp of townPath) {
+			expect(isFootBoxWalkable(town, wp.x, wp.y)).toBe(true)
 		}
 
-		// Test BFS pathfinding on Sunnyside Mega Valley and Modern Campus Complex
-		for (const regionalMap of MAP_CATALOG.slice(1)) {
+		// Pencarian jalan antar pos soal di semua peta.
+		for (const regionalMap of MAP_CATALOG) {
 			const firstSp = regionalMap.spawnPoints[0]!
 			const lastSp = regionalMap.spawnPoints[regionalMap.spawnPoints.length - 1]!
 			const routePath = findTilePathBFS(

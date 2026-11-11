@@ -131,7 +131,7 @@
 					<div>
 						<div class="flex items-center justify-between">
 							<span id="avatar-label" class="text-sm font-medium text-highlighted">
-								Pilih karakter trainer
+								Pilih karaktermu
 							</span>
 							<UBadge v-if="selectedPreset" color="secondary" variant="subtle" size="sm">
 								{{ selectedPreset.label }}
@@ -160,12 +160,12 @@
 								<span
 									class="relative flex size-10 shrink-0 items-center justify-center rounded-lg border-2 border-[var(--ui-text-highlighted)] bg-success/20"
 								>
-									<span class="relative block h-8 w-4 overflow-hidden">
+									<span class="relative block size-8 overflow-hidden">
 										<img
 											:src="preset.spriteUrl"
 											:alt="preset.label"
 											class="absolute left-0 top-0 h-8 max-w-none"
-											style="image-rendering: pixelated; width: 144px"
+											style="image-rendering: pixelated; width: 288px"
 										>
 									</span>
 								</span>

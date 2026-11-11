@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 		gradeLabel: body.gradeLabel || 'Kelas 5',
 		subject: body.subject || 'IPA (Sains)',
 		visibility: body.visibility || 'public',
-		mapId: body.mapId || 'map-halaman-sekolah',
+		mapId: body.mapId || 'map-pesisir-karang',
 		mode: body.mode || 'free',
 		settings: body.settings || {
 			isAllowPass: true,

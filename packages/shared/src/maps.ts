@@ -27,6 +27,7 @@ function godotMap(
 	}
 }
 
+/** Avatar pemain: sprite dari paket Ninja Adventure (CC0), dibuat oleh tools/godot-maps/scripts/build_avatars.gd. */
 export const AVATAR_COLORWAYS: Array<{
 	id: AvatarColorway
 	label: string
@@ -36,57 +37,57 @@ export const AVATAR_COLORWAYS: Array<{
 }> = [
 	{
 		id: 'merah-putih',
-		label: 'Trainer Red (FireRed)',
-		spriteUrl: '/gba/sprites/red.png',
+		label: 'Si Rambut Merah',
+		spriteUrl: '/avatars/merah-putih.png',
 		primaryHex: '#dc2626',
 		secondaryHex: '#f8fafc'
 	},
 	{
 		id: 'hijau-rimba',
-		label: 'Trainer Leaf (LeafGreen)',
-		spriteUrl: '/gba/sprites/leaf.png',
+		label: 'Si Penjelajah Rimba',
+		spriteUrl: '/avatars/hijau-rimba.png',
 		primaryHex: '#15803d',
 		secondaryHex: '#bbf7d0'
 	},
 	{
 		id: 'batik-biru',
-		label: 'Youngster Joey (GBA)',
-		spriteUrl: '/gba/sprites/youngster.png',
+		label: 'Si Ninja Biru',
+		spriteUrl: '/avatars/batik-biru.png',
 		primaryHex: '#1d4ed8',
 		secondaryHex: '#93c5fd'
 	},
 	{
 		id: 'ungu-senja',
-		label: 'Lass Haley (Emerald)',
-		spriteUrl: '/gba/sprites/lass.png',
+		label: 'Si Mahkota',
+		spriteUrl: '/avatars/ungu-senja.png',
 		primaryHex: '#7e22ce',
 		secondaryHex: '#e9d5ff'
 	},
 	{
 		id: 'pramuka',
-		label: 'Bug Catcher (Emerald)',
-		spriteUrl: '/gba/sprites/bug_catcher.png',
+		label: 'Si Pandu',
+		spriteUrl: '/avatars/pramuka.png',
 		primaryHex: '#92400e',
 		secondaryHex: '#fde68a'
 	},
 	{
 		id: 'kuning-emas',
-		label: 'School Kid (Hoenn)',
-		spriteUrl: '/gba/sprites/school_kid_m.png',
+		label: 'Si Rambut Pirang',
+		spriteUrl: '/avatars/kuning-emas.png',
 		primaryHex: '#ca8a04',
 		secondaryHex: '#fef08a'
 	},
 	{
 		id: 'toska-laut',
-		label: 'Champion Steven (GBA)',
-		spriteUrl: '/gba/sprites/steven.png',
+		label: 'Si Rambut Panjang',
+		spriteUrl: '/avatars/toska-laut.png',
 		primaryHex: '#0f766e',
 		secondaryHex: '#99f6e4'
 	},
 	{
 		id: 'oranye-bata',
-		label: 'Rich Boy Winston (GBA)',
-		spriteUrl: '/gba/sprites/rich_boy.png',
+		label: 'Si Petani',
+		spriteUrl: '/avatars/oranye-bata.png',
 		primaryHex: '#c2410c',
 		secondaryHex: '#fed7aa'
 	}
@@ -117,124 +118,24 @@ export const SCHOOL_LEVEL_OPTIONS = [
 ] as const
 
 export const MAP_CATALOG: MapTemplate[] = [
-	{
-		id: 'map-halaman-sekolah',
-		slug: 'hoenn-mega-region',
-		name: 'Region Hoenn Terpadu · 4 Kota & Rute (GBA Open World)',
-		description:
-			'Peta dunia terbuka raksasa (60x50 tile / 2880x2400 px) yang menghubungkan 4 kota dan rute petualangan sekaligus: Kota Kuis Petalburg, Distrik Akademi Batu Rustboro, Desa Taman Oldale, dan Desa Riset Littleroot.',
-		defaultMode: 'free',
-		mapImageUrl: '/gba/maps/hoenn-mega-region.png',
-		widthTiles: 60,
-		heightTiles: 50,
-		tileSizePx: 16,
-		renderScale: 3,
-		palette: {
-			floorPrimary: '#78c8a0',
-			floorSecondary: '#68b890',
-			wallPrimary: '#d84038',
-			wallAccent: '#3878d8',
-			accentColor: '#eab308'
+	godotMap(
+		{
+			id: 'map-pesisir-karang',
+			slug: 'pesisir-karang',
+			name: 'Pesisir Karang · Kampung Nelayan & Dermaga',
+			description:
+				'Kampung nelayan di tepi laut (64x48 tile): deretan rumah menghadap pantai berpasir, dermaga kayu, rumah panggung di atas laut, mercusuar batu, dan pulau kecil yang disambung titian.',
+			defaultMode: 'free',
+			palette: {
+				floorPrimary: '#62c44c',
+				floorSecondary: '#e0b070',
+				wallPrimary: '#2c8fd6',
+				wallAccent: '#30d8e8',
+				accentColor: '#facc15'
+			}
 		},
-		playerSpawn: { tileX: 15, tileY: 13 },
-		collisionRows: [
-			'############################################################',
-			'############################################################',
-			'###################...######################################',
-			'############################################################',
-			'############################################....############',
-			'####.###################################............########',
-			'####......##############################.........###########',
-			'####......############################..####.....####.######',
-			'####.....#############################..####.....####.######',
-			'####....####......#.....##############..####.....####.######',
-			'##...............#......##############..####..........######',
-			'##......................####...........................#####',
-			'#.......................####...................#.......#####',
-			'##.................####................................#####',
-			'#########..........####...............................######',
-			'#########..........####...............................######',
-			'#############....#.####..................####.....##########',
-			'#############............................####.....##########',
-			'#############.........................##.####.....##########',
-			'#############.............##..........##.####.....##########',
-			'#######...........##########..........##............########',
-			'#######...........######################............########',
-			'#######...........#########################......###########',
-			'##############....#########################......###########',
-			'##############.....####..##################......###########',
-			'##############...........##################......###########',
-			'##############...........##################......###########',
-			'############........#######################......###########',
-			'##...######.........#######################......###########',
-			'############........##################................######',
-			'#....#######........##################................######',
-			'#......#####........#################.#####......#####.#####',
-			'############........#################.#####......#####.#####',
-			'############............#.....#######.#####......#####.#####',
-			'############..................#######.#####......#####.#####',
-			'############..........................######....######.#####',
-			'############...........................................#####',
-			'############...........................................#####',
-			'############......############.........................#####',
-			'############......#....................#######.........#####',
-			'#...#..#...#......######...............#######.....#...#####',
-			'#..........#.#..#.######.#####.........#######.........#####',
-			'#..........#......######.#####.........#######........######',
-			'#.#......#.#......######.#####.........#######........######',
-			'#.........##.....#######.#####............#.........########',
-			'#..#....#..#.............#####......................########',
-			'#.....................................######################',
-			'#.....................####............######################',
-			'############..........#####...........######################',
-			'############################################################'
-		],
-		obstacles: [
-			{ tileX: 5, tileY: 2, width: 5, height: 4, label: 'Rumah Barat Utara (Petalburg)' },
-			{ tileX: 12, tileY: 4, width: 6, height: 5, label: 'Aula Utama Kuis (Petalburg)' },
-			{ tileX: 19, tileY: 13, width: 4, height: 4, label: 'Rumah Tengah (Petalburg)' },
-			{ tileX: 24, tileY: 9, width: 4, height: 4, label: 'Pondok Timur (Petalburg)' },
-			{ tileX: 9, tileY: 16, width: 4, height: 4, label: 'Rumah Barat Selatan (Petalburg)' },
-			{ tileX: 19, tileY: 21, width: 4, height: 4, label: 'Rumah Tenggara (Petalburg)' },
-			{ tileX: 1, tileY: 32, width: 10, height: 8, label: 'Gedung Akademi Devon (Rustboro)' },
-			{ tileX: 18, tileY: 40, width: 6, height: 5, label: 'Aula Batu Selatan (Rustboro)' },
-			{ tileX: 25, tileY: 41, width: 5, height: 5, label: 'Gedung Riset Timur (Rustboro)' },
-			{ tileX: 40, tileY: 7, width: 4, height: 4, label: 'Pondok Oldale Barat' },
-			{ tileX: 49, tileY: 6, width: 4, height: 4, label: 'Rumah Oldale Timur' },
-			{ tileX: 41, tileY: 16, width: 4, height: 4, label: 'Pondok Taman Oldale' },
-			{ tileX: 50, tileY: 16, width: 4, height: 4, label: 'Pondok Persimpangan' },
-			{ tileX: 38, tileY: 31, width: 5, height: 5, label: 'Rumah Littleroot Barat' },
-			{ tileX: 49, tileY: 31, width: 5, height: 5, label: 'Rumah Littleroot Timur' },
-			{ tileX: 39, tileY: 39, width: 7, height: 5, label: 'Laboratorium Riset Prof. Birch' }
-		],
-		spawnPoints: [
-			{ id: 'sp-1', tileX: 7, tileY: 8, objectKind: 'chest' },
-			{ id: 'sp-2', tileX: 15, tileY: 10, objectKind: 'npc' },
-			{ id: 'sp-3', tileX: 12, tileY: 12, objectKind: 'board' },
-			{ id: 'sp-4', tileX: 25, tileY: 14, objectKind: 'chest' },
-			{ id: 'sp-5', tileX: 16, tileY: 20, objectKind: 'chest' },
-			{ id: 'sp-6', tileX: 11, tileY: 21, objectKind: 'chest' },
-			{ id: 'sp-7', tileX: 32, tileY: 15, objectKind: 'crystal' },
-			{ id: 'sp-8', tileX: 42, tileY: 12, objectKind: 'chest' },
-			{ id: 'sp-9', tileX: 46, tileY: 8, objectKind: 'npc' },
-			{ id: 'sp-10', tileX: 51, tileY: 11, objectKind: 'chest' },
-			{ id: 'sp-11', tileX: 46, tileY: 17, objectKind: 'board' },
-			{ id: 'sp-12', tileX: 51, tileY: 20, objectKind: 'chest' },
-			{ id: 'sp-13', tileX: 45, tileY: 25, objectKind: 'chest' },
-			{ id: 'sp-14', tileX: 41, tileY: 37, objectKind: 'chest' },
-			{ id: 'sp-15', tileX: 46, tileY: 33, objectKind: 'npc' },
-			{ id: 'sp-16', tileX: 51, tileY: 37, objectKind: 'chest' },
-			{ id: 'sp-17', tileX: 47, tileY: 43, objectKind: 'board' },
-			{ id: 'sp-18', tileX: 51, tileY: 41, objectKind: 'crystal' },
-			{ id: 'sp-19', tileX: 32, tileY: 41, objectKind: 'chest' },
-			{ id: 'sp-20', tileX: 15, tileY: 29, objectKind: 'chest' },
-			{ id: 'sp-21', tileX: 15, tileY: 36, objectKind: 'npc' },
-			{ id: 'sp-22', tileX: 8, tileY: 42, objectKind: 'board' },
-			{ id: 'sp-23', tileX: 21, tileY: 36, objectKind: 'chest' },
-			{ id: 'sp-24', tileX: 21, tileY: 46, objectKind: 'crystal' }
-		],
-		maxPlayers: 200
-	},
+		PESISIR_KARANG_LAYOUT
+	),
 	{
 		id: 'map-desa-sunnyside',
 		slug: 'lembah-sunnyside',
@@ -268,7 +169,7 @@ export const MAP_CATALOG: MapTemplate[] = [
 		description:
 			'Denah kampus sekolah luas (48x36 tile / 2304x1728 px) dari paket Modern Tiles 16x16 yang menghubungkan 4 sayap gedung: Ruang Kelas Utama, Perpustakaan Raya, Laboratorium Sains, dan Aula Diskusi.',
 		defaultMode: 'linear',
-		mapImageUrl: '/gba/maps/modern-campus-complex.png',
+		mapImageUrl: '/maps/modern-campus-complex.png',
 		widthTiles: 48,
 		heightTiles: 36,
 		tileSizePx: 16,
@@ -386,24 +287,6 @@ export const MAP_CATALOG: MapTemplate[] = [
 	},
 	godotMap(
 		{
-			id: 'map-pesisir-karang',
-			slug: 'pesisir-karang',
-			name: 'Pesisir Karang · Kampung Nelayan & Dermaga',
-			description:
-				'Kampung nelayan di tepi laut (64x48 tile): deretan rumah menghadap pantai berpasir, dermaga kayu, rumah panggung di atas laut, mercusuar batu, dan pulau kecil yang disambung titian.',
-			defaultMode: 'free',
-			palette: {
-				floorPrimary: '#62c44c',
-				floorSecondary: '#e0b070',
-				wallPrimary: '#2c8fd6',
-				wallAccent: '#30d8e8',
-				accentColor: '#facc15'
-			}
-		},
-		PESISIR_KARANG_LAYOUT
-	),
-	godotMap(
-		{
 			id: 'map-dataran-angin',
 			slug: 'dataran-angin',
 			name: 'Dataran Tinggi Angin · Kincir & Undakan Tebing',
@@ -446,12 +329,12 @@ export const STARTER_QUIZZES: QuizDefinition[] = [
 		ownerName: 'Ibu Ratna (SDN 01 Menteng)',
 		title: 'Eksplorasi Alam & Geografi Indonesia',
 		description:
-			'Kuis petualangan mengenal pulau, flora, fauna, dan fenomena alam kepulauan Indonesia di peta Pallet Town GBA.',
+			'Kuis petualangan mengenal pulau, flora, fauna, dan fenomena alam kepulauan Indonesia di peta Pesisir Karang.',
 		schoolLevel: 'sd',
 		gradeLabel: 'Kelas 5',
 		subject: 'IPA (Sains)',
 		visibility: 'public',
-		mapId: 'map-halaman-sekolah',
+		mapId: 'map-pesisir-karang',
 		mode: 'free',
 		settings: {
 			isAllowPass: true,
@@ -566,7 +449,7 @@ export const STARTER_QUIZZES: QuizDefinition[] = [
 		ownerName: 'Pak Hendra (SMPN 5 Bandung)',
 		title: 'Petualangan Aljabar & Teorema Pythagoras',
 		description:
-			'Selesaikan teka-teki persamaan linear dan segitiga siku-siku secara berurutan di Route 101 Hoenn.',
+			'Selesaikan teka-teki persamaan linear dan segitiga siku-siku secara berurutan di Lembah Sunnyside.',
 		schoolLevel: 'smp',
 		gradeLabel: 'Kelas 8',
 		subject: 'Matematika',

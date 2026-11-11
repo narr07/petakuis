@@ -55,10 +55,9 @@ export const DEMO_STUDENTS: DemoStudent[] = [
 
 /** Room demo yang otomatis aktif saat game server menyala (lihat apps/game-server/src/index.ts). */
 export const DEMO_ROOMS = [
-	{ code: '123456', mapId: 'map-halaman-sekolah' },
+	{ code: '123456', mapId: 'map-pesisir-karang' },
 	{ code: '222222', mapId: 'map-desa-sunnyside' },
 	{ code: '333333', mapId: 'map-kampus-modern' },
-	{ code: '444444', mapId: 'map-pesisir-karang' },
 	{ code: '555555', mapId: 'map-dataran-angin' },
 	{ code: '666666', mapId: 'map-kota-pasar' }
 ]

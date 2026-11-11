@@ -24,7 +24,7 @@
 	const modeFilter = ref<'all' | GameMode>('all')
 
 	const selectedMapId = ref(
-		String(route.query.mapId || 'map-halaman-sekolah')
+		String(route.query.mapId || 'map-pesisir-karang')
 	)
 
 	const steps = [

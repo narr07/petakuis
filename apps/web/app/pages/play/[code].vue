@@ -32,12 +32,11 @@
 	const showLeaderboardDrawer = ref(false)
 
 	const mapShortLabels: Record<string, string> = {
-		'map-halaman-sekolah': '1. Hoenn GBA (60×50)',
+		'map-pesisir-karang': '1. Pesisir Karang (64×48)',
 		'map-desa-sunnyside': '2. Lembah Sunnyside (64×48)',
 		'map-kampus-modern': '3. Kampus Modern (48×36)',
-		'map-pesisir-karang': '4. Pesisir Karang (64×48)',
-		'map-dataran-angin': '5. Dataran Angin (64×48)',
-		'map-kota-pasar': '6. Kota Pasar (64×48)'
+		'map-dataran-angin': '4. Dataran Angin (64×48)',
+		'map-kota-pasar': '5. Kota Pasar (64×48)'
 	}
 
 	function handleSelectDemoMap(mapId: string) {
@@ -56,13 +55,12 @@
 			if (q.includes('modern') || q.includes('kampus') || q === '3') {
 				return 'map-kampus-modern'
 			}
-			if (q.includes('hoenn') || q.includes('gba') || q === '1') {
-				return 'map-halaman-sekolah'
+			if (q.includes('pesisir') || q.includes('pantai') || q === '1') {
+				return 'map-pesisir-karang'
 			}
 		}
 		if (code.value === '222222') return 'map-desa-sunnyside'
 		if (code.value === '333333') return 'map-kampus-modern'
-		if (code.value === '444444') return 'map-pesisir-karang'
 		if (code.value === '555555') return 'map-dataran-angin'
 		if (code.value === '666666') return 'map-kota-pasar'
 		return null

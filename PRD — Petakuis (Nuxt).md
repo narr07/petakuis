@@ -104,9 +104,9 @@ Kalau koneksi siswa putus, ia bisa masuk lagi dari perangkat yang sama (`reconne
 
 MVP mengutamakan **kualitas keluasan dunia dibanding kuantitas peta kecil**: alih-alih menyediakan banyak peta sempit yang cepat habis dijelajahi, Petakuis menyediakan **3 Peta Multi-Region Berskala Luas (Seamless Open World)** dengan 3 gaya tileset berbeda yang semuanya **100% gratis** dan dapat langsung diganti secara instan melalui fitur **Ganti Peta Demo (Live Tilemap Switcher)** di layar permainan:
 
-1. **Region Hoenn Terpadu · GBA Open World (`60×50` tile / `2880×2400` px efektif):**
-   - Menggabungkan 4 kota dan rute petualangan sekaligus dalam satu bentang peta tanpa jeda layar (*seamless*): **Desa Littleroot (Tenggara)**, **Persimpangan Taman Oldale (Timur Laut)**, **Kota Kuis Petalburg & Aula Utama (Barat Daya)**, serta **Distrik Akademi Batu Rustboro (Barat Laut)** yang dihubungkan oleh jalan raya, jembatan hutan, dan tepi danau.
-   - Seluruh bangunan bersih dari label komersial (`P.C`, `MART`, `GYM`) dan memiliki matriks collision per-tile yang presisi.
+1. **Pesisir Karang · Kampung Nelayan (`64×48` tile, menggantikan peta berbasis aset pihak ketiga sejak 11 November 2026):**
+   - Kampung nelayan dengan pantai berbuih, dermaga kayu, rumah panggung, mercusuar, dan pulau kecil bertitian. Disusun di Godot dari paket Sunnyside World.
+   - Peta tambahan dengan pipeline yang sama: **Dataran Tinggi Angin** (undakan tebing, kincir angin, sungai) dan **Kota Pasar** (alun-alun pasar, kanal, balai kota).
 2. **Lembah Raya Sunnyside & Farm RPG · ZEP Village World (`56×44` tile / `2688×2112` px efektif):**
    - Dirancang menggunakan paket aset `Farm RPG FREE 16x16` dan `Sunnyside World V2.1`, menghubungkan 4 zona desa dalam satu peta luas: **Alun-Alun Desa Sunnyside** (pondok merah & biru), **Kawasan Perkebunan & Lumbung Timur**, **Hutan Maple Utara & Danau Kembar**, serta **Balai Belajar Selatan**.
 3. **Kompleks Kampus & Perpustakaan Modern · Indoor School Region (`48×36` tile / `2304×1728` px efektif):**

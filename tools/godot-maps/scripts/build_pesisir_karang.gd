@@ -81,6 +81,7 @@ func _terrain() -> void:
 	kit.bridge(31, 33, 2, 5, true) # titian ke rumah panggung (mulai di pasir supaya tersambung)
 	kit.bridge(48, 28, 5, 2) # titian ke pulau
 	kit.paint_terrains()
+	kit.shoreline("light") # garis pantai berbuih di antara pasir dan laut
 
 
 func _buildings() -> void:

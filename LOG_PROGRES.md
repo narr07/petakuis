@@ -129,7 +129,7 @@ Semua berukuran 64×48 tile, masing-masing 24 pos soal yang dipilih otomatis dan
 - Ditemukan lewat overlay: titian ke rumah panggung tengah di Pesisir Karang tidak tersambung ke pantai sehingga tertutup sebagai kantong; titian kini dimulai di pasir.
 - Gambar keempat peta Godot tidak berubah (hash sama); yang berubah hanya data tabrakan.
 
-**Verifikasi:** overlay tabrakan diperiksa untuk keenam peta. Kampus Modern dan Hoenn dibuat manual tanpa data layer, jadi tetap memakai grid per tile; kotak penghalangnya sudah sesuai bangunan dan perabot. Tes baru `collision.test.ts`: ukuran dan keselarasan grid halus, dan pemain bisa merapat ke kios (berhenti di 28,8 tile; sebelumnya 29,3). Total 12 tes lolos.
+**Verifikasi (0.7):** overlay tabrakan diperiksa untuk keenam peta. Kampus Modern dan Hoenn dibuat manual tanpa data layer, jadi tetap memakai grid per tile; kotak penghalangnya sudah sesuai bangunan dan perabot. Tes baru `collision.test.ts`: ukuran dan keselarasan grid halus, dan pemain bisa merapat ke kios (berhenti di 28,8 tile; sebelumnya 29,3). Total 12 tes lolos.
 
 ---
 
@@ -205,3 +205,19 @@ Semua berukuran 64×48 tile, masing-masing 24 pos soal yang dipilih otomatis dan
    - Menambahkan efek suara interaktif ketika mengambil item soal, menjawab benar/salah, dan naik peringkat, disertai tombol *Mute* di HUD.
 5. **Jembatan Ekspor/Impor Scene Godot 4.7.2 (`.tscn`) ke `MapTemplate`:**
    - Memanfaatkan skill `godot-templates` dan Godot `v4.7.2` lokal untuk mengonversi desain `TileMapLayer` dari editor Godot langsung menjadi JSON/TS peta Petakuis.
+
+### 0.8 Avatar baru, pantai berbuih, dan aset Pokémon dihapus (11 November 2026)
+
+**Avatar pemain:** 8 sprite trainer Pokémon diganti karakter dari paket Ninja Adventure (Pixel-boy & AAA, lisensi CC0) lewat `tools/godot-maps/scripts/build_avatars.gd`. Keluaran `apps/web/public/avatars/<id-seragam>.png`, 9 frame 16×16 dengan urutan arah yang sama seperti sebelumnya, jadi logika animasi tidak berubah; ukuran tampilan di `GameCanvas` (48 px untuk diri sendiri, 40 px untuk pemain lain) dan `join.vue` disesuaikan. ID warna seragam tetap; label diganti julukan deskriptif (Si Rambut Merah, Si Ninja Biru, dan seterusnya). Karakter Child dan OldWoman tidak dipakai karena frame jalannya tidak lengkap.
+
+**Pantai:** `kit.shoreline()` memasang garis pantai berbuih dari paket (tile 19..24 baris 5..6) di sel air yang menempel pasir, mengikuti cara pantai digambar di room contoh paket. Sudut pantai memakai air penuh plus potongan sudut berpasir supaya tidak ada rumput yang mengintip. Dipakai di Pesisir Karang.
+
+**Aset Pokémon dihapus:**
+
+- Peta Hoenn (`map-halaman-sekolah`) dihapus dari katalog; Pesisir Karang menjadi peta pertama dan peta room demo `123456` (room `444444` dihapus karena kini sama).
+- Seluruh `apps/web/public/gba/` dihapus: peta GBA, sprite trainer, palet, dan data hasil ekstraksi ROM. Gambar Kampus Modern (dari paket Modern Tiles) dipindah ke `apps/web/public/maps/`.
+- Nama dan istilah Pokémon di kuis contoh, label avatar, pemilih peta, dan teks "trainer" di halaman Join diganti.
+- Tes yang khusus memakai peta Hoenn ditulis ulang memakai rumah di Kota Pasar; uji pencarian jalan kini berlaku untuk semua peta.
+- Riwayat git dibersihkan dari `apps/web/public/gba/` (lihat catatan di bawah).
+
+**Verifikasi:** `bun test` 12 tes lolos, lint bersih, typecheck tanpa error baru (sisa error lama di `build/index.vue` dan `join.vue`). Halaman beranda, join, jelajah, build, dashboard, dan game diperiksa berjalan; tangkapan layar game di room `123456` menampilkan avatar baru dan pantai berbuih.
