@@ -407,3 +407,5 @@ Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudfla
 
 **Lanjutan berikutnya:** periksa tangkapan layar QR & peringatan nama (sudah diambil di scratchpad: `shots/host-qr.png`, `shots/join-nama.png`), lalu commit + push + deploy semua pekerjaan 0.13–0.15 (situs online masih membocorkan kunci jawaban), hapus blokir sementara `/logs` di Cloudflare. Setelah itu: backup database harian, halaman kuis Nuxt UI, uji beban 200 siswa, generator tilemap.
 
+**Deploy 0.13–0.15 (11 November 2026):** commit `ec3011e` terpasang di VPS. Diuji online: `/api/quizzes` tanpa kunci jawaban, `/api/logs` 401 untuk tamu, `/dashboard/logs` diarahkan ke login, `/logs` dialihkan 301, `/api/internal/` 403, PIN salah 404; permadi.dev, majalengka.tech, gurukampung.my.id tetap 200. Blokir sementara `/logs` di Cloudflare sudah dicabut. Sisa: periksa tampilan QR & peringatan nama, backup database harian, halaman kuis Nuxt UI, uji beban 200 siswa, generator tilemap.
+
