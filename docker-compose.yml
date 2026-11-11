@@ -1,22 +1,16 @@
-# Jalankan di VPS:  cp .env.example .env  (isi DOMAIN & INTERNAL_SECRET)  lalu  docker compose up -d --build
+# Petakuis: web (Nuxt) + game server (Socket.IO).
+#
+#   cp .env.example .env      # isi PUBLIC_URL dan INTERNAL_SECRET
+#   docker compose up -d --build
+#
+# Bawaan: kedua layanan hanya dibuka di 127.0.0.1 (WEB_PORT, GAME_PORT) untuk dipasang di
+# belakang proxy yang sudah ada, misalnya Cloudflare Tunnel:
+#   <domain>  path socket.io  -> http://localhost:${GAME_PORT}
+#   <domain>  (lainnya)       -> http://localhost:${WEB_PORT}
+#
+# VPS kosong tanpa proxy: jalankan juga Caddy (HTTPS otomatis, butuh port 80/443 terbuka):
+#   docker compose --profile caddy up -d --build
 services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    environment:
-      - DOMAIN=${DOMAIN:?Isi DOMAIN di .env}
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - web
-      - game-server
-
   web:
     build:
       context: .
@@ -26,8 +20,10 @@ services:
     environment:
       - NUXT_GAME_SERVER_INTERNAL_URL=http://game-server:3001
       - NUXT_INTERNAL_SECRET=${INTERNAL_SECRET:?Isi INTERNAL_SECRET di .env}
-      - NUXT_PUBLIC_GAME_SERVER_URL=https://${DOMAIN:?Isi DOMAIN di .env}
+      - NUXT_PUBLIC_GAME_SERVER_URL=${PUBLIC_GAME_URL:-${PUBLIC_URL:?Isi PUBLIC_URL di .env}}
       - NUXT_GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3100}:3000"
     volumes:
       - webdata:/data
     depends_on:
@@ -41,11 +37,32 @@ services:
     environment:
       - PORT=3001
       - INTERNAL_SECRET=${INTERNAL_SECRET:?Isi INTERNAL_SECRET di .env}
-      - ALLOWED_ORIGINS=https://${DOMAIN:?Isi DOMAIN di .env}
+      - ALLOWED_ORIGINS=${PUBLIC_URL:?Isi PUBLIC_URL di .env}
       - WEB_INTERNAL_URL=http://web:3000
+    ports:
+      - "127.0.0.1:${GAME_PORT:-3101}:3001"
+
+  # Hanya untuk VPS tanpa proxy lain. Domain diambil dari PUBLIC_URL (tanpa https://).
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["caddy"]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - DOMAIN=${CADDY_DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - game-server
 
 volumes:
-  caddy_data:
-  caddy_config:
   # Berkas database SQLite. Cadangkan isi volume ini secara berkala.
   webdata:
+  caddy_data:
+  caddy_config:

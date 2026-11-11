@@ -29,21 +29,29 @@ Platform kuis kelas interaktif berbasis eksplorasi peta pixel art 2D untuk guru 
 
 4. Uji coba langsung menggunakan ruangan demo aktif dengan PIN **`123456`**.
 
-## Menjalankan di VPS (Docker Compose + Caddy)
+## Menjalankan di VPS (Docker Compose)
 
-Prasyarat: VPS Linux dengan Docker + plugin Compose, port 80 dan 443 terbuka, dan domain
-(A record) yang mengarah ke IP VPS. Tanpa domain sendiri bisa memakai sslip.io
-(misalnya `203-0-113-10.sslip.io` untuk IP `203.0.113.10`). Caddy mengurus HTTPS otomatis.
+Prasyarat: VPS Linux dengan Docker + plugin Compose (x86_64 atau ARM64).
 
 ```bash
 git clone https://github.com/narr07/petakuis.git && cd petakuis
 cp .env.example .env
-# isi DOMAIN, lalu INTERNAL_SECRET dengan hasil: openssl rand -hex 32
+# isi PUBLIC_URL (mis. https://petakuis.domainmu.com) dan INTERNAL_SECRET (openssl rand -hex 32)
 docker compose up -d --build
 docker compose logs -f web game-server   # pantau sampai keduanya siap
 ```
 
+Web dan game server hanya dibuka di `127.0.0.1` (`WEB_PORT`, bawaan 3100; `GAME_PORT`, bawaan 3101).
+Pasang di belakang proxy yang sudah ada. Contoh **Cloudflare Tunnel** (Zero Trust → Networks →
+Tunnels → Public Hostname), dua aturan untuk hostname yang sama, urutan seperti ini:
+
+1. Path `socket.io` → `http://localhost:3101`
+2. Tanpa path → `http://localhost:3100`
+
+VPS kosong tanpa proxy: jalankan juga Caddy (HTTPS otomatis, port 80/443 harus terbuka, isi
+`CADDY_DOMAIN` di `.env`): `docker compose --profile caddy up -d --build`.
+
 Memperbarui ke versi terbaru: `git pull && docker compose up -d --build`.
 
-Catatan: data kuis dan sesi masih tersimpan di memori, jadi hilang setiap container
-di-restart. Postgres dan Redis sudah disiapkan di profil `db` tetapi belum dipakai aplikasi.
+Data kuis dan laporan sesi tersimpan di berkas SQLite pada volume Docker `webdata`;
+cadangkan volume ini secara berkala.
