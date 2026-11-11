@@ -41,9 +41,9 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 | --- | --- | --- |
 | 1 | ~~Halaman admin Guru, Siswa, Pengaturan Sekolah~~ | Selesai di lokal (0.15) |
 | 2 | ~~Pengaman kelas~~ | Selesai di lokal (0.15); tangkapan layar QR & peringatan nama belum diperiksa |
-| 3 | Backup database harian di VPS | Skrip `scripts/backup-db.sh` selesai & diuji di VPS (0.16); cron menunggu skrip di-push |
+| 3 | ~~Backup database harian di VPS~~ | Selesai (0.16): cron 02.30 WIB |
 | 4 | Halaman kuis dengan Nuxt UI | Penyusun kuis, layar host, layar main |
-| 5 | Uji beban 200 siswa | Gerbang 1 PRD, belum pernah dijalankan |
+| 5 | ~~Uji beban 200 siswa~~ | Selesai di lokal (0.17); perbaikan batas 200 siswa belum di-deploy |
 | 6 | Generator tilemap | Membuat peta baru otomatis dari pipeline Godot |
 | 7 | Fase berikutnya | Mode PR tanpa host live, efek suara + tombol mute, i18n (id/en), PWA |
 
@@ -414,5 +414,15 @@ Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudfla
 - Tampilan QR code di layar host dan peringatan nama panggilan di `/join` diperiksa lewat tangkapan layar: sesuai.
 - `scripts/backup-db.sh`: `VACUUM INTO` di dalam container web (salinan konsisten walau aplikasi berjalan), `PRAGMA integrity_check` pada salinan, disalin ke `~/petakuis-backups` di VPS, dikompres gzip, disimpan 14 hari (`BACKUP_DIR`, `BACKUP_KEEP_DAYS`). Cara memulihkan ditulis di kepala skrip. Catatan: `require()` gagal karena Nitro hanya membawa versi ESM `@libsql/client`, jadi skrip memakai `import()`.
 - Diuji di VPS (dijalankan lewat stdin, tanpa menyimpan file di repo VPS): cadangan pertama `petakuis-20261111-170720.db.gz` (8 KB), file sementara di container terhapus.
-- **Belum:** commit + push skrip (ditahan pengaman otomatis, menunggu izin), lalu di VPS `git pull` dan pasang cron `30 19 * * *` (02.30 WIB).
+- Di-push (`90f21ec`), di VPS `git pull` dan cron `30 19 * * *` (02.30 WIB) terpasang; entri crontab lain tidak diubah. Jalan kedua juga berhasil.
+
+### 0.17 Uji beban 200 siswa (12 November 2026) — perbaikan belum di-commit
+
+**Alat:** `apps/web/scripts/load-test.ts` (`bun scripts/load-test.ts --url <game server> --code <PIN> --bots 200 --seconds 60`): bot Socket.IO masuk bertahap lalu berjalan acak 5 langkah/detik; mengukur join, latensi `state`, laju update per bot, error.
+
+**Hasil (laptop, game server lokal, room demo 555555, 200 bot):** join 200/200 (p95 11 ms); latensi update p50 4 ms · p95 9 ms · p99 12 ms (putaran berikutnya p99 ≤ 41 ms); 13,4 update/detik per bot (1 bot pun 13,2: batas timer Windows, bukan beban; target 15); CPU game server ±7% dari 1 core, memori 98 MB; 0 error.
+
+**Bug ditemukan dan diperbaiki (`QuizRoom.ts`):** pemain yang sudah keluar tetap dihitung ke batas 200 dan room demo tidak pernah menghapus mereka, sehingga putaran uji kedua ditolak "Ruang kelas sudah penuh". Di produksi, room demo publik akan penuh permanen setelah 200 pengunjung. Sekarang batas hanya menghitung pemain tersambung (pemain yang keluar tetap disimpan agar nilainya masuk laporan), dan room demo menghapus pemain yang keluar lebih dari 10 menit. Diuji: dua putaran 200 bot berturut-turut di room yang sama, keduanya 200/200 tanpa error.
+
+**Belum:** commit + push + deploy game server (ditahan pengaman otomatis), uji dari luar lewat Cloudflare ke VPS.
 

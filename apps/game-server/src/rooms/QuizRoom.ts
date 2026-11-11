@@ -44,7 +44,12 @@ export interface AnswerRecord {
 	answeredAt: string
 }
 
+/** Room demo menghapus pemain yang sudah keluar selama ini (room demo hidup terus). */
+const DEMO_STALE_PLAYER_MS = 10 * 60_000
+
 interface InternalPlayer {
+	/** Waktu terputus; kosong selama tersambung. */
+	disconnectedAt?: number
 	id: string
 	socketId: string
 	reconnectToken: string
@@ -228,8 +233,12 @@ export class QuizRoom {
 
 		socket.join(`room:${this.code}`)
 
+		if (this.isDemo) this.pruneStalePlayers()
+
+		// Hanya pemain yang sedang tersambung yang dihitung: pemain yang keluar tetap disimpan
+		// (nilainya masuk laporan) tetapi tidak boleh membuat kelas terlihat penuh.
 		if (
-			this.players.size >= GAME_CONSTANTS.MAX_PLAYERS_PER_ROOM &&
+			this.connectedPlayerCount() >= GAME_CONSTANTS.MAX_PLAYERS_PER_ROOM &&
 			(!payload.reconnectToken || !this.reconnectIndex.has(payload.reconnectToken))
 		) {
 			socket.emit('room:error', { message: 'Ruang kelas sudah penuh (maksimal 200 siswa).' })
@@ -292,6 +301,7 @@ export class QuizRoom {
 		} else {
 			player.socketId = socket.id
 			player.connected = true
+			player.disconnectedAt = undefined
 			if (payload.nickname) {
 				player.nickname = sanitizeNickname(payload.nickname)
 			}
@@ -629,8 +639,25 @@ export class QuizRoom {
 			const player = this.players.get(playerId)
 			if (player) {
 				player.connected = false
+				player.disconnectedAt = Date.now()
 			}
 			this.socketToPlayerId.delete(socket.id)
+		}
+	}
+
+	private connectedPlayerCount(): number {
+		let count = 0
+		for (const p of this.players.values()) if (p.connected) count++
+		return count
+	}
+
+	/** Room demo: hapus pemain yang sudah lama keluar supaya memori tidak terus bertambah. */
+	private pruneStalePlayers(now = Date.now()): void {
+		for (const [id, p] of this.players) {
+			if (!p.connected && p.disconnectedAt && now - p.disconnectedAt > DEMO_STALE_PLAYER_MS) {
+				this.players.delete(id)
+				this.reconnectIndex.delete(p.reconnectToken)
+			}
 		}
 	}
 
