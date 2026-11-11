@@ -44,7 +44,7 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 | 3 | ~~Backup database harian di VPS~~ | Selesai (0.16): cron 02.30 WIB |
 | 4 | ~~Halaman kuis dengan Nuxt UI~~ | Selesai & online (0.18) |
 | 5 | ~~Uji beban 200 siswa~~ | Selesai (0.17); perbaikan batas 200 siswa sudah online |
-| 6 | Generator tilemap | Membuat peta baru otomatis dari pipeline Godot |
+| 6 | ~~Generator tilemap~~ | Selesai (0.19) |
 | 7 | Fase berikutnya | Mode PR tanpa host live, efek suara + tombol mute, i18n (id/en), PWA |
 
 Tidak lagi direncanakan: PostgreSQL dan Redis (diganti SQLite untuk satu VPS, lihat 0.10).
@@ -441,4 +441,10 @@ Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah
 **Verifikasi:** lint & typecheck bersih; tangkapan layar diperiksa: penyusun kuis (mode edit), pemilih posisi, join, layar main + peringkat, jendela soal isian. Di dev server, pemuatan pertama layar main bisa >5 detik sehingga peta tampak gelap di tangkapan layar awal; bukan regresi (dibandingkan dengan situs online).
 
 **Deploy:** `b5c4d07` terpasang di VPS; `/`, `/join`, `/play/123456`, `/auth/login` 200, peta & avatar di layar main termuat; situs lain di VPS tetap 200.
+
+### 0.19 Generator peta acak (12 November 2026)
+
+- `tools/godot-maps/scripts/generate_map.gd` di atas `sunnyside_kit.gd` + katalog `buildings.gd`: input `slug`, `seed`, `tema` (desa/sungai/danau), `nama`, `lebar`, `tinggi`. Menyusun jalan utama, jalan kedua, 2–3 jalan tembus; air sesuai tema (sungai berkelok dengan jembatan otomatis dan jalan di seberang, danau, atau kolam); bangunan acak berderet menghadap jalan dengan jarak satu sel (tiap jenis maks. 2, tidak berurutan); ladang, ternak, cincin hutan, dekor; 24 pos soal otomatis. Pemeriksaan: semua pos terjangkau dari titik mulai, area jalan ≥ 30%, pos ≥ 20, bangunan ≥ 6; bila gagal coba seed berikutnya (maks. 12).
+- `run.sh --gen slug=... seed=... tema=...`: generate + ekspor PNG/TS + cetak potongan kode pendaftaran untuk `maps.ts`. README diperbarui.
+- **Diuji:** tiga tema (sungai seed 7, danau seed 21, desa seed 99) lolos di percobaan pertama: 14–20 bangunan, area jalan 51–55%, 24 pos soal; PNG diperiksa visual (jembatan di tiap persilangan sungai, rumah menghadap jalan, variasi bangunan). Berkas uji dihapus; belum ada peta hasil generator yang didaftarkan ke katalog.
 
