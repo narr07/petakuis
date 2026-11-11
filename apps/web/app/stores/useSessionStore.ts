@@ -32,6 +32,8 @@ export const useSessionStore = defineStore('petakuis-session', () => {
 	const myY = ref(defaultMap.playerSpawn.tileY * defaultMap.tileSizePx * defaultMap.renderScale)
 	const myScore = ref(0)
 	const isAccessibleMode = ref(false)
+	/** Room demo bawaan: hanya di sini pemain boleh mengganti peta. */
+	const isDemoRoom = ref(false)
 
 	const assignedObjects = ref<AssignedMapObject[]>(
 		buildAssignedObjects(defaultQuiz, defaultMap, 'demo')
@@ -134,6 +136,7 @@ export const useSessionStore = defineStore('petakuis-session', () => {
 		myY,
 		myScore,
 		isAccessibleMode,
+		isDemoRoom,
 		assignedObjects,
 		nearbyPlayers,
 		activeQuestion,

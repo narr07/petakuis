@@ -29,9 +29,21 @@ Platform kuis kelas interaktif berbasis eksplorasi peta pixel art 2D untuk guru 
 
 4. Uji coba langsung menggunakan ruangan demo aktif dengan PIN **`123456`**.
 
-## Menjalankan di Oracle Cloud VPS (Docker Compose)
+## Menjalankan di VPS (Docker Compose + Caddy)
+
+Prasyarat: VPS Linux dengan Docker + plugin Compose, port 80 dan 443 terbuka, dan domain
+(A record) yang mengarah ke IP VPS. Tanpa domain sendiri bisa memakai sslip.io
+(misalnya `203-0-113-10.sslip.io` untuk IP `203.0.113.10`). Caddy mengurus HTTPS otomatis.
 
 ```bash
+git clone https://github.com/narr07/petakuis.git && cd petakuis
 cp .env.example .env
+# isi DOMAIN, lalu INTERNAL_SECRET dengan hasil: openssl rand -hex 32
 docker compose up -d --build
+docker compose logs -f web game-server   # pantau sampai keduanya siap
 ```
+
+Memperbarui ke versi terbaru: `git pull && docker compose up -d --build`.
+
+Catatan: data kuis dan sesi masih tersimpan di memori, jadi hilang setiap container
+di-restart. Postgres dan Redis sudah disiapkan di profil `db` tetapi belum dipakai aplikasi.

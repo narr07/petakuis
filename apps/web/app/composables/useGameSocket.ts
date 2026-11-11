@@ -25,6 +25,7 @@ export function useGameSocket() {
 		code: string
 		nickname: string
 		colorway: AvatarColorway
+		onJoined?: (payload: JoinedRoomResponse) => void
 	}) {
 		if (socketRef.value) {
 			socketRef.value.disconnect()
@@ -71,10 +72,12 @@ export function useGameSocket() {
 			store.myScore = payload.score
 			store.myX = payload.spawnX
 			store.myY = payload.spawnY
+			store.isDemoRoom = Boolean(payload.isDemo)
 
 			if (typeof window !== 'undefined') {
 				window.localStorage.setItem(storageKey, payload.reconnectToken)
 			}
+			params.onJoined?.(payload)
 		})
 
 		s.on('state', (payload: { t: number; players: CompactPlayerTuple[] }) => {
@@ -118,6 +121,10 @@ export function useGameSocket() {
 			store.showTransientError(payload.message)
 		})
 
+		s.on('map:denied', (payload: { message: string }) => {
+			store.showTransientError(payload.message)
+		})
+
 		s.on(
 			'map:changed',
 			(payload: {
@@ -134,8 +141,8 @@ export function useGameSocket() {
 		)
 	}
 
+	// Peta lokal baru berganti saat server mengirim map:changed, supaya tidak berbeda dengan server.
 	function changeRoomMap(mapIdOrSlug: string) {
-		store.switchMap(mapIdOrSlug)
 		socketRef.value?.emit('map:change', { mapId: mapIdOrSlug })
 	}
 

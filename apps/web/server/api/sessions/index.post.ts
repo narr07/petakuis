@@ -1,5 +1,8 @@
+import { randomInt, randomUUID } from 'node:crypto'
 import type { GameMode } from '@petakuis/shared'
-import { getQuizById } from '../../utils/store'
+import { getQuizById, recordGameSession } from '../../utils/store'
+
+const MAX_CODE_ATTEMPTS = 5
 
 export default defineEventHandler(async (event) => {
 	const config = useRuntimeConfig()
@@ -10,7 +13,7 @@ export default defineEventHandler(async (event) => {
 		autoStart?: boolean
 	}>(event)
 
-	const quiz = getQuizById(body.quizId)
+	const quiz = await getQuizById(body.quizId)
 	if (!quiz) {
 		throw createError({
 			statusCode: 404,
@@ -24,32 +27,60 @@ export default defineEventHandler(async (event) => {
 		mapId: body.mapId || quiz.mapId
 	}
 
-	const code = String(Math.floor(100000 + Math.random() * 900000))
-	const hostToken = 'ht_' + Math.random().toString(36).slice(2, 14)
+	// Token host hanya dikirim ke guru yang membuat sesi; layar host memakainya untuk mengendalikan sesi.
+	const hostToken = 'ht_' + randomUUID()
 
-	try {
-		await fetch(`${config.gameServerInternalUrl}/rooms`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				code,
-				quiz: sessionQuiz,
-				hostToken,
-				autoStart: Boolean(body.autoStart)
+	for (let attempt = 0; attempt < MAX_CODE_ATTEMPTS; attempt++) {
+		const code = String(randomInt(100000, 1000000))
+		let resp: Response
+		try {
+			resp = await fetch(`${config.gameServerInternalUrl}/rooms`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'x-internal-secret': config.internalSecret
+				},
+				body: JSON.stringify({
+					code,
+					quiz: sessionQuiz,
+					hostToken,
+					autoStart: Boolean(body.autoStart)
+				})
 			})
+		} catch {
+			throw createError({
+				statusCode: 503,
+				statusMessage: 'Game server belum aktif.'
+			})
+		}
+
+		if (resp.status === 409) {
+			continue // kode sedang dipakai room lain, coba kode baru
+		}
+		if (!resp.ok) {
+			throw createError({
+				statusCode: 502,
+				statusMessage: `Game server menolak pembuatan sesi (kode ${resp.status}).`
+			})
+		}
+
+		await recordGameSession({
+			code,
+			quiz: sessionQuiz,
+			status: body.autoStart ? 'active' : 'lobby'
 		})
-	} catch (err) {
-		throw createError({
-			statusCode: 503,
-			statusMessage: `Gagal menghubungi Game Server (${config.gameServerInternalUrl}): ${String(err)}`
-		})
+
+		return {
+			ok: true,
+			code,
+			hostToken,
+			quizTitle: sessionQuiz.title,
+			mode: sessionQuiz.mode
+		}
 	}
 
-	return {
-		ok: true,
-		code,
-		hostToken,
-		quizTitle: sessionQuiz.title,
-		mode: sessionQuiz.mode
-	}
+	throw createError({
+		statusCode: 503,
+		statusMessage: 'Tidak menemukan kode sesi yang kosong. Coba lagi.'
+	})
 })

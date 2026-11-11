@@ -1,0 +1,24 @@
+**/node_modules
+**/.nuxt
+**/.output
+**/.nitro
+**/.cache
+.git
+.env
+.env.*
+!.env.example
+
+# Paket aset mentah, alat pembuat peta, dan berkas kerja: tidak dipakai saat aplikasi berjalan
+Sunnyside_World_*
+Farm RPG FREE 16x16 - Tiny Asset Pack
+Modern tiles_Free
+NinjaAdventure_CC0
+*.aseprite
+*.bundle
+brand
+tools
+graft
+
+# Konfigurasi alat AI
+.agents
+.claude

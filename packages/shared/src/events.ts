@@ -62,6 +62,8 @@ export interface JoinedRoomResponse {
 	answeredQuestionIds: string[]
 	spawnX: number
 	spawnY: number
+	/** Room demo bawaan: pemain boleh mencoba mengganti peta. */
+	isDemo: boolean
 }
 
 export interface AnswerSubmitPayload {

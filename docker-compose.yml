@@ -1,3 +1,4 @@
+# Jalankan di VPS:  cp .env.example .env  (isi DOMAIN & INTERNAL_SECRET)  lalu  docker compose up -d --build
 services:
   caddy:
     image: caddy:2-alpine
@@ -6,6 +7,8 @@ services:
       - "80:80"
       - "443:443"
       - "443:443/udp"
+    environment:
+      - DOMAIN=${DOMAIN:?Isi DOMAIN di .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -19,17 +22,16 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
     restart: unless-stopped
+    # Nuxt membaca konfigurasi saat berjalan hanya dari variabel berawalan NUXT_.
     environment:
-      - NODE_ENV=production
-      - NITRO_PORT=3000
-      - DATABASE_URL=postgres://petakuis:${POSTGRES_PASSWORD:-petakuis_secret}@postgres:5432/petakuis
-      - REDIS_URL=redis://redis:6379
-      - NUXT_PUBLIC_GAME_SERVER_URL=${PUBLIC_GAME_SERVER_URL:-http://localhost:3001}
-      - INTERNAL_SECRET=${INTERNAL_SECRET:-petakuis_internal_secret}
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - NUXT_GAME_SERVER_INTERNAL_URL=http://game-server:3001
+      - NUXT_INTERNAL_SECRET=${INTERNAL_SECRET:?Isi INTERNAL_SECRET di .env}
+      - NUXT_PUBLIC_GAME_SERVER_URL=https://${DOMAIN:?Isi DOMAIN di .env}
+      - NUXT_GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    volumes:
+      - webdata:/data
     depends_on:
-      - postgres
-      - redis
+      - game-server
 
   game-server:
     build:
@@ -37,33 +39,13 @@ services:
       dockerfile: apps/game-server/Dockerfile
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
       - PORT=3001
-      - REDIS_URL=redis://redis:6379
+      - INTERNAL_SECRET=${INTERNAL_SECRET:?Isi INTERNAL_SECRET di .env}
+      - ALLOWED_ORIGINS=https://${DOMAIN:?Isi DOMAIN di .env}
       - WEB_INTERNAL_URL=http://web:3000
-      - INTERNAL_SECRET=${INTERNAL_SECRET:-petakuis_internal_secret}
-    depends_on:
-      - redis
-
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      - POSTGRES_USER=petakuis
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-petakuis_secret}
-      - POSTGRES_DB=petakuis
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
-    volumes:
-      - redisdata:/data
 
 volumes:
   caddy_data:
   caddy_config:
-  pgdata:
-  redisdata:
+  # Berkas database SQLite. Cadangkan isi volume ini secara berkala.
+  webdata:

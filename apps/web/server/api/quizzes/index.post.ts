@@ -1,5 +1,6 @@
+import { randomUUID } from 'node:crypto'
 import { NPC_CHARACTERS, type QuizDefinition } from '@petakuis/shared'
-import { saveQuiz } from '../../utils/store'
+import { createQuiz } from '../../utils/store'
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody<Partial<QuizDefinition>>(event)
@@ -12,7 +13,8 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const now = new Date().toISOString()
-	const id = body.id || 'quiz-' + Math.random().toString(36).slice(2, 10)
+	// ID selalu dibuat server: id dari klien bisa dipakai menimpa kuis orang lain.
+	const id = 'quiz-' + randomUUID()
 
 	const quiz: QuizDefinition = {
 		id,
@@ -53,11 +55,11 @@ export default defineEventHandler(async (event) => {
 					? { tileX: q.placement.tileX, tileY: q.placement.tileY }
 					: undefined
 		})),
-		createdAt: body.createdAt || now,
+		createdAt: now,
 		updatedAt: now
 	}
 
-	saveQuiz(quiz)
+	await createQuiz(quiz)
 	return {
 		ok: true,
 		quiz

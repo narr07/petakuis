@@ -16,7 +16,7 @@
 	const pin = computed<string[]>({
 		get: () => code.value.split(''),
 		set: (val) => {
-			code.value = val.join('')
+			code.value = val.join('').replace(/\D/g, '')
 		}
 	})
 
@@ -107,7 +107,6 @@
 							<UPinInput
 								v-model="pin"
 								:length="PIN_LENGTH"
-								type="number"
 								size="xl"
 								otp
 								:ui="{ base: 'size-12 sm:size-14 text-2xl font-extrabold font-mono' }"

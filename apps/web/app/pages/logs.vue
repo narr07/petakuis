@@ -31,6 +31,14 @@
 			description: '6 peta, collision per tile, jalan otomatis saat peta diketuk, D-Pad di HP, kompas penunjuk pos soal, dan NPC.'
 		},
 		{
+			title: 'Kuis dan laporan tersimpan permanen',
+			description: 'Database SQLite: kuis buatan guru dan laporan sesi yang sudah berakhir tetap ada setelah server dimulai ulang.'
+		},
+		{
+			title: 'Kontrol sesi hanya untuk guru',
+			description: 'Token host diperiksa di game server: siswa tidak bisa mengakhiri sesi, mengeluarkan teman, atau mengganti peta.'
+		},
+		{
 			title: 'Penilaian di server',
 			description: 'Kunci jawaban tidak dikirim ke browser. Waktu dihitung sejak soal pertama kali dibuka.'
 		},
@@ -49,18 +57,6 @@
 	]
 
 	const pendingItems: PageFeatureProps[] = [
-		{
-			title: 'Ganti aset peta yang berasal dari game pihak ketiga',
-			description: 'Peta pertama dan beberapa sprite harus diganti aset berlisensi sah sebelum rilis.'
-		},
-		{
-			title: 'Amankan kontrol host',
-			description: 'Validasi token host di game server agar hanya guru yang bisa memulai, mengakhiri, atau mengeluarkan siswa.'
-		},
-		{
-			title: 'Database PostgreSQL dan Redis',
-			description: 'Kuis, sesi, dan laporan masih tersimpan di memori dan hilang saat server dimulai ulang.'
-		},
 		{
 			title: 'Login guru',
 			description: 'Google atau kode OTP lewat email, supaya kuis tersimpan per akun.'

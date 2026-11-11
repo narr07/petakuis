@@ -1,3 +1,4 @@
+import { randomUUID, timingSafeEqual } from 'node:crypto'
 import {
 	buildAssignedObjects,
 	calculateScore,
@@ -20,7 +21,8 @@ import {
 	type MapTemplate,
 	type PublicQuestionPayload,
 	type QuizDefinition,
-	type SessionEndPayload
+	type SessionEndPayload,
+	type SessionReportData
 } from '@petakuis/shared'
 import type { Server, Socket } from 'socket.io'
 import {
@@ -67,6 +69,8 @@ interface InternalPlayer {
 export class QuizRoom {
 	public readonly code: string
 	public readonly hostToken: string
+	/** Room demo: layar host boleh dibuka siapa saja untuk memantau, dan peta boleh diganti pemain. */
+	public readonly isDemo: boolean
 	public readonly quiz: QuizDefinition
 	public mapConfig: MapTemplate
 	public status: 'lobby' | 'active' | 'paused' | 'ended' = 'lobby'
@@ -77,17 +81,23 @@ export class QuizRoom {
 	private players = new Map<string, InternalPlayer>()
 	private reconnectIndex = new Map<string, string>()
 	private socketToPlayerId = new Map<string, string>()
+	/** Semua socket yang membuka layar host (termasuk yang hanya memantau di room demo). */
 	private hostSocketIds = new Set<string>()
+	/** Socket host yang tokennya cocok: hanya ini yang boleh mengendalikan sesi. */
+	private hostControllerIds = new Set<string>()
 	private questionCorrectCounts = new Map<string, number>()
 	private answerRecords: AnswerRecord[] = []
 	private playerTickTimer: ReturnType<typeof setInterval> | null = null
 	private hostTickTimer: ReturnType<typeof setInterval> | null = null
+	/** Dipanggil sekali saat sesi berakhir, misalnya untuk menyimpan laporan ke web. */
+	public onEnd: ((report: SessionReportData) => void) | null = null
 
-	constructor(io: Server, code: string, quiz: QuizDefinition, hostToken: string) {
+	constructor(io: Server, code: string, quiz: QuizDefinition, hostToken: string, isDemo = false) {
 		this.io = io
 		this.code = code
 		this.quiz = quiz
 		this.hostToken = hostToken
+		this.isDemo = isDemo
 		const foundMap = MAP_CATALOG.find((m) => m.id === quiz.mapId)
 		this.mapConfig = (foundMap ?? MAP_CATALOG[0]) as MapTemplate
 		this.startLoops()
@@ -127,7 +137,11 @@ export class QuizRoom {
 		return buildAssignedObjects(this.quiz, this.mapConfig, playerId)
 	}
 
-	public handleMapChange(mapIdOrSlug: string): void {
+	public handleMapChange(socket: Socket, mapIdOrSlug: string): void {
+		if (!this.isDemo && !this.hostControllerIds.has(socket.id)) {
+			socket.emit('map:denied', { message: 'Hanya guru yang membuat sesi ini yang bisa mengganti peta.' })
+			return
+		}
 		const nextMap = MAP_CATALOG.find(
 			(m) => m.id === mapIdOrSlug || m.slug === mapIdOrSlug
 		)
@@ -157,17 +171,9 @@ export class QuizRoom {
 			})
 		}
 
-		this.io.to(`host:${this.code}`).emit('host:init', {
-			code: this.code,
-			status: this.status,
-			quizTitle: this.quiz.title,
-			subject: this.quiz.subject,
-			schoolLevel: this.quiz.schoolLevel,
-			mode: this.quiz.mode,
-			mapConfig: this.mapConfig,
-			totalQuestions: this.quiz.questions.length,
-			leaderboard: this.getLeaderboard()
-		})
+		for (const id of this.hostSocketIds) {
+			this.emitHostInit(id)
+		}
 		this.broadcastHostState()
 		logGameEvent(
 			'info',
@@ -176,26 +182,51 @@ export class QuizRoom {
 		)
 	}
 
-	public handleJoin(socket: Socket, payload: JoinRoomPayload): void {
-		socket.join(`room:${this.code}`)
+	/** Membandingkan token host tanpa membocorkan panjang kecocokan lewat waktu. */
+	private isValidHostToken(token: unknown): boolean {
+		if (typeof token !== 'string' || token.length === 0) return false
+		const a = Buffer.from(token)
+		const b = Buffer.from(this.hostToken)
+		return a.length === b.length && timingSafeEqual(a, b)
+	}
 
+	private emitHostInit(socketId: string): void {
+		this.io.to(socketId).emit('host:init', {
+			code: this.code,
+			status: this.status,
+			quizTitle: this.quiz.title,
+			subject: this.quiz.subject,
+			schoolLevel: this.quiz.schoolLevel,
+			mode: this.quiz.mode,
+			mapConfig: this.mapConfig,
+			totalQuestions: this.quiz.questions.length,
+			leaderboard: this.getLeaderboard(),
+			canControl: this.hostControllerIds.has(socketId),
+			isDemo: this.isDemo
+		})
+	}
+
+	public handleJoin(socket: Socket, payload: JoinRoomPayload): void {
 		if (payload.role === 'host') {
-			this.hostSocketIds.add(socket.id)
+			const canControl = this.isValidHostToken(payload.hostToken)
+			if (!canControl && !this.isDemo) {
+				socket.emit('room:error', {
+					message: 'Layar host hanya bisa dibuka dari perangkat guru yang membuat sesi ini.'
+				})
+				return
+			}
+			socket.join(`room:${this.code}`)
 			socket.join(`host:${this.code}`)
-			socket.emit('host:init', {
-				code: this.code,
-				status: this.status,
-				quizTitle: this.quiz.title,
-				subject: this.quiz.subject,
-				schoolLevel: this.quiz.schoolLevel,
-				mode: this.quiz.mode,
-				mapConfig: this.mapConfig,
-				totalQuestions: this.quiz.questions.length,
-				leaderboard: this.getLeaderboard()
-			})
+			this.hostSocketIds.add(socket.id)
+			if (canControl) {
+				this.hostControllerIds.add(socket.id)
+			}
+			this.emitHostInit(socket.id)
 			this.broadcastHostState()
 			return
 		}
+
+		socket.join(`room:${this.code}`)
 
 		if (
 			this.players.size >= GAME_CONSTANTS.MAX_PLAYERS_PER_ROOM &&
@@ -212,8 +243,8 @@ export class QuizRoom {
 		}
 
 		if (!player) {
-			const playerId = 'p_' + Math.random().toString(36).slice(2, 10)
-			const reconnectToken = 'rt_' + Math.random().toString(36).slice(2, 14)
+			const playerId = 'p_' + randomUUID().slice(0, 8)
+			const reconnectToken = 'rt_' + randomUUID()
 			const baseSpawnX = Math.round(
 				this.mapConfig.playerSpawn.tileX * this.effectiveTilePx +
 					this.effectiveTilePx / 2
@@ -284,7 +315,8 @@ export class QuizRoom {
 			score: player.score,
 			answeredQuestionIds: Array.from(player.answeredQuestionIds),
 			spawnX: player.x,
-			spawnY: player.y
+			spawnY: player.y,
+			isDemo: this.isDemo
 		}
 
 		socket.emit('joined', response)
@@ -527,6 +559,12 @@ export class QuizRoom {
 	}
 
 	public handleHostControl(socket: Socket, payload: HostControlPayload): void {
+		if (!this.hostControllerIds.has(socket.id)) {
+			socket.emit('host:denied', {
+				message: 'Kontrol sesi hanya untuk guru yang membuat sesi ini.'
+			})
+			return
+		}
 		if (payload.action === 'start') {
 			this.status = 'active'
 			if (!this.startedAt) {
@@ -580,10 +618,12 @@ export class QuizRoom {
 
 		this.io.to(`room:${this.code}`).emit('session:status', { status: 'ended' })
 		this.io.to(`room:${this.code}`).emit('session:end', payload)
+		this.onEnd?.(this.getReportData())
 	}
 
 	public handleDisconnect(socket: Socket): void {
 		this.hostSocketIds.delete(socket.id)
+		this.hostControllerIds.delete(socket.id)
 		const playerId = this.socketToPlayerId.get(socket.id)
 		if (playerId) {
 			const player = this.players.get(playerId)
@@ -669,7 +709,7 @@ export class QuizRoom {
 		})
 	}
 
-	public getReportData() {
+	public getReportData(): SessionReportData {
 		const leaderboard = this.getLeaderboard()
 		const questionStats = this.quiz.questions.map((q, idx) => {
 			const attempts = this.answerRecords.filter((r) => r.questionId === q.id)
@@ -705,8 +745,8 @@ export class QuizRoom {
 			gradeLabel: this.quiz.gradeLabel,
 			mapName: this.mapConfig.name,
 			mode: this.quiz.mode,
-			startedAt: this.startedAt,
-			endedAt: this.endedAt,
+			startedAt: this.startedAt ?? undefined,
+			endedAt: this.endedAt ?? undefined,
 			totalPlayers: leaderboard.length,
 			totalQuestions: this.quiz.questions.length,
 			players: leaderboard.map((entry, idx) => {

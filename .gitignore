@@ -11,6 +11,7 @@ dist/
 .DS_Store
 pgdata/
 redisdata/
+.data/
 
 # AI tool configurations
 .agents/

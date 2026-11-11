@@ -221,3 +221,55 @@ Semua berukuran 64×48 tile, masing-masing 24 pos soal yang dipilih otomatis dan
 - Riwayat git dibersihkan dari `apps/web/public/gba/` (lihat catatan di bawah).
 
 **Verifikasi:** `bun test` 12 tes lolos, lint bersih, typecheck tanpa error baru (sisa error lama di `build/index.vue` dan `join.vue`). Halaman beranda, join, jelajah, build, dashboard, dan game diperiksa berjalan; tangkapan layar game di room `123456` menampilkan avatar baru dan pantai berbuih.
+
+### 0.9 Keamanan kontrol host, typecheck bersih, dan persiapan deploy (11 November 2026)
+
+**Keamanan kontrol host (`apps/game-server`, `apps/web`):**
+
+- Layar host wajib mengirim `hostToken` yang cocok (dibandingkan dengan `timingSafeEqual`). Token dibuat `crypto.randomUUID()` di `POST /api/sessions`, disimpan di browser guru (`app/utils/hostToken.ts`), lalu dikirim layar host.
+- `host:control` hanya diterima dari socket host yang terverifikasi (`host:denied` untuk lainnya). `map:change` hanya dari host terverifikasi, kecuali di room demo (`map:denied`).
+- Room demo memakai token acak yang tidak pernah dibagikan: layar host-nya bisa dibuka siapa saja dalam **mode pantau** (tombol kendali nonaktif), pemain boleh mencoba ganti peta.
+- `POST /rooms` di game server wajib membawa header `x-internal-secret`; kode yang sedang dipakai ditolak (409) dan web mencoba kode lain, jadi room aktif tidak bisa tertimpa. Di produksi game server menolak menyala bila `INTERNAL_SECRET` kosong atau masih nilai bawaan.
+- CORS Socket.IO dibatasi ke `ALLOWED_ORIGINS`; header CORS di endpoint HTTP antarserver dihapus.
+- Peta di layar siswa baru berganti setelah server mengirim `map:changed`; pemilih peta di layar siswa hanya tampil di room demo.
+- Token pemulihan koneksi siswa memakai `crypto.randomUUID()`, bukan `Math.random()`.
+- Diuji langsung terhadap server lokal dengan skrip Socket.IO: 11 dari 11 skenario lulus (tanpa rahasia ditolak, host tanpa token ditolak, siswa tidak bisa mengakhiri sesi atau ganti peta, host sah bisa jeda, room demo hanya bisa dipantau).
+
+**Typecheck & dependensi:**
+
+- `bun run typecheck` kini lolos di ketiga workspace (exit 0).
+- TypeScript dinaikkan dari 5.7.3 ke 5.9.3 (Nuxt sekarang memakai opsi `libReplacement`); TypeScript 7 belum dipakai karena `vue-tsc` belum terjamin mendukungnya.
+- Semua dependensi `latest`/`^`/`~` dikunci ke versi persis yang terpasang.
+- `game-server` dan `shared` memakai tipe `bun` (`@types/bun`).
+- Bug nyata ikut diperbaiki: pilihan tingkat kelas di halaman Buat Kuis selalu "Semua Kelas" karena kode membaca `defaultGrades` yang tidak ada (seharusnya `grades`). Input PIN di halaman Join kini menerima teks digit, bukan angka.
+
+**Persiapan deploy:**
+
+- `docker-compose.yml`: variabel web memakai awalan `NUXT_` (sebelumnya web di container akan menghubungi `localhost:3001` dan gagal membuat sesi), `INTERNAL_SECRET`/`DOMAIN` wajib diisi, `ALLOWED_ORIGINS` diset ke domain, Postgres/Redis dipindah ke profil `db` karena belum dipakai.
+- Dockerfile memakai `bun.lock` dengan `--frozen-lockfile`; image web dua tahap (hanya `.output` yang dibawa). `.dockerignore` baru.
+- Build image belum diuji karena Docker tidak terpasang di laptop pengembang; akan diuji saat deploy di VPS.
+
+### 0.10 Database SQLite (libSQL) + Drizzle (11 November 2026)
+
+Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudflare Workers, bukan PostgreSQL + Redis yang belum perlu untuk satu VPS). Untuk login dipilih **Better Auth**; dikerjakan berikutnya di atas database ini. PRD sudah diperbarui.
+
+**Yang dibuat (`apps/web`):**
+
+- `server/db/schema.ts`: tabel `quizzes` (soal disimpan sebagai JSON bersama kuisnya, kolom `owner_id` disiapkan untuk login) dan `game_sessions` (riwayat sesi + laporan akhir JSON). Migrasi pertama `server/db/migrations/0000_skema_awal.sql`; buat migrasi baru dengan `bun run db:generate`.
+- `server/utils/db.ts`: koneksi dibuka saat pertama dipakai; membuat folder berkas, mode WAL + `busy_timeout`, menjalankan migrasi, lalu mengisi kuis contoh bila tabel kosong. Semua query menunggu proses ini selesai.
+- `server/utils/store.ts` kini membaca/menulis database. Pencarian kuis memakai `LIKE ... ESCAPE` sehingga `%` dan `_` dicocokkan apa adanya.
+- `POST /api/quizzes` selalu membuat ID di server (sebelumnya klien bisa mengirim `id` dan menimpa kuis orang lain).
+- Sesi live dicatat saat dibuat; game server mengirim laporan akhir ke `POST /api/internal/sessions/:code/results` (wajib `x-internal-secret`, dicoba ulang 3 kali). Room demo tidak disimpan.
+- `GET /api/sessions/:code/report` mengambil laporan dari game server selama room ada, lalu dari database setelahnya. `GET /api/sessions` untuk riwayat; halaman Dashboard → Laporan & Nilai menampilkannya.
+- Lokasi berkas: `.data/petakuis.db` saat pengembangan (diabaikan git), `/data/petakuis.db` di Docker (volume `webdata`).
+
+**Masalah yang ditemukan saat uji build produksi dan sudah diperbaiki:**
+
+1. Binari native libSQL (`@libsql/<platform>`) tidak ikut ke `.output` karena dipilih lewat `require` dinamis. `nuxt.config.ts` kini mencari binari untuk platform mesin build dan memasukkannya ke `nitro.externals.traceInclude`; build gagal dengan pesan jelas bila binarinya tidak ada.
+2. `.output` gagal dijalankan dengan Bun karena `@libsql/isomorphic-ws` memilih berkas khusus Bun yang tidak ikut terbawa. Server web produksi kini dijalankan dengan **Node 24 Alpine** (target build Nitro); tahap build Docker tetap Bun. Game server tetap Bun.
+
+**Verifikasi:** typecheck tiga workspace lolos, lint bersih, 12 tes lolos. Uji langsung dengan skrip: tahap tulis 7/7 (kuis tersimpan, kuis contoh tidak bisa ditimpa, pencarian `%` benar, sesi tercatat berakhir dengan jumlah siswa) lalu **kedua server dimatikan dan dinyalakan ulang**, tahap baca 3/3 (kuis masih ada, room sudah hilang dari game server, laporan tetap terbuka dari database). Build produksi dijalankan dengan Node: database terbuat, migrasi jalan, kuis contoh terisi. Build image Docker belum diuji (Docker tidak terpasang di laptop pengembang).
+
+**Berikutnya:** login guru dengan Better Auth (tabel akun ditambahkan lewat migrasi baru), lalu kuis dan riwayat sesi difilter per guru, plus fitur edit/hapus kuis dengan cek pemilik.
+
+**Status 0.9 & 0.10:** di-commit dan di-push ke `main` pada 11 November 2026 dalam satu commit, karena perubahan keamanan host dan database bersinggungan di berkas yang sama (game server, `package.json`, `bun.lock`).

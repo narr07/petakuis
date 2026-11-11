@@ -40,7 +40,6 @@
 	}
 
 	function handleSelectDemoMap(mapId: string) {
-		store.switchMap(mapId)
 		changeRoomMap(mapId)
 	}
 
@@ -93,19 +92,17 @@
 		store.nickname = nickname.value
 		store.colorway = colorway.value
 		const initialMap = resolveInitialMapId()
-		if (initialMap) {
-			store.switchMap(initialMap)
-		}
 		connectPlayer({
 			code: code.value,
 			nickname: nickname.value,
-			colorway: colorway.value
+			colorway: colorway.value,
+			// Peta pilihan lewat ?map= hanya berlaku di room demo, setelah bergabung.
+			onJoined: (payload) => {
+				if (initialMap && payload.isDemo && payload.mapConfig.id !== initialMap) {
+					handleSelectDemoMap(initialMap)
+				}
+			}
 		})
-		if (initialMap) {
-			setTimeout(() => {
-				handleSelectDemoMap(initialMap)
-			}, 300)
-		}
 	})
 </script>
 
@@ -132,8 +129,8 @@
 				</div>
 			</div>
 
-			<!-- Live Multi-Region Tilemap Switcher -->
-			<div class="flex items-center gap-1 rounded-xl border-2 border-[#16211b] bg-white p-0.5 shrink-0">
+			<!-- Live Multi-Region Tilemap Switcher (hanya di room demo) -->
+			<div v-if="store.isDemoRoom" class="flex items-center gap-1 rounded-xl border-2 border-[#16211b] bg-white p-0.5 shrink-0">
 				<span class="hidden xl:inline-block px-2 text-[10px] font-extrabold uppercase tracking-wider text-[#435249] whitespace-nowrap">
 					Demo Tilemap:
 				</span>

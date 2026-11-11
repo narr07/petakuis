@@ -258,9 +258,9 @@ Guru dan siswa sama-sama terhubung ke `game-server` lewat WebSocket. Saat sesi d
 | State Klien | **Pinia** | Store sesi ruang tunggu, state pemain, dan HUD soal |
 | Game Engine | **Phaser 3** (di komponen `.client.vue`, dynamic chunk) | Tilemap Tiled JSON, Arcade Physics, kamera, animasi atlas `sprite-gen`, input sentuh |
 | Realtime Server | **Socket.IO** + `@socket.io/redis-adapter` | Manajemen room, auto-reconnect, fallback long-polling untuk Wi-Fi sekolah ketat |
-| Database Utama | **PostgreSQL 16 + Drizzle ORM** | Skema bertipe kuat, migrasi cepat, query analitik laporan efisien |
-| State Live & Cache | **Redis 7** (dengan AOF aktif) | State posisi room, leaderboard (`ZSET`), timer soal, rate limit |
-| Autentikasi | `nuxt-auth-utils` (Google OAuth + Magic Link/OTP, sesi cookie `httpOnly`) | Ringan, native Nitro tanpa dependensi berat |
+| Database Utama | **SQLite (libSQL) + Drizzle ORM** (diputuskan 11 Nov 2026) | Satu berkas tanpa server database, hemat RAM VPS, cukup untuk satu server; bisa dipindah ke Turso tanpa ganti kode. PostgreSQL dipertimbangkan lagi bila web dijalankan di banyak server |
+| State Live & Cache | **Memori game server** (Redis ditunda) | State room dan leaderboard di memori proses; laporan akhir disimpan ke database saat sesi berakhir |
+| Autentikasi | **Better Auth** lewat `@nuxtjs/better-auth` (diputuskan 11 Nov 2026) | Google OAuth, OTP/magic link email, peran guru & admin sekolah, rate limit bawaan, sesi di database yang bisa dicabut |
 | Internasionalisasi | `@nuxtjs/i18n` | Bahasa Indonesia (`id`, default) dan Inggris (`en`) |
 | PWA | `@vite-pwa/nuxt` | Pre-cache aset tileset dan sprite sheet agar hemat kuota siswa |
 | Object Storage | **Cloudflare R2** atau penyimpanan lokal VPS | Bebas biaya egress untuk gambar soal, JSON peta, dan atlas sprite |

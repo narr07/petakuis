@@ -10,10 +10,11 @@ export function useLaunchSession() {
 	async function launch(quizId: string) {
 		launchingId.value = quizId
 		try {
-			const res = await $fetch<{ ok: boolean, code: string }>('/api/sessions', {
+			const res = await $fetch<{ ok: boolean, code: string, hostToken: string }>('/api/sessions', {
 				method: 'POST',
 				body: { quizId, autoStart: true }
 			})
+			rememberHostToken(res.code, res.hostToken)
 			await router.push(`/host/${res.code}`)
 		} catch {
 			toast.add({

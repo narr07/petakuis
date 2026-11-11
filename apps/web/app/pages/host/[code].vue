@@ -17,6 +17,9 @@
 		mapConfig: MapTemplate
 		totalQuestions: number
 		leaderboard?: LeaderboardEntry[]
+		/** Hanya guru dengan token host yang boleh mengendalikan sesi. */
+		canControl?: boolean
+		isDemo?: boolean
 	}
 
 	interface HostStatePayload {
@@ -37,6 +40,10 @@
 	const mapConfig = ref<MapTemplate | null>(MAP_CATALOG[0]!)
 	const players = ref<HostPlayerTuple[]>([])
 	const leaderboard = ref<LeaderboardEntry[]>([])
+	const canControl = ref(false)
+	const isDemo = ref(false)
+	const accessError = ref<string | null>(null)
+	const toast = useToast()
 
 	let socket: Socket | null = null
 
@@ -58,9 +65,25 @@
 				nickname: 'Guru Host',
 				avatarId: 'host',
 				colorway: 'merah-putih',
-				role: 'host'
+				role: 'host',
+				hostToken: readHostToken(code.value)
 			})
 		})
+
+		socket.on('room:error', (payload: { message: string }) => {
+			accessError.value = payload.message
+		})
+
+		for (const event of ['host:denied', 'map:denied']) {
+			socket.on(event, (payload: { message: string }) => {
+				toast.add({
+					title: 'Tidak diizinkan',
+					description: payload.message,
+					color: 'warning',
+					icon: 'i-lucide-lock'
+				})
+			})
+		}
 
 		socket.on('host:init', (payload: HostInitPayload) => {
 			status.value = payload.status
@@ -70,6 +93,9 @@
 			mapConfig.value = payload.mapConfig
 			totalQuestions.value = payload.totalQuestions
 			leaderboard.value = payload.leaderboard || []
+			canControl.value = Boolean(payload.canControl)
+			isDemo.value = Boolean(payload.isDemo)
+			accessError.value = null
 		})
 
 		socket.on('host:state', (payload: HostStatePayload) => {
@@ -89,11 +115,8 @@
 		})
 	})
 
+	// Peta di layar baru berganti setelah server mengonfirmasi lewat host:init.
 	function changeHostMap(mapId: string) {
-		const found = MAP_CATALOG.find(m => m.id === mapId)
-		if (found) {
-			mapConfig.value = found
-		}
 		socket?.emit('map:change', { mapId })
 	}
 
@@ -104,6 +127,28 @@
 
 <template>
 	<UContainer class="py-8 sm:py-10">
+		<UEmpty
+			v-if="accessError"
+			icon="i-lucide-lock"
+			title="Layar host tidak bisa dibuka"
+			:description="accessError"
+			:actions="[{ label: 'Kembali ke Dashboard', to: '/dashboard', icon: 'i-lucide-arrow-left' }]"
+			class="py-16"
+		/>
+
+		<template v-else>
+		<UAlert
+			v-if="!canControl"
+			class="mb-6"
+			color="info"
+			variant="subtle"
+			icon="i-lucide-eye"
+			title="Mode pantau"
+			:description="isDemo
+				? 'Ini room demo bawaan. Kamu bisa memantau dan mencoba ganti peta, tetapi tombol kendali sesi hanya untuk guru yang membuat sesi.'
+				: 'Tombol kendali sesi hanya aktif di perangkat guru yang membuat sesi ini.'"
+		/>
+
 		<!-- Banner Layar Proyektor Guru -->
 		<UCard :ui="{ header: 'border-b border-default', body: 'p-6' }">
 			<template #header>
@@ -161,6 +206,7 @@
 							size="md"
 							icon="i-lucide-play"
 							label="Mulai / Lanjutkan Sesi"
+							:disabled="!canControl"
 							@click="sendControl('start')"
 						/>
 						<UButton
@@ -170,6 +216,7 @@
 							size="md"
 							icon="i-lucide-pause"
 							label="Jeda Sesi"
+							:disabled="!canControl"
 							@click="sendControl('pause')"
 						/>
 						<UButton
@@ -178,6 +225,7 @@
 							size="md"
 							icon="i-lucide-square"
 							label="Akhiri Sesi"
+							:disabled="!canControl"
 							@click="sendControl('end')"
 						/>
 					</div>
@@ -220,6 +268,7 @@
 								:variant="mapConfig?.id === m.id ? 'solid' : 'outline'"
 								size="xs"
 								:label="m.name.split('(')[0]?.trim()"
+								:disabled="!canControl && !isDemo"
 								@click="changeHostMap(m.id)"
 							/>
 						</div>
@@ -345,6 +394,7 @@
 								size="xs"
 								icon="i-lucide-user-x"
 								title="Keluarkan dari sesi"
+								:disabled="!canControl"
 								@click="sendControl('kick', entry.id)"
 							/>
 						</div>
@@ -352,5 +402,6 @@
 				</div>
 			</UCard>
 		</div>
+		</template>
 	</UContainer>
 </template>

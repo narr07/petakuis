@@ -1,81 +1,55 @@
-import {
-	boolean,
-	integer,
-	jsonb,
-	pgTable,
-	text,
-	timestamp,
-	varchar
-} from 'drizzle-orm/pg-core'
-import type {
-	QuestionHint,
-	QuestionOption,
-	QuizSettings,
-	SpawnPoint
-} from '@petakuis/shared'
+import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import type { QuizQuestion, QuizSettings, SessionReportData } from '@petakuis/shared'
 
-export const users = pgTable('users', {
-	id: varchar('id', { length: 64 }).primaryKey(),
-	email: varchar('email', { length: 255 }).notNull().unique(),
-	name: varchar('name', { length: 120 }).notNull(),
-	avatarUrl: text('avatar_url'),
-	role: varchar('role', { length: 24 }).notNull().default('teacher'),
-	schoolName: varchar('school_name', { length: 180 }),
-	createdAt: timestamp('created_at').defaultNow().notNull()
-})
+/**
+ * Skema SQLite (libSQL) untuk Drizzle. Waktu disimpan sebagai teks ISO 8601 supaya
+ * sama dengan tipe di @petakuis/shared. Tabel akun guru akan ditambahkan oleh Better Auth.
+ *
+ * Setelah mengubah berkas ini jalankan `bun run db:generate` di apps/web untuk membuat migrasi.
+ */
 
-export const maps = pgTable('maps', {
-	id: varchar('id', { length: 64 }).primaryKey(),
-	slug: varchar('slug', { length: 64 }).notNull().unique(),
-	name: varchar('name', { length: 120 }).notNull(),
-	description: text('description').notNull(),
-	defaultMode: varchar('default_mode', { length: 24 }).notNull().default('free'),
-	thumbnailUrl: text('thumbnail_url'),
-	tiledJsonUrl: text('tiled_json_url'),
-	spawnPoints: jsonb('spawn_points').$type<SpawnPoint[]>().notNull(),
-	maxPlayers: integer('max_players').notNull().default(200)
-})
-
-export const quizzes = pgTable('quizzes', {
-	id: varchar('id', { length: 64 }).primaryKey(),
-	ownerId: varchar('owner_id', { length: 64 }).notNull(),
-	ownerName: varchar('owner_name', { length: 120 }).notNull(),
-	title: varchar('title', { length: 200 }).notNull(),
+export const quizzes = sqliteTable('quizzes', {
+	id: text('id').primaryKey(),
+	/** Diisi setelah login guru aktif; kosong untuk kuis lama dan kuis contoh. */
+	ownerId: text('owner_id'),
+	ownerName: text('owner_name').notNull(),
+	title: text('title').notNull(),
 	description: text('description').notNull().default(''),
-	schoolLevel: varchar('school_level', { length: 24 }).notNull(),
-	gradeLabel: varchar('grade_label', { length: 48 }).notNull(),
-	subject: varchar('subject', { length: 80 }).notNull(),
-	visibility: varchar('visibility', { length: 16 }).notNull().default('public'),
-	mapId: varchar('map_id', { length: 64 }).notNull(),
-	mode: varchar('mode', { length: 24 }).notNull().default('free'),
-	settings: jsonb('settings').$type<QuizSettings>().notNull(),
-	createdAt: timestamp('created_at').defaultNow().notNull(),
-	updatedAt: timestamp('updated_at').defaultNow().notNull()
-})
+	schoolLevel: text('school_level').notNull(),
+	gradeLabel: text('grade_label').notNull(),
+	subject: text('subject').notNull(),
+	visibility: text('visibility', { enum: ['public', 'private'] }).notNull().default('public'),
+	mapId: text('map_id').notNull(),
+	mode: text('mode', { enum: ['free', 'linear'] }).notNull().default('free'),
+	settings: text('settings', { mode: 'json' }).$type<QuizSettings>().notNull(),
+	/** Soal disimpan utuh bersama kuisnya karena selalu dibaca dan disimpan sekaligus. */
+	questions: text('questions', { mode: 'json' }).$type<QuizQuestion[]>().notNull(),
+	createdAt: text('created_at').notNull(),
+	updatedAt: text('updated_at').notNull()
+}, table => [
+	index('quizzes_visibility_idx').on(table.visibility),
+	index('quizzes_owner_idx').on(table.ownerId)
+])
 
-export const questions = pgTable('questions', {
-	id: varchar('id', { length: 64 }).primaryKey(),
-	quizId: varchar('quiz_id', { length: 64 }).notNull(),
-	type: varchar('type', { length: 24 }).notNull(),
-	prompt: text('prompt').notNull(),
-	imageUrl: text('image_url'),
-	hint: jsonb('hint').$type<QuestionHint>(),
-	options: jsonb('options').$type<QuestionOption[]>().notNull(),
-	answer: jsonb('answer').$type<string[]>().notNull(),
-	isMultipleAnswer: boolean('is_multiple_answer').notNull().default(false),
-	ignoreSpaces: boolean('ignore_spaces').notNull().default(true),
-	timeLimitS: integer('time_limit_s').notNull().default(30),
-	points: integer('points').notNull().default(100),
-	order: integer('order').notNull().default(1)
-})
+export const gameSessions = sqliteTable('game_sessions', {
+	id: text('id').primaryKey(),
+	/** PIN 6 digit; bisa dipakai ulang oleh sesi lain setelah sesi ini berakhir. */
+	code: text('code').notNull(),
+	quizId: text('quiz_id').notNull(),
+	quizTitle: text('quiz_title').notNull(),
+	ownerId: text('owner_id'),
+	mapId: text('map_id').notNull(),
+	mode: text('mode', { enum: ['free', 'linear'] }).notNull(),
+	status: text('status', { enum: ['lobby', 'active', 'paused', 'ended'] }).notNull(),
+	createdAt: text('created_at').notNull(),
+	endedAt: text('ended_at'),
+	totalPlayers: integer('total_players').notNull().default(0),
+	/** Laporan akhir dari game server, disimpan saat sesi berakhir. */
+	report: text('report', { mode: 'json' }).$type<SessionReportData>()
+}, table => [
+	index('game_sessions_code_idx').on(table.code),
+	index('game_sessions_owner_idx').on(table.ownerId)
+])
 
-export const sessions = pgTable('sessions', {
-	id: varchar('id', { length: 64 }).primaryKey(),
-	quizId: varchar('quiz_id', { length: 64 }).notNull(),
-	hostId: varchar('host_id', { length: 64 }).notNull(),
-	code: varchar('code', { length: 8 }).notNull(),
-	mode: varchar('mode', { length: 24 }).notNull(),
-	status: varchar('status', { length: 24 }).notNull().default('lobby'),
-	startedAt: timestamp('started_at'),
-	endedAt: timestamp('ended_at')
-})
+export type QuizRow = typeof quizzes.$inferSelect
+export type GameSessionRow = typeof gameSessions.$inferSelect

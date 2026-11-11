@@ -112,9 +112,9 @@
 		return maps.value.filter(m => m.defaultMode === modeFilter.value)
 	})
 
-	const availableGrades = computed(() => {
+	const availableGrades = computed<string[]>(() => {
 		const found = SCHOOL_LEVEL_OPTIONS.find(l => l.id === schoolLevel.value)
-		return found?.defaultGrades || ['Semua Kelas']
+		return found ? [...found.grades] : ['Semua Kelas']
 	})
 
 	watch(schoolLevel, () => {
@@ -332,6 +332,7 @@
 				const session = await $fetch<{
 					ok: boolean
 					code: string
+					hostToken: string
 				}>('/api/sessions', {
 					method: 'POST',
 					body: {
@@ -341,6 +342,7 @@
 						autoStart: true
 					}
 				})
+				rememberHostToken(session.code, session.hostToken)
 				await router.push(`/host/${session.code}`)
 			} else {
 				await router.push('/explore')
