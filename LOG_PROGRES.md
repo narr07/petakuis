@@ -460,3 +460,4 @@ Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah
 - Katalog kini 8 peta. Pemilih peta demo di HUD layar main diganti `USelect` (8 tombol terlalu lebar).
 - **Verifikasi:** typecheck bersih; unit test 45 lulus (pengecekan naik 848 → 1217 karena uji tabrakan & pos soal ikut memeriksa peta baru); peta sungai dan danau dibuka di layar main lewat `?map=` (pemain muncul di persimpangan, petunjuk arah pos soal jalan).
 
+**Deploy 0.20:** `555babf` terpasang di VPS (web + game server). Online: `/api/maps` berisi 8 peta, ketiga PNG peta baru 200, room demo 123456 aktif; situs lain di VPS tetap 200.
