@@ -8,6 +8,8 @@ extends RefCounted
 ##   paket, jadi tidak ada data seni yang disimpan di repositori.
 ## - Menyimpan hasil sebagai scene TileMapLayer yang bisa disunting di editor.
 
+const Buildings := preload("res://scripts/buildings.gd")
+
 const PACK_ROOM := "../../Sunnyside_World_ASSET_PACK_V2.1/Sunnyside_World_ASSET_PACK_V2.1/Sunnyside_World_Gamemaker/rooms/Room1/Room1.yy"
 const VENDOR := "res://assets/vendor/sunnyside/"
 const T := 16
@@ -79,7 +81,11 @@ var rng := RandomNumberGenerator.new()
 
 var cells := {} ## nama layer -> { Vector2i: [Vector2i atlas, int alt] }
 var forest := {} ## titik kisi 32 px -> true
-var blocked := {} ## sel 16 px -> true
+var blocked := {} ## sel 16 px -> true (dipakai pencarian jalan & pos soal)
+## Sel 8 px (koordinat 2x) yang terhalang, untuk gerak pemain. Bangunan dan benda
+## dihitung dari pikselnya, jadi pemain bisa merapat sampai tepi gambar; medan lain
+## menutup keempat sel kecilnya. Sel 16 px terhalang bila salah satu sel kecilnya terhalang.
+var fine := {}
 var reserved := {} ## sel yang tidak boleh ditimpa dekor acak / pohon
 var sprites: Array[Dictionary] = []
 var spots: Array[Dictionary] = []
@@ -90,7 +96,11 @@ var player_spawn := Vector2i.ZERO
 var _room := {}
 var _sheet: Image
 var _invisible := {}
+var _quarter_cache := {}
 var _terrain := {} ## keluarga -> { "mask": {}, "diag": {} }
+
+## Seperempat tile (8x8 px) dianggap padat bila piksel tak transparannya sebanyak ini.
+const FINE_FILL := 0.35
 
 
 func _init(w: int, h: int, seed_value: int) -> void:
@@ -112,8 +122,67 @@ func put(layer: String, cell: Vector2i, atlas: Vector2i, alt := 0) -> void:
 
 
 func block(cell: Vector2i) -> void:
-	blocked[cell] = true
+	set_blocked(cell)
 	reserved[cell] = true
+
+
+## Menutup satu sel 16 px beserta keempat sel kecilnya.
+func set_blocked(cell: Vector2i) -> void:
+	blocked[cell] = true
+	_fine_all(cell, true)
+
+
+## Membuka satu sel 16 px beserta keempat sel kecilnya (jembatan, tangga).
+func set_open(cell: Vector2i) -> void:
+	blocked.erase(cell)
+	_fine_all(cell, false)
+
+
+func _fine_all(cell: Vector2i, on: bool) -> void:
+	for dy in 2:
+		for dx in 2:
+			var f := cell * 2 + Vector2i(dx, dy)
+			if on:
+				fine[f] = true
+			else:
+				fine.erase(f)
+
+
+## Persentase piksel padat di empat seperempat tile atlas (TL, TR, BL, BR), sebelum ditransformasi.
+func _quarters(atlas: Vector2i) -> PackedFloat32Array:
+	if _quarter_cache.has(atlas):
+		return _quarter_cache[atlas]
+	var img := _sheet.get_region(Rect2i(atlas * T, Vector2i(T, T)))
+	var q := PackedFloat32Array([0.0, 0.0, 0.0, 0.0])
+	for y in range(T):
+		for x in range(T):
+			if img.get_pixel(x, y).a > 0.0:
+				q[(y / 8) * 2 + x / 8] += 1.0
+	for i in range(4):
+		q[i] /= 64.0
+	_quarter_cache[atlas] = q
+	return q
+
+
+## Menutup sel kecil di `cell` yang benar-benar tertutup piksel tile `atlas`.
+## Urutan transformasi sama dengan TileMapLayer: transpose dulu, lalu cermin.
+func block_pixels(cell: Vector2i, atlas: Vector2i, alt := 0) -> void:
+	var q := _quarters(atlas)
+	for i in range(4):
+		if q[i] < FINE_FILL:
+			continue
+		var qx := i % 2
+		var qy := i / 2
+		if alt & TRANSPOSE:
+			var tmp := qx
+			qx = qy
+			qy = tmp
+		if alt & FLIP_H:
+			qx = 1 - qx
+		if alt & FLIP_V:
+			qy = 1 - qy
+		fine[cell * 2 + Vector2i(qx, qy)] = true
+		blocked[cell] = true
 
 
 func reserve_rect(x: int, y: int, w: int, h: int) -> void:
@@ -229,9 +298,12 @@ func add_terrain(family: String, mask: Dictionary) -> void:
 		reserved[c] = true
 	if family == "water":
 		for c: Vector2i in mask:
-			blocked[c] = true
+			set_blocked(c)
+		# Tile diagonal: pojok yang dipotong berisi rumput, jadi sel kecil di pojok itu dibuka.
+		var corner_cell := [Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]
 		for c: Vector2i in diag:
-			blocked[c] = true
+			set_blocked(c)
+			fine.erase(c * 2 + corner_cell[diag[c]])
 
 
 func terrain_has(family: String, cell: Vector2i) -> bool:
@@ -360,7 +432,7 @@ func bridge(x: int, y: int, w: int, h: int, vertical := false) -> void:
 		for cx in range(w):
 			var c := Vector2i(x + cx, y + cy)
 			put("Bridge", c, Vector2i(40, 12), TRANSPOSE if vertical else 0)
-			blocked.erase(c)
+			set_open(c)
 			reserved[c] = true
 
 
@@ -398,7 +470,7 @@ func stairs(x: int, top: int, w: int, h: int) -> void:
 		for cx in range(w):
 			var c := Vector2i(x + cx, top + cy)
 			put("Bridge", c, Vector2i(40, 12), TRANSPOSE)
-			blocked.erase(c)
+			set_open(c)
 			reserved[c] = true
 
 
@@ -474,7 +546,7 @@ func deco(cell: Vector2i, atlas: Vector2i, blocking := false, layer := "Deco") -
 	put(layer, cell, atlas)
 	reserved[cell] = true
 	if blocking:
-		blocked[cell] = true
+		set_blocked(cell)
 
 
 ## Objek multi-tile. `cell` = pojok kiri atas. `solid_rows` = jumlah baris
@@ -486,7 +558,7 @@ func multi(cell: Vector2i, atlas: Vector2i, size: Vector2i, solid_rows := -1, la
 			put(layer, c, atlas + Vector2i(x, y))
 			reserved[c] = true
 			if solid_rows < 0 or y >= size.y - solid_rows:
-				blocked[c] = true
+				block_pixels(c, atlas + Vector2i(x, y))
 
 
 func area_free(cell: Vector2i, size: Vector2i, margin := 0) -> bool:
@@ -501,6 +573,161 @@ func add_sprite(file: String, top_left: Vector2i, hframes: int, solid_cells: Arr
 	sprites.append({"file": file, "pos": top_left, "hframes": hframes, "frame": frame})
 	for c: Vector2i in solid_cells:
 		block(c)
+
+
+## Sprite yang diposisikan dari titik tengahnya, bisa diskalakan dan dicerminkan.
+func add_sprite_centered(file: String, center: Vector2, hframes: int, scale := 1.0, flip := false, frame := 0) -> void:
+	sprites.append({
+		"file": file, "pos": center, "hframes": hframes, "frame": frame,
+		"centered": true, "scale": scale, "flip": flip,
+	})
+
+
+# ---------------------------------------------------------------- katalog bangunan
+
+## Meletakkan bangunan dari katalog (scripts/buildings.gd) dengan pojok kiri atas
+## di `dest`. Memberi peringatan bila menimpa jalan, air, atau bangunan lain.
+## `overlap_ok` untuk yang memang menimpa medan: rumah panggung di atas air, kios di lapangan.
+## `with_mill = false` memasang menara tanpa baling-baling (misalnya mercusuar).
+func place(building: String, dest: Vector2i, overlap_ok := false, with_mill := true) -> void:
+	if not Buildings.ALL.has(building):
+		push_error("Bangunan tidak ada di katalog: " + building)
+		return
+	var info: Dictionary = Buildings.ALL[building]
+	var rect: Rect2i = info.rect
+	if not overlap_ok and not area_free(dest, rect.size):
+		push_warning("%s di %s menimpa sel yang sudah terpakai" % [building, dest])
+	stamp(rect, dest)
+	if with_mill and info.has("mill"):
+		var mill: Dictionary = info.mill
+		add_sprite_centered("windmill.png", Vector2(dest * T) + mill.center, 9, mill.scale, mill.flip)
+
+
+# ---------------------------------------------------------------- dekorasi umum
+
+## Rumput dasar dengan sedikit variasi.
+func fill_ground(variation := 0.07) -> void:
+	var variants: Array[Vector2i] = [Vector2i(1, 2), Vector2i(2, 2), Vector2i(3, 2)]
+	for y in range(height):
+		for x in range(width):
+			var atlas := Vector2i(1, 3)
+			if rng.randf() < variation:
+				atlas = pick(variants)
+			put("Ground", Vector2i(x, y), atlas)
+
+
+## Cincin hutan di tepi peta (tepi dalam tidak rata), lalu tepi peta ditutup.
+func forest_ring(clumps: int) -> void:
+	var gw := width / 2
+	var gh := height / 2
+	for j in range(0, gh + 1):
+		for i in range(0, gw + 1):
+			var edge: int = mini(mini(i, gw - i), mini(j, gh - j))
+			if edge <= 1:
+				add_tree(Vector2i(i, j))
+			elif edge == 2 and rng.randf() < 0.55:
+				add_tree(Vector2i(i, j))
+	var placed := 0
+	var tries := 0
+	while placed < clumps and tries < 4000:
+		tries += 1
+		var origin := Vector2i(rng.randi_range(3, gw - 4), rng.randi_range(3, gh - 4))
+		var size := Vector2i(rng.randi_range(1, 2), 1)
+		var ok := true
+		for y in range(size.y):
+			for x in range(size.x):
+				var base := (origin + Vector2i(x, y)) * 2
+				if not area_free(base + Vector2i(-2, -3), Vector2i(4, 5)):
+					ok = false
+		if not ok:
+			continue
+		for y in range(size.y):
+			for x in range(size.x):
+				add_tree(origin + Vector2i(x, y), true)
+				var base := (origin + Vector2i(x, y)) * 2
+				reserve_rect(base.x - 2, base.y - 3, 4, 5)
+		placed += 1
+	seal_border()
+
+
+func seal_border(thickness := 3) -> void:
+	for y in range(height):
+		for x in range(width):
+			if x < thickness or y < thickness or x >= width - thickness or y >= height - thickness:
+				block(Vector2i(x, y))
+
+
+func random_cell() -> Vector2i:
+	return Vector2i(rng.randi_range(3, width - 4), rng.randi_range(3, height - 4))
+
+
+func scatter_single(count: int, tiles: Array, blocking: bool, layer: String) -> void:
+	var placed := 0
+	var tries := 0
+	while placed < count and tries < count * 40:
+		tries += 1
+		var c := random_cell()
+		# Dekor penghalang diberi jarak supaya tidak menyumbat jalan.
+		if not area_free(c, Vector2i.ONE, 1 if blocking else 0):
+			continue
+		deco(c, pick(tiles), blocking, layer)
+		placed += 1
+
+
+func scatter_multi(count: int, atlas: Vector2i, size: Vector2i, solid_rows: int) -> void:
+	var placed := 0
+	var tries := 0
+	while placed < count and tries < count * 60:
+		tries += 1
+		var c := random_cell()
+		if not area_free(c, size, 1):
+			continue
+		multi(c, atlas, size, solid_rows)
+		placed += 1
+
+
+## Semak, cemara, batu, bunga, dan rumput dalam takaran `amount` (1.0 = seperti Lembah).
+func scatter_nature(amount := 1.0) -> void:
+	scatter_multi(roundi(10 * amount), Vector2i(52, 3), Vector2i(1, 3), 2) # cemara kecil
+	scatter_multi(roundi(6 * amount), Vector2i(51, 6), Vector2i(2, 3), 2) # cemara besar
+	scatter_multi(roundi(5 * amount), Vector2i(49, 1), Vector2i(2, 2), -1) # semak besar
+	scatter_multi(roundi(5 * amount), Vector2i(49, 3), Vector2i(2, 2), -1) # semak beri merah
+	scatter_multi(roundi(3 * amount), Vector2i(49, 5), Vector2i(2, 2), -1) # semak beri jingga
+	scatter_single(roundi(14 * amount), [Vector2i(51, 4)], true, "Deco")
+	scatter_single(roundi(5 * amount), [Vector2i(31, 5), Vector2i(32, 5)], true, "Deco")
+	scatter_single(roundi(6 * amount), [Vector2i(31, 4)], true, "Deco")
+	scatter_single(roundi(150 * amount), [
+		Vector2i(31, 1), Vector2i(34, 1), Vector2i(31, 2), Vector2i(34, 2), Vector2i(31, 3),
+		Vector2i(34, 3), Vector2i(35, 3), Vector2i(33, 1), Vector2i(33, 2), Vector2i(33, 3),
+	], false, "DecoGround")
+	scatter_single(roundi(200 * amount), [
+		Vector2i(27, 1), Vector2i(28, 1), Vector2i(29, 1), Vector2i(30, 1), Vector2i(27, 2),
+		Vector2i(28, 2), Vector2i(29, 2), Vector2i(30, 2), Vector2i(27, 3), Vector2i(28, 3),
+		Vector2i(27, 4), Vector2i(28, 4), Vector2i(29, 4), Vector2i(30, 4),
+	], false, "DecoGround")
+	scatter_single(roundi(18 * amount), [Vector2i(32, 4), Vector2i(33, 4), Vector2i(34, 4)], false, "DecoGround")
+	scatter_single(roundi(12 * amount), [Vector2i(49, 7), Vector2i(50, 7), Vector2i(49, 8), Vector2i(50, 8)], false, "DecoGround")
+
+
+## Pagar mendatar dari x0 sampai x1 (inklusif) di baris `row`.
+func fence_row(x0: int, x1: int, row: int) -> void:
+	for x in range(x0, x1 + 1):
+		var atlas := Vector2i(39, 2) if (x % 2) == 0 else Vector2i(41, 2)
+		if x == x0:
+			atlas = Vector2i(38, 2)
+		elif x == x1:
+			atlas = Vector2i(42, 2)
+		deco(Vector2i(x, row), atlas, true)
+
+
+## Petak ladang: gundukan tanah bertanaman, `rows` = daftar baris (beri selang).
+func crop_rows(x0: int, count: int, rows: Array) -> void:
+	var crops: Array[int] = [51, 52, 53, 55, 56, 57, 58, 59]
+	for row: int in rows:
+		for i in range(count):
+			var c := Vector2i(x0 + i, row)
+			deco(c, Vector2i(50, 12), false, "DecoGround")
+			deco(c, Vector2i(crops[(i + row) % crops.size()], 17), true)
 
 
 func add_spot(cell: Vector2i, kind: String) -> void:
@@ -586,7 +813,7 @@ func stamp(src: Rect2i, dest: Vector2i) -> void:
 				var c := dest + Vector2i(x, y)
 				put(STAMP_LAYERS[gm], c, atlas, alt)
 				if gm != "shadows":
-					blocked[c] = true
+					block_pixels(c, atlas, alt)
 	reserve_rect(dest.x, dest.y, src.size.x, src.size.y)
 
 
@@ -599,7 +826,7 @@ func clear_deco(rect: Rect2i) -> void:
 			cells["Deco"].erase(c)
 			cells["DecoTop"].erase(c)
 			if not cells["Building"].has(c) and not cells["Walls"].has(c):
-				blocked.erase(c)
+				set_open(c)
 
 
 # ---------------------------------------------------------------- hasil
@@ -609,11 +836,11 @@ func clear_deco(rect: Rect2i) -> void:
 func validate() -> int:
 	_commit_forest()
 	for x in range(width):
-		blocked[Vector2i(x, 0)] = true
-		blocked[Vector2i(x, height - 1)] = true
+		set_blocked(Vector2i(x, 0))
+		set_blocked(Vector2i(x, height - 1))
 	for y in range(height):
-		blocked[Vector2i(0, y)] = true
-		blocked[Vector2i(width - 1, y)] = true
+		set_blocked(Vector2i(0, y))
+		set_blocked(Vector2i(width - 1, y))
 
 	var problems := 0
 	if blocked.has(player_spawn):
@@ -636,7 +863,7 @@ func validate() -> int:
 		for x in range(width):
 			var c := Vector2i(x, y)
 			if not blocked.has(c) and not seen.has(c):
-				blocked[c] = true
+				set_blocked(c)
 				pockets += 1
 	walkable = seen
 	for spot: Dictionary in spots:
@@ -732,8 +959,11 @@ func make_node(root_name: String, meta: Dictionary = {}) -> Node2D:
 		sprite.texture = load(VENDOR + info.file)
 		sprite.hframes = info.hframes
 		sprite.frame = info.frame
-		sprite.centered = false
+		sprite.centered = info.get("centered", false)
 		sprite.position = Vector2(info.pos)
+		var s: float = info.get("scale", 1.0)
+		sprite.scale = Vector2(s, s)
+		sprite.flip_h = info.get("flip", false)
 		sprite_root.add_child(sprite)
 
 	var collision := TileMapLayer.new()
@@ -744,6 +974,22 @@ func make_node(root_name: String, meta: Dictionary = {}) -> Node2D:
 	for c: Vector2i in blocked:
 		if c.x >= 0 and c.y >= 0 and c.x < width and c.y < height:
 			collision.set_cell(c, 0, Vector2i.ZERO)
+
+	# Grid tabrakan setengah tile, disimpan sebagai meta karena TileMapLayer hanya 16 px.
+	# Sel 16 px yang terhalang tanpa satu pun sel kecil (mis. dari sumber lain) ditutup penuh.
+	var fine_rows := PackedStringArray()
+	for fy in range(height * 2):
+		var row := ""
+		for fx in range(width * 2):
+			var f := Vector2i(fx, fy)
+			var tile := Vector2i(fx / 2, fy / 2)
+			var solid := fine.has(f)
+			if not solid and blocked.has(tile):
+				solid = not (fine.has(tile * 2) or fine.has(tile * 2 + Vector2i(1, 0)) \
+					or fine.has(tile * 2 + Vector2i(0, 1)) or fine.has(tile * 2 + Vector2i(1, 1)))
+			row += "#" if solid else "."
+		fine_rows.append(row)
+	root.set_meta("collision_fine", fine_rows)
 
 	var spot_root := Node2D.new()
 	spot_root.name = "QuizSpots"

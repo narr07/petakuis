@@ -7,6 +7,9 @@ extends SceneTree
 ## Yang dibaca dari scene:
 ##   - semua node terlihat            -> gambar peta
 ##   - TileMapLayer "Collision"       -> collisionRows ('#' = terhalang)
+##   - meta root "collision_fine"     -> collisionFineRows (grid setengah tile untuk gerak
+##                                       pemain; diselaraskan dengan layer Collision supaya
+##                                       suntingan tangan di layer itu tetap berlaku)
 ##   - Marker2D di bawah "QuizSpots"  -> spawnPoints (meta "kind")
 ##   - Marker2D "PlayerSpawn"         -> playerSpawn
 ##   - meta root "slug", "map_id"     -> nama berkas keluaran
@@ -44,6 +47,34 @@ func _run() -> void:
 		for x in range(w):
 			row += "#" if collision.get_cell_source_id(Vector2i(x, y)) != -1 else "."
 		rows.append(row)
+
+	var fine_rows: Array[String] = []
+	var stored: PackedStringArray = map.get_meta("collision_fine", PackedStringArray())
+	for fy in range(h * 2):
+		var row := ""
+		for fx in range(w * 2):
+			var tile_solid := rows[fy / 2][fx / 2] == "#"
+			var fine_solid := tile_solid
+			if fy < stored.size() and fx < stored[fy].length():
+				fine_solid = stored[fy][fx] == "#"
+			if not tile_solid:
+				fine_solid = false # sel dibuka tangan di layer Collision
+			row += "#" if fine_solid else "."
+		fine_rows.append(row)
+	# Sel yang ditutup tangan di layer Collision tetapi kosong di grid halus: tutup penuh.
+	for y in range(h):
+		for x in range(w):
+			if rows[y][x] != "#":
+				continue
+			var any := false
+			for dy in 2:
+				for dx in 2:
+					if fine_rows[y * 2 + dy][x * 2 + dx] == "#":
+						any = true
+			if not any:
+				for dy in 2:
+					var r := fine_rows[y * 2 + dy]
+					fine_rows[y * 2 + dy] = r.substr(0, x * 2) + "##" + r.substr(x * 2 + 2)
 
 	var spawn_points: Array[Dictionary] = []
 	for marker: Node2D in map.get_node("QuizSpots").get_children():
@@ -97,6 +128,7 @@ func _run() -> void:
 		"tileSizePx": T,
 		"playerSpawn": {"tileX": spawn_cell.x, "tileY": spawn_cell.y},
 		"collisionRows": rows,
+		"collisionFineRows": fine_rows,
 		"spawnPoints": spawn_points,
 	}
 	var const_name := slug.to_upper().replace("-", "_") + "_LAYOUT"
@@ -105,7 +137,8 @@ func _run() -> void:
 	ts += "import type { SpawnPoint } from '../types'\n\n"
 	ts += "export const %s: {\n" % const_name
 	ts += "\tmapImageUrl: string\n\twidthTiles: number\n\theightTiles: number\n\ttileSizePx: number\n"
-	ts += "\tplayerSpawn: { tileX: number; tileY: number }\n\tcollisionRows: string[]\n\tspawnPoints: SpawnPoint[]\n"
+	ts += "\tplayerSpawn: { tileX: number; tileY: number }\n\tcollisionRows: string[]\n"
+	ts += "\tcollisionFineRows: string[]\n\tspawnPoints: SpawnPoint[]\n"
 	ts += "} = %s\n" % JSON.stringify(layout, "\t", false)
 	var ts_path := ts_dir.path_join("map-%s.ts" % slug)
 	var file := FileAccess.open(ts_path, FileAccess.WRITE)

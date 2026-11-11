@@ -97,6 +97,40 @@ Tahap 1 mencakup halaman website. Halaman alur kuis (`/build`, `/join`, `/play`,
 
 **Elemen native yang sengaja dipertahankan:** `<img>` untuk logo dan pratinjau peta (Nuxt UI tidak punya komponen gambar biasa), serta `div`/`p`/`span` untuk tata letak dan teks.
 
+### 0.6 Tiga peta baru dan katalog bangunan (11 November 2026)
+
+Permintaan meniru region Pokémon tidak dikerjakan (tata letak region adalah desain level milik game tersebut, dan PRD melarangnya). Sebagai gantinya dibuat tiga peta orisinal bergenre sama dari paket Sunnyside, lewat pipeline Godot di `tools/godot-maps`.
+
+| Peta | ID / PIN demo | Isi |
+| --- | --- | --- |
+| Pesisir Karang | `map-pesisir-karang` / `444444` | Kampung nelayan 15 rumah, pantai, dermaga, rumah panggung, kincir panggung, mercusuar, pulau bertitian |
+| Dataran Tinggi Angin | `map-dataran-angin` / `555555` | Tiga undakan tebing bertangga, dua kincir besar, kandang domba, telaga, kampung, ladang, sungai berjembatan |
+| Kota Pasar | `map-kota-pasar` / `666666` | Blok kota, alun-alun pasar (kios, sumur, patung), kanal berjembatan, balai kota, menara kayu berkincir, 23 bangunan |
+
+Semua berukuran 64×48 tile, masing-masing 24 pos soal yang dipilih otomatis dan diperiksa keterjangkauannya.
+
+**Katalog bangunan** (`tools/godot-maps/scripts/buildings.gd`): 23 bangunan hasil deteksi otomatis kelompok tile di room contoh paket, termasuk 8 yang baru (mercusuar/menara batu, menara kayu besar, menara merah, rumah oranye atap samping, dua gudang, dua rumah panggung). Empat bangunan otomatis dipasangi baling-baling kincir sesuai posisinya di room contoh. Cermin bangunan tidak dipakai karena arah bayangan jadi terbalik.
+
+**Perubahan lain:** `sunnyside_kit.gd` mendapat `place()`, `add_sprite_centered()`, dan fungsi dekorasi bersama (`fill_ground`, `forest_ring`, `scatter_nature`, `fence_row`, `crop_rows`); `run.sh` bisa membangun semua peta atau satu peta; peta didaftarkan di `maps.ts` lewat `godotMap()`; room demo baru di game server; label peta di pemilih peta `/play`.
+
+**Verifikasi:** `bun test` lolos (828 pengecekan, naik dari 750 karena tiga peta baru ikut diuji), lint bersih, peta tampil dan bisa dimainkan di `/play/666666`.
+
+**Belum:** medan pasir dengan tepi sendiri (pantai memakai jalan terang), dan sprite avatar pemain saat ini masih karakter "Red" dari Pokémon (`gba/raw`), yang harus diganti bersama aset Pokémon lainnya.
+
+### 0.7 Batas tabrakan mengikuti gambar (11 November 2026)
+
+**Masalah:** pemain berhenti terlalu jauh dari benda, misalnya kios pasar. Penyebabnya, sel 16 px ditandai terhalang asal berisi satu piksel benda, sehingga kolom yang hanya berisi ujung tiang kios ikut jadi tembok.
+
+**Perbaikan:**
+
+- Peta hasil Godot kini punya `collisionFineRows`: grid setengah tile (8 px). Untuk bangunan dan benda multi-tile, sel kecil ditutup hanya bila pikselnya menutupi ≥ 35% sel itu (`FINE_FILL` di `sunnyside_kit.gd`); air, hutan, tebing, dan dekor kecil tetap menutup sel penuh. Pada tile air diagonal, pojok rumputnya dibuka.
+- `isFootBoxWalkable` (dipakai klien dan server) memakai grid halus bila ada. Pencarian jalan, validasi pos soal, dan tes keterjangkauan tetap memakai `collisionRows`; sel 16 px terhalang bila salah satu sel kecilnya terhalang.
+- `export_map.gd` menyelaraskan grid halus dengan layer `Collision`, jadi suntingan tangan di editor Godot tetap berlaku.
+- Ditemukan lewat overlay: titian ke rumah panggung tengah di Pesisir Karang tidak tersambung ke pantai sehingga tertutup sebagai kantong; titian kini dimulai di pasir.
+- Gambar keempat peta Godot tidak berubah (hash sama); yang berubah hanya data tabrakan.
+
+**Verifikasi:** overlay tabrakan diperiksa untuk keenam peta. Kampus Modern dan Hoenn dibuat manual tanpa data layer, jadi tetap memakai grid per tile; kotak penghalangnya sudah sesuai bangunan dan perabot. Tes baru `collision.test.ts`: ukuran dan keselarasan grid halus, dan pemain bisa merapat ke kios (berhenti di 28,8 tile; sebelumnya 29,3). Total 12 tes lolos.
+
 ---
 
 ## 1. Ringkasan Eksekutif Status Proyek

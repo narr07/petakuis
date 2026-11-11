@@ -18,7 +18,10 @@ function seedDemoRooms(): void {
 	const demoConfigs: Array<{ code: string; mapId: string }> = [
 		{ code: '123456', mapId: 'map-halaman-sekolah' },
 		{ code: '222222', mapId: 'map-desa-sunnyside' },
-		{ code: '333333', mapId: 'map-kampus-modern' }
+		{ code: '333333', mapId: 'map-kampus-modern' },
+		{ code: '444444', mapId: 'map-pesisir-karang' },
+		{ code: '555555', mapId: 'map-dataran-angin' },
+		{ code: '666666', mapId: 'map-kota-pasar' }
 	]
 	for (const cfg of demoConfigs) {
 		if (!rooms.has(cfg.code)) {

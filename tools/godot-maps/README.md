@@ -18,8 +18,11 @@ GD="/c/Program Files/Godot_v4.7.2-stable_win64_console.exe"
 "$GD" --headless --path tools/godot-maps --script res://scripts/setup_assets.gd
 "$GD" --headless --path tools/godot-maps --import
 
-# Bangun ulang scene lalu ekspor PNG + data tata letak
+# Bangun ulang semua scene lalu ekspor PNG + data tata letak
 bash tools/godot-maps/run.sh
+
+# Atau satu peta saja
+bash tools/godot-maps/run.sh kota_pasar
 
 # Sprite karakter pemberi soal
 "$GD" --headless --path tools/godot-maps --script res://scripts/build_characters.gd
@@ -31,10 +34,27 @@ Ekspor peta merender scene, jadi langkah itu membuka jendela Godot sebentar.
 
 | Berkas | Fungsi |
 | --- | --- |
-| `scripts/sunnyside_kit.gd` | Autotile jalan/air, hutan, stamp bangunan dari contoh room paket, pemeriksaan keterjangkauan |
-| `scripts/build_lembah_sunnyside.gd` | Rancangan peta Lembah Sunnyside, menghasilkan `maps/lembah_sunnyside.tscn` |
+| `scripts/sunnyside_kit.gd` | Autotile jalan/air, hutan, stamp bangunan dari contoh room paket, `place()` dari katalog, dekorasi umum, pemeriksaan keterjangkauan |
+| `scripts/buildings.gd` | Katalog 23 bangunan Sunnyside (posisi di room contoh, label, baling-baling kincir) |
+| `scripts/build_lembah_sunnyside.gd` | Peta Lembah Sunnyside: desa lembah, sungai, ladang |
+| `scripts/build_pesisir_karang.gd` | Peta Pesisir Karang: kampung nelayan, dermaga, rumah panggung, mercusuar |
+| `scripts/build_dataran_angin.gd` | Peta Dataran Tinggi Angin: tiga undakan tebing, kincir, kandang domba, sungai |
+| `scripts/build_kota_pasar.gd` | Peta Kota Pasar: blok kota, alun-alun pasar, kanal, balai kota |
 | `scripts/export_map.gd` | Scene peta ke `apps/web/public/maps/*.png` dan `packages/shared/src/generated/map-*.ts` |
 | `scripts/build_characters.gd` | Badan + rambut ke `apps/web/public/characters/*.png` |
+
+## Membuat peta baru
+
+1. Salin salah satu `scripts/build_*.gd`, ganti `SCENE`, `map_id`, `slug`, dan seed.
+2. Susun medan (`add_terrain`, `bridge`, `add_cliff`, `stairs`), lalu bangunan dengan
+   `kit.place("nama_bangunan", Vector2i(x, y))`. Nama bangunan ada di `scripts/buildings.gd`.
+   Letakkan baris terbawah bangunan (bayangan) tepat di atas jalan supaya pintunya menghadap jalan.
+3. `bash tools/godot-maps/run.sh nama_scene`, lalu daftarkan hasilnya di
+   `packages/shared/src/maps.ts` dengan `godotMap(...)`.
+4. `bun test` memeriksa semua pos soal bisa dicapai dari titik mulai.
+
+Peringatan "menimpa sel yang sudah terpakai" kadang muncul saat bangunan menempel
+sudut jalan. Periksa gambarnya; kalau tidak ada yang bertumpuk, peringatan itu aman.
 
 ## Menyunting peta dengan tangan
 

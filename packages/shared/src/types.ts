@@ -112,6 +112,11 @@ export interface MapTemplate {
 		tileY: number
 	}
 	collisionRows?: string[]
+	/**
+	 * Grid tabrakan setengah tile (lebar & tinggi 2x) untuk gerak pemain, supaya pemain
+	 * bisa merapat sampai tepi gambar bangunan. Pencarian jalan tetap memakai collisionRows.
+	 */
+	collisionFineRows?: string[]
 	obstacles: Array<{
 		tileX: number
 		tileY: number

@@ -35,6 +35,30 @@ export function isTileWalkable(
 	return true
 }
 
+/**
+ * Titik dunia (piksel) di grid setengah tile. Dipakai untuk gerak pemain bila peta
+ * punya collisionFineRows; obstacles tetap diperiksa per tile.
+ */
+function isFinePointWalkable(map: MapTemplate, worldX: number, worldY: number, tilePx: number): boolean {
+	const rows = map.collisionFineRows!
+	const finePx = tilePx / 2
+	const fx = Math.floor(worldX / finePx)
+	const fy = Math.floor(worldY / finePx)
+	const row = rows[fy]
+	if (!row || fx < 0 || fx >= row.length || row[fx] === '#') {
+		return false
+	}
+
+	const tx = Math.floor(worldX / tilePx)
+	const ty = Math.floor(worldY / tilePx)
+	for (const obs of map.obstacles) {
+		if (tx >= obs.tileX && tx < obs.tileX + obs.width && ty >= obs.tileY && ty < obs.tileY + obs.height) {
+			return false
+		}
+	}
+	return true
+}
+
 export function isFootBoxWalkable(
 	map: MapTemplate,
 	worldX: number,
@@ -67,7 +91,14 @@ export function isFootBoxWalkable(
 		[maxX, worldY]
 	]
 
+	const useFine = Boolean(map.collisionFineRows?.length)
 	for (const [px, py] of checkPoints) {
+		if (useFine) {
+			if (!isFinePointWalkable(map, px, py, tilePx)) {
+				return false
+			}
+			continue
+		}
 		const tx = Math.floor(px / tilePx)
 		const ty = Math.floor(py / tilePx)
 		if (!isTileWalkable(map, tx, ty)) {

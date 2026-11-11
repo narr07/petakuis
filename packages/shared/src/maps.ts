@@ -1,5 +1,31 @@
+import { DATARAN_ANGIN_LAYOUT } from './generated/map-dataran-angin'
+import { KOTA_PASAR_LAYOUT } from './generated/map-kota-pasar'
 import { LEMBAH_SUNNYSIDE_LAYOUT } from './generated/map-lembah-sunnyside'
+import { PESISIR_KARANG_LAYOUT } from './generated/map-pesisir-karang'
 import type { AvatarColorway, MapTemplate, QuizDefinition } from './types'
+
+type GodotLayout = typeof LEMBAH_SUNNYSIDE_LAYOUT
+
+/** Peta yang disusun di tools/godot-maps: data tata letak diambil dari berkas hasil ekspor. */
+function godotMap(
+	base: Pick<MapTemplate, 'id' | 'slug' | 'name' | 'description' | 'defaultMode' | 'palette'>,
+	layout: GodotLayout
+): MapTemplate {
+	return {
+		...base,
+		mapImageUrl: layout.mapImageUrl,
+		widthTiles: layout.widthTiles,
+		heightTiles: layout.heightTiles,
+		tileSizePx: layout.tileSizePx,
+		renderScale: 3,
+		playerSpawn: layout.playerSpawn,
+		collisionRows: layout.collisionRows,
+		collisionFineRows: layout.collisionFineRows,
+		obstacles: [],
+		spawnPoints: layout.spawnPoints,
+		maxPlayers: 200
+	}
+}
 
 export const AVATAR_COLORWAYS: Array<{
 	id: AvatarColorway
@@ -230,6 +256,7 @@ export const MAP_CATALOG: MapTemplate[] = [
 		},
 		playerSpawn: LEMBAH_SUNNYSIDE_LAYOUT.playerSpawn,
 		collisionRows: LEMBAH_SUNNYSIDE_LAYOUT.collisionRows,
+		collisionFineRows: LEMBAH_SUNNYSIDE_LAYOUT.collisionFineRows,
 		obstacles: [],
 		spawnPoints: LEMBAH_SUNNYSIDE_LAYOUT.spawnPoints,
 		maxPlayers: 200
@@ -356,7 +383,61 @@ export const MAP_CATALOG: MapTemplate[] = [
 			{ id: 'sp-24', tileX: 39, tileY: 32, objectKind: 'crystal' }
 		],
 		maxPlayers: 200
-	}
+	},
+	godotMap(
+		{
+			id: 'map-pesisir-karang',
+			slug: 'pesisir-karang',
+			name: 'Pesisir Karang · Kampung Nelayan & Dermaga',
+			description:
+				'Kampung nelayan di tepi laut (64x48 tile): deretan rumah menghadap pantai berpasir, dermaga kayu, rumah panggung di atas laut, mercusuar batu, dan pulau kecil yang disambung titian.',
+			defaultMode: 'free',
+			palette: {
+				floorPrimary: '#62c44c',
+				floorSecondary: '#e0b070',
+				wallPrimary: '#2c8fd6',
+				wallAccent: '#30d8e8',
+				accentColor: '#facc15'
+			}
+		},
+		PESISIR_KARANG_LAYOUT
+	),
+	godotMap(
+		{
+			id: 'map-dataran-angin',
+			slug: 'dataran-angin',
+			name: 'Dataran Tinggi Angin · Kincir & Undakan Tebing',
+			description:
+				'Tiga undakan tebing yang disambung tangga papan (64x48 tile): kincir angin dan kandang domba di atas, kampung dan ladang di tengah, sungai berjembatan di lembah bawah.',
+			defaultMode: 'linear',
+			palette: {
+				floorPrimary: '#62c44c',
+				floorSecondary: '#5ab846',
+				wallPrimary: '#b5603a',
+				wallAccent: '#30d8e8',
+				accentColor: '#f97316'
+			}
+		},
+		DATARAN_ANGIN_LAYOUT
+	),
+	godotMap(
+		{
+			id: 'map-kota-pasar',
+			slug: 'kota-pasar',
+			name: 'Kota Pasar · Alun-Alun, Kanal & Balai Kota',
+			description:
+				'Kota berpetak (64x48 tile) dengan pasar di alun-alun tengah, kanal berjembatan, balai kota beratap biru, menara kayu berkincir, dan lebih dari 20 bangunan beragam.',
+			defaultMode: 'free',
+			palette: {
+				floorPrimary: '#62c44c',
+				floorSecondary: '#c98f5a',
+				wallPrimary: '#c8443c',
+				wallAccent: '#30d8e8',
+				accentColor: '#a855f7'
+			}
+		},
+		KOTA_PASAR_LAYOUT
+	)
 ]
 
 export const STARTER_QUIZZES: QuizDefinition[] = [

@@ -28,7 +28,7 @@
 		},
 		{
 			title: 'Mesin game 2D',
-			description: '3 peta, collision per tile, jalan otomatis saat peta diketuk, D-Pad di HP, kompas penunjuk pos soal, dan NPC.'
+			description: '6 peta, collision per tile, jalan otomatis saat peta diketuk, D-Pad di HP, kompas penunjuk pos soal, dan NPC.'
 		},
 		{
 			title: 'Penilaian di server',
