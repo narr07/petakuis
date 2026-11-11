@@ -42,7 +42,7 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 | 1 | ~~Halaman admin Guru, Siswa, Pengaturan Sekolah~~ | Selesai di lokal (0.15) |
 | 2 | ~~Pengaman kelas~~ | Selesai di lokal (0.15); tangkapan layar QR & peringatan nama belum diperiksa |
 | 3 | ~~Backup database harian di VPS~~ | Selesai (0.16): cron 02.30 WIB |
-| 4 | ~~Halaman kuis dengan Nuxt UI~~ | Selesai di lokal (0.18), belum di-push |
+| 4 | ~~Halaman kuis dengan Nuxt UI~~ | Selesai & online (0.18) |
 | 5 | ~~Uji beban 200 siswa~~ | Selesai (0.17); perbaikan batas 200 siswa sudah online |
 | 6 | Generator tilemap | Membuat peta baru otomatis dari pipeline Godot |
 | 7 | Fase berikutnya | Mode PR tanpa host live, efek suara + tombol mute, i18n (id/en), PWA |
@@ -426,7 +426,7 @@ Keputusan: **SQLite lewat libSQL + Drizzle** (bukan D1 yang hanya untuk Cloudfla
 
 **Deploy:** `18a486d` terpasang di VPS (game server dibangun ulang). Uji asap 3 bot lewat Cloudflare: 3/3 masuk, 15 update/detik tepat (Linux), 0 error. Uji beban penuh 200 bot ke VPS belum dilakukan; jadwalkan di luar jam kelas.
 
-### 0.18 Halaman kuis memakai Nuxt UI (12 November 2026) — lokal, belum di-commit
+### 0.18 Halaman kuis memakai Nuxt UI (12 November 2026)
 
 Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah Nuxt UI; sisanya diganti:
 
@@ -440,5 +440,5 @@ Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah
 
 **Verifikasi:** lint & typecheck bersih; tangkapan layar diperiksa: penyusun kuis (mode edit), pemilih posisi, join, layar main + peringkat, jendela soal isian. Di dev server, pemuatan pertama layar main bisa >5 detik sehingga peta tampak gelap di tangkapan layar awal; bukan regresi (dibandingkan dengan situs online).
 
-**Belum:** commit + push + deploy web (ditahan pengaman otomatis).
+**Deploy:** `b5c4d07` terpasang di VPS; `/`, `/join`, `/play/123456`, `/auth/login` 200, peta & avatar di layar main termuat; situs lain di VPS tetap 200.
 
