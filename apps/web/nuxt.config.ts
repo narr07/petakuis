@@ -30,6 +30,14 @@ function libsqlNativeFiles(): string[] {
 		// Lebih baik gagal saat build daripada server produksi tidak bisa membuka database.
 		throw new Error('Binari native libSQL untuk platform ini tidak ditemukan. Jalankan `bun install`.')
 	}
+
+	// @libsql/isomorphic-ws meng-import `ws`; di build Linux penelusur Nitro melewatkannya
+	// (di Windows ikut), sehingga server gagal dengan "Cannot find package 'ws'".
+	const hrana = fromClient.resolve('@libsql/hrana-client')
+	const isoWs = createRequire(hrana).resolve('@libsql/isomorphic-ws')
+	const wsMain = createRequire(isoWs).resolve('ws')
+	const wsFiles = [wsMain, join(dirname(wsMain), 'wrapper.mjs'), join(dirname(wsMain), 'package.json')]
+	files.push(...wsFiles.filter(f => existsSync(f)))
 	return files
 }
 
