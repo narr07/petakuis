@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { cpSync, existsSync, readFileSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 
@@ -30,15 +30,23 @@ function libsqlNativeFiles(): string[] {
 		// Lebih baik gagal saat build daripada server produksi tidak bisa membuka database.
 		throw new Error('Binari native libSQL untuk platform ini tidak ditemukan. Jalankan `bun install`.')
 	}
-
-	// @libsql/isomorphic-ws meng-import `ws`; di build Linux penelusur Nitro melewatkannya
-	// (di Windows ikut), sehingga server gagal dengan "Cannot find package 'ws'".
-	const hrana = fromClient.resolve('@libsql/hrana-client')
-	const isoWs = createRequire(hrana).resolve('@libsql/isomorphic-ws')
-	const wsMain = createRequire(isoWs).resolve('ws')
-	const wsFiles = [wsMain, join(dirname(wsMain), 'wrapper.mjs'), join(dirname(wsMain), 'package.json')]
-	files.push(...wsFiles.filter(f => existsSync(f)))
 	return files
+}
+
+/**
+ * @libsql/isomorphic-ws meng-import `ws`. Di build Linux (struktur folder Bun) penelusur
+ * Nitro tidak menyalinnya walaupun disebut di traceInclude, sehingga server gagal dengan
+ * "Cannot find package 'ws'". Setelah build, paket `ws` versi yang dipakai libSQL disalin
+ * ke .output bila belum ada (di build Windows sudah ikut dengan sendirinya).
+ */
+function copyLibsqlWs(serverDir: string): void {
+	const target = join(serverDir, 'node_modules', 'ws')
+	if (existsSync(join(target, 'package.json'))) return
+	const fromClient = createRequire(createRequire(import.meta.url).resolve('@libsql/client'))
+	const isoWs = createRequire(fromClient.resolve('@libsql/hrana-client')).resolve('@libsql/isomorphic-ws')
+	const wsDir = realpathSync(dirname(createRequire(isoWs).resolve('ws')))
+	cpSync(wsDir, target, { recursive: true, dereference: true })
+	console.info(`[petakuis] paket ws disalin ke ${target}`)
 }
 
 export default defineNuxtConfig({
@@ -47,6 +55,11 @@ export default defineNuxtConfig({
 	nitro: {
 		externals: {
 			traceInclude: libsqlNativeFiles()
+		},
+		hooks: {
+			compiled(nitro) {
+				copyLibsqlWs(nitro.options.output.serverDir)
+			}
 		}
 	},
 	future: {
