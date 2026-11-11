@@ -1,53 +1,59 @@
 # Log Progres & Status Implementasi — Petakuis
 
-Terakhir diperbarui: **11 November 2026**
+Terakhir diperbarui: **12 November 2026**
 
 Dokumen ini mencatat seluruh riwayat pengerjaan, perbaikan bug, penambahan aset tilemap multi-region, serta daftar fitur yang **sudah selesai** maupun yang **belum selesai (tahap berikutnya)**.
 
-> **Catatan:** bagian 0.3, 1, 2, dan 3 adalah catatan lama (10–11 November) dan sebagian sudah tidak berlaku. **Status terbaru ada di bagian "Status Terkini" di bawah**; riwayat lengkap tiap pekerjaan ada di bagian 0.5–0.14.
+> **Catatan:** bagian 0.3, 1, 2, dan 3 adalah catatan lama (10–11 November) dan sebagian sudah tidak berlaku. **Status terbaru ada di bagian "Status Terkini" di bawah**; riwayat lengkap tiap pekerjaan ada di bagian 0.5–0.20.
 
 ---
 
-## Status Terkini (11 November 2026, malam)
+## Status Terkini (12 November 2026)
 
-Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
+Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel). Semua yang ditandai ✅ di bawah sudah di-push ke GitHub (`main`) dan terpasang di VPS.
 
-### ✅ Sudah selesai
+### ✅ Sudah selesai dan online
 
 | Bagian | Isi | Catatan |
 | --- | --- | --- |
 | Tampilan website | Beranda, jelajah, login, daftar, dashboard memakai Nuxt UI (template SaaS & Dashboard) | 0.5 |
-| Peta & game | 6 peta original (Godot), batas tabrakan setengah tile, pantai berbuih, avatar CC0; aset & nama Pokémon dihapus termasuk dari riwayat git | 0.6–0.8 |
-| Keamanan sesi live | Kontrol host dengan token, room demo hanya tonton, endpoint internal pakai `INTERNAL_SECRET`, CORS dibatasi; penilaian di server | 0.9 |
-| Kualitas kode | Typecheck & lint bersih, versi dependensi dikunci | 0.9 |
-| Database | SQLite (libSQL + Drizzle) dengan migrasi; kuis & laporan sesi tetap ada setelah restart | 0.10 |
-| Deploy | Docker Compose di VPS, Cloudflare Tunnel, situs lain di VPS tidak terganggu | 0.11 |
-| Login | Email + kata sandi (wajib konfirmasi email), lupa/atur ulang sandi lewat Resend, Google; pilih Guru/Siswa saat daftar; admin dari email server | 0.12–0.13 (online) |
-| Halaman Kebijakan Privasi & Ketentuan | Syarat Google OAuth produksi | 0.12 (online) |
-| Cloudflare | Aturan blokir bot/scanner zona permadi.dev berlaku untuk Petakuis; rate limit disesuaikan agar satu kelas (satu IP sekolah) tidak terblokir; `/api/internal/` diblokir dari internet | 0.13 |
-| Menu admin | Administrasi & **Log Server** hanya untuk admin (menu, middleware, API) | 0.14 (**lokal, belum di-push**) |
-| Edit & hapus kuis | Pemilik atau admin; konfirmasi sebelum hapus | 0.14 (**lokal, belum di-push**) |
-| Celah keamanan ditutup | Token reset/verifikasi bocor di log publik; kunci jawaban terkirim ke publik | 0.13–0.14 (**lokal, belum di-push**) |
+| Halaman kuis | Penyusun kuis, layar main, jendela soal, pemilih posisi peta, D-Pad, halaman join memakai komponen Nuxt UI | 0.18 |
+| Peta | **8 peta original**: 5 disusun tangan di Godot + 3 dari generator (Desa Tepi Sungai, Kampung Danau, Desa Ladang); batas tabrakan setengah tile, pantai berbuih, avatar CC0; aset & nama Pokémon dihapus termasuk dari riwayat git | 0.6–0.8, 0.20 |
+| Generator peta | `run.sh --gen slug=… seed=… tema=desa/sungai/danau`: jalan, air, jembatan, bangunan, ladang, ternak, 24 pos soal, pemeriksaan keterjangkauan otomatis | 0.19 |
+| Login | Email + kata sandi (wajib konfirmasi email), lupa/atur ulang sandi lewat Resend, Google; pilih Guru/Siswa saat daftar; admin dari daftar email server | 0.12–0.13 |
+| Kebijakan Privasi & Ketentuan | `/privasi`, `/ketentuan` (syarat Google OAuth produksi) | 0.12 |
+| Dashboard per peran | Menu Administrasi (Guru, Siswa, Pengaturan Sekolah, **Log Server**) hanya untuk admin: disembunyikan di menu, dijaga middleware dan API | 0.14 |
+| Halaman admin | Guru & Siswa membaca akun asli (ubah peran, hapus akun, ekspor CSV), Pengaturan Sekolah tersimpan di database | 0.15 |
+| Kelola kuis | Edit & hapus kuis (pemilik atau admin), konfirmasi sebelum hapus | 0.14 |
+| Pengaman kelas | QR code di layar host, filter nama panggilan kasar (web + game server), batas 40 PIN salah / 10 menit / IP | 0.15 |
+| Keamanan | Kontrol host dengan token, penilaian di server, endpoint internal pakai `INTERNAL_SECRET`; celah ditutup: token reset/verifikasi di log publik, kunci jawaban terkirim ke publik; rate limit login membaca IP Cloudflare | 0.9, 0.13–0.14 |
+| Cloudflare | Aturan blokir bot/scanner zona permadi.dev berlaku untuk Petakuis; rate limit hanya di login/daftar/reset/AI agar satu kelas tidak terblokir; `/api/internal/` diblokir dari internet | 0.13 |
+| Database | SQLite (libSQL + Drizzle) dengan migrasi | 0.10 |
+| Backup database | Cron harian 02.30 WIB di VPS, `VACUUM INTO` + cek integritas, disimpan 14 hari di `~/petakuis-backups` | 0.16 |
+| Uji beban | 200 bot di laptop: 200/200 masuk, latensi p99 < 45 ms, CPU ±7%; bug "kelas penuh" (pemain keluar ikut dihitung) diperbaiki | 0.17 |
+| Kualitas kode | Typecheck & lint bersih, unit test 45 lulus, uji alur login/akses 50/50, versi dependensi dikunci | — |
 
-### ⏳ Sedang berjalan
+### ⚠️ Sudah dibuat tetapi belum diuji langsung
 
-1. **Push & deploy pekerjaan 0.13 (perbaikan log) dan 0.14** ke VPS. Sampai itu terjadi, situs online masih mengirim kunci jawaban lewat `/api/quizzes`; `/logs` dan `/api/logs` sementara diblokir lewat aturan Cloudflare.
-2. Setelah deploy: hapus blokir sementara `/logs`/`/api/logs` dari aturan Cloudflare "Petakuis: endpoint internal…".
-3. Uji login di situs online oleh pemilik: Google sebagai admin, dan daftar email (memastikan email konfirmasi dari Resend sampai).
+1. **Login di situs online oleh pemilik:** masuk Google sebagai admin, dan daftar lewat email untuk memastikan email konfirmasi dari Resend benar-benar sampai (di lokal email hanya dicatat di log).
+2. **QR code dipindai dengan HP sungguhan** dan tampilan layar main / D-Pad di layar HP.
+3. **Uji beban 200 bot langsung ke VPS lewat Cloudflare** (baru uji asap 3 bot: lancar, 15 update/detik). Jadwalkan di luar jam kelas.
 
 ### ❌ Belum dikerjakan (urut prioritas)
 
 | # | Pekerjaan | Keterangan |
 | --- | --- | --- |
-| 1 | ~~Halaman admin Guru, Siswa, Pengaturan Sekolah~~ | Selesai di lokal (0.15) |
-| 2 | ~~Pengaman kelas~~ | Selesai di lokal (0.15); tangkapan layar QR & peringatan nama belum diperiksa |
-| 3 | ~~Backup database harian di VPS~~ | Selesai (0.16): cron 02.30 WIB |
-| 4 | ~~Halaman kuis dengan Nuxt UI~~ | Selesai & online (0.18) |
-| 5 | ~~Uji beban 200 siswa~~ | Selesai (0.17); perbaikan batas 200 siswa sudah online |
-| 6 | ~~Generator tilemap~~ | Selesai (0.19) |
-| 7 | Fase berikutnya | Mode PR tanpa host live, efek suara + tombol mute, i18n (id/en), PWA |
+| 1 | Cadangan database ke luar VPS | Backup harian masih di disk VPS yang sama; bila VPS rusak, cadangan ikut hilang. Usul: salin harian ke penyimpanan lain (mis. Cloudflare R2 atau laptop) |
+| 2 | Kuis contoh di produksi | Database produksi baru berisi 2 kuis; tambah kuis contoh per jenjang/mapel agar guru baru punya bahan |
+| 3 | Mode PR (tanpa guru live) | Siswa mengerjakan sendiri dengan batas waktu |
+| 4 | Efek suara + tombol mute | Bawaan senyap agar kelas tenang |
+| 5 | Dua bahasa (id/en) dan PWA | Belum ada di `nuxt.config.ts` |
+| 6 | Pendaftaran peta generator otomatis | Saat ini potongan kode dari `run.sh --gen` ditempel tangan ke `maps.ts` |
 
 Tidak lagi direncanakan: PostgreSQL dan Redis (diganti SQLite untuk satu VPS, lihat 0.10).
+
+**Catatan kerja:** perintah `git push` dan deploy (`ssh` ke VPS) sering ditahan pengaman otomatis Claude Code walau pemilik sudah setuju; tambahkan izin permanen lewat `/permissions` atau jalankan sendiri.
+
 ---
 
 ## 0. Hasil Audit Kode (11 November 2026)
