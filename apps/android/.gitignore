@@ -1,0 +1,12 @@
+# Hasil build (dibuat ulang dengan `bubblewrap build`)
+.gradle/
+build/
+app/build/
+local.properties
+*.apk
+*.aab
+*.idsig
+
+# Kunci tanda tangan TIDAK PERNAH disimpan di repo (ada di E:/vps-oracle/Petakuis)
+*.jks
+*.keystore

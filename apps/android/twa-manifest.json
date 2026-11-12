@@ -1,0 +1,42 @@
+{
+  "packageId": "dev.permadi.petakuis",
+  "host": "petakuis.permadi.dev",
+  "name": "Petakuis",
+  "launcherName": "Petakuis",
+  "display": "standalone",
+  "orientation": "default",
+  "themeColor": "#2563EB",
+  "themeColorDark": "#09090B",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#2563EB",
+  "enableNotifications": false,
+  "startUrl": "/join?sumber=aplikasi",
+  "iconUrl": "https://petakuis.permadi.dev/icon-512.png",
+  "maskableIconUrl": "https://petakuis.permadi.dev/maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "E:\\vps-oracle\\Petakuis\\petakuis-upload.jks",
+    "alias": "petakuis-upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://petakuis.permadi.dev/site.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://petakuis.permadi.dev/",
+  "minSdkVersion": 24,
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}
