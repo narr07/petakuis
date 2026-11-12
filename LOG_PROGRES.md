@@ -29,7 +29,7 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 | Keamanan | Kontrol host dengan token, penilaian di server, endpoint internal pakai `INTERNAL_SECRET`; celah ditutup: token reset/verifikasi di log publik, kunci jawaban terkirim ke publik; rate limit login membaca IP Cloudflare | 0.9, 0.13–0.14 |
 | Cloudflare | Aturan blokir bot/scanner zona permadi.dev berlaku untuk Petakuis; rate limit hanya di login/daftar/reset/AI agar satu kelas tidak terblokir; `/api/internal/` diblokir dari internet | 0.13 |
 | Database | SQLite (libSQL + Drizzle) dengan migrasi | 0.10 |
-| Backup database | Cron harian 02.30 WIB di VPS, `VACUUM INTO` + cek integritas, disimpan 14 hari di `~/petakuis-backups` | 0.16 |
+| Backup database | Cron harian 02.30 WIB: `VACUUM INTO` + cek integritas, salinan lokal 14 hari di VPS **dan** salinan di Cloudflare R2 (`petakuis-backups`, privat, 30 hari) | 0.16, 0.21 |
 | Uji beban | 200 bot di laptop: 200/200 masuk, latensi p99 < 45 ms, CPU ±7%; bug "kelas penuh" (pemain keluar ikut dihitung) diperbaiki | 0.17 |
 | Kualitas kode | Typecheck & lint bersih, unit test 45 lulus, uji alur login/akses 50/50, versi dependensi dikunci | — |
 
@@ -43,12 +43,11 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 
 | # | Pekerjaan | Keterangan |
 | --- | --- | --- |
-| 1 | Cadangan database ke luar VPS | Backup harian masih di disk VPS yang sama; bila VPS rusak, cadangan ikut hilang. Usul: salin harian ke penyimpanan lain (mis. Cloudflare R2 atau laptop) |
-| 2 | Kuis contoh di produksi | Database produksi baru berisi 2 kuis; tambah kuis contoh per jenjang/mapel agar guru baru punya bahan |
-| 3 | Mode PR (tanpa guru live) | Siswa mengerjakan sendiri dengan batas waktu |
-| 4 | Efek suara + tombol mute | Bawaan senyap agar kelas tenang |
-| 5 | Dua bahasa (id/en) dan PWA | Belum ada di `nuxt.config.ts` |
-| 6 | Pendaftaran peta generator otomatis | Saat ini potongan kode dari `run.sh --gen` ditempel tangan ke `maps.ts` |
+| 1 | Kuis contoh di produksi | Database produksi baru berisi 2 kuis; tambah kuis contoh per jenjang/mapel agar guru baru punya bahan |
+| 2 | Mode PR (tanpa guru live) | Siswa mengerjakan sendiri dengan batas waktu |
+| 3 | Efek suara + tombol mute | Bawaan senyap agar kelas tenang |
+| 4 | Dua bahasa (id/en) dan PWA | Belum ada di `nuxt.config.ts` |
+| 5 | Pendaftaran peta generator otomatis | Saat ini potongan kode dari `run.sh --gen` ditempel tangan ke `maps.ts` |
 
 Tidak lagi direncanakan: PostgreSQL dan Redis (diganti SQLite untuk satu VPS, lihat 0.10).
 
@@ -467,3 +466,13 @@ Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah
 - **Verifikasi:** typecheck bersih; unit test 45 lulus (pengecekan naik 848 → 1217 karena uji tabrakan & pos soal ikut memeriksa peta baru); peta sungai dan danau dibuka di layar main lewat `?map=` (pemain muncul di persimpangan, petunjuk arah pos soal jalan).
 
 **Deploy 0.20:** `555babf` terpasang di VPS (web + game server). Online: `/api/maps` berisi 8 peta, ketiga PNG peta baru 200, room demo 123456 aktif; situs lain di VPS tetap 200.
+
+### 0.21 Cadangan database ke luar VPS: Cloudflare R2 (12 November 2026)
+
+- Bucket R2 `petakuis-backups` (APAC) dibuat lewat API: privat (akses publik r2.dev mati), aturan lifecycle hapus objek > 30 hari.
+- Kunci untuk VPS: token R2 yang dibuat pemilik di dashboard, **hanya untuk bucket `petakuis-backups`** (Workers R2 Storage Bucket Item Read + Edit). Disimpan di VPS `~/petakuis-backups/r2.env` (`chmod 600`), tidak di repo. Token Cloudflare utama (DNS/Tunnel/semua bucket) sengaja tidak ditaruh di VPS.
+- `scripts/backup-db.sh`: setelah cadangan lokal, unggah ke R2 dengan `curl --aws-sigv4` (curl 8.5 di VPS, tanpa alat tambahan). Tanpa `r2.env` skrip tetap membuat cadangan lokal; gagal unggah keluar dengan kode 1 (tercatat di `backup.log`).
+- **Diuji di VPS:** cadangan `petakuis-20261112-000610.db.gz` terunggah dan terdaftar di bucket (8014 byte); diunduh kembali = berkas `SQLite format 3` dan sama persis dengan salinan lokal; kunci yang sama ditolak (403) untuk bucket `gurukampung-media`.
+- Memulihkan dari R2: unduh objek dengan `curl --aws-sigv4 ... -o` (atau dari dashboard R2), lalu ikuti langkah pemulihan di kepala skrip.
+- **Belum:** commit + push skrip, lalu `git pull` di VPS supaya cron harian memakai skrip baru (sampai itu, cron masih skrip lama: hanya cadangan lokal).
+

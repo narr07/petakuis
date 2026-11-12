@@ -39,3 +39,26 @@ gzip -f "$DEST/petakuis-$STAMP.db"
 
 find "$DEST" -name 'petakuis-*.db.gz' -mtime +"$KEEP_DAYS" -delete
 echo "$(date '+%F %T') cadangan tersimpan: $DEST/petakuis-$STAMP.db.gz ($(du -h "$DEST/petakuis-$STAMP.db.gz" | cut -f1))"
+
+# Salinan di luar VPS: Cloudflare R2 (S3-compatible), memakai curl --aws-sigv4 tanpa alat tambahan.
+# Kunci disimpan di $R2_ENV (chmod 600), berisi R2_ACCOUNT_ID, R2_ACCESS_KEY_ID,
+# R2_SECRET_ACCESS_KEY, R2_BUCKET. Pakai token R2 "Object Read & Write" khusus bucket ini saja.
+# Bucket menghapus objek otomatis setelah 30 hari (aturan lifecycle di Cloudflare).
+R2_ENV="${R2_ENV:-$HOME/petakuis-backups/r2.env}"
+if [ -f "$R2_ENV" ]; then
+	# shellcheck disable=SC1090
+	. "$R2_ENV"
+	FILE="petakuis-$STAMP.db.gz"
+	if curl --fail --silent --show-error --max-time 120 \
+		--aws-sigv4 "aws:amz:auto:s3" \
+		--user "$R2_ACCESS_KEY_ID:$R2_SECRET_ACCESS_KEY" \
+		--upload-file "$DEST/$FILE" \
+		"https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com/$R2_BUCKET/$FILE" >/dev/null; then
+		echo "$(date '+%F %T') terunggah ke R2: $R2_BUCKET/$FILE"
+	else
+		echo "$(date '+%F %T') GAGAL mengunggah ke R2 (cadangan lokal tetap ada)" >&2
+		exit 1
+	fi
+else
+	echo "$(date '+%F %T') R2 belum diatur ($R2_ENV tidak ada): hanya cadangan lokal"
+fi
