@@ -62,6 +62,14 @@ function copyLibsqlWs(serverDir: string): void {
 	console.info(`[petakuis] paket ws disalin ke ${target}`)
 }
 
+/**
+ * ID unik per build untuk folder aset (/_nuxt/<id>/). Aset dikirim dengan cache "immutable"
+ * 1 tahun, tetapi Vite kadang memberi nama berkas JS yang sama walau isinya berubah (mis. hanya
+ * rujukan CSS-nya yang berganti). Tanpa folder per build, browser dan Cloudflare memakai JS lama
+ * yang memuat CSS lama setelah deploy.
+ */
+const BUILD_ID = process.env.NUXT_BUILD_ID || Date.now().toString(36)
+
 export default defineNuxtConfig({
 	compatibilityDate: '2026-06-30',
 	devtools: { enabled: false },
@@ -124,6 +132,7 @@ export default defineNuxtConfig({
 		'/logs': { redirect: { to: '/dashboard/logs', statusCode: 301 } }
 	},
 	app: {
+		buildAssetsDir: `/_nuxt/${BUILD_ID}/`,
 		head: {
 			htmlAttrs: {
 				lang: 'id'

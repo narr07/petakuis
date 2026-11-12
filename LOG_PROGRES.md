@@ -520,3 +520,10 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
   - **Diuji:** tangkapan layar Jelajah mode gelap desktop 1440 px dan HP 412 px; lebar kotak contoh soal = lebar isi kartu.
 - Lint & typecheck bersih.
 
+### 0.25 Aset per build: mencegah JS/CSS basi setelah deploy (12 November 2026)
+
+- **Masalah ditemukan saat menguji joystick di situs online:** joystick tidak tampil walau CSS-nya benar. Penyebab: berkas JS `5dNYS-HG.js` dari build baru bernama **sama** dengan build sebelumnya padahal isinya beda (Vite tidak mengubah hash JS bila yang berubah hanya rujukan berkas CSS-nya). Aset dikirim `Cache-Control: immutable, max-age=1 tahun`, jadi Cloudflare (dan browser) tetap memakai JS lama yang memuat CSS lama tanpa aturan joystick. Dampaknya berlaku untuk semua deploy: pengunjung bisa mendapat tampilan campuran lama/baru.
+- **Perbaikan:** `app.buildAssetsDir = /_nuxt/<BUILD_ID>/` di `nuxt.config.ts` (`BUILD_ID` = `NUXT_BUILD_ID` atau waktu build dalam basis 36). Setiap deploy memakai alamat aset baru, sehingga cache lama di Cloudflare maupun browser tidak terpakai.
+- Cache Cloudflare untuk host `petakuis.permadi.dev` sudah dibersihkan sekali lewat API (purge per host; situs lain di zona permadi.dev tidak tersentuh).
+- **Diuji:** build produksi lokal dijalankan dengan Node: `/explore` 200, 70 aset JS/CSS di `/_nuxt/<id>/` semuanya 200, CSS memuat aturan `pointer-coarse`.
+
