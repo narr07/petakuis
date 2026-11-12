@@ -499,3 +499,4 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 
 **Verifikasi:** uji baru `starterQuizzes.test.ts` (25 uji, 543 pengecekan): id unik, peta/mapel/kelas valid, setiap kunci jawaban dinilai benar oleh `evaluateAnswer` dan jawaban salah ditolak; total unit test 70 lulus; typecheck & lint bersih. Di database lokal yang sudah berisi data: 10 kuis masuk; satu dihapus lalu server dinyalakan ulang: tetap terhapus, tidak ada id ganda.
 
+**Deploy 0.22:** cadangan produksi dibuat dulu (lokal + R2, `petakuis-20261112-002751.db.gz`), lalu `272f0a1` terpasang (migrasi `app_meta` berjalan). Online: 12 kuis publik (2 demo + 10 Tim Petakuis), tanpa id ganda, tanpa kunci jawaban di API publik; situs lain di VPS tetap 200.
