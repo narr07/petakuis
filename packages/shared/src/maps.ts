@@ -5,6 +5,7 @@ import { KAMPUNG_DANAU_LAYOUT } from './generated/map-kampung-danau'
 import { KOTA_PASAR_LAYOUT } from './generated/map-kota-pasar'
 import { LEMBAH_SUNNYSIDE_LAYOUT } from './generated/map-lembah-sunnyside'
 import { PESISIR_KARANG_LAYOUT } from './generated/map-pesisir-karang'
+import { CURRICULUM_QUIZZES } from './starterQuizzes'
 import type { AvatarColorway, MapTemplate, QuizDefinition } from './types'
 
 type GodotLayout = typeof LEMBAH_SUNNYSIDE_LAYOUT
@@ -382,7 +383,8 @@ export const MAP_CATALOG: MapTemplate[] = [
 	)
 ]
 
-export const STARTER_QUIZZES: QuizDefinition[] = [
+/** Dua kuis demo awal (dipakai juga oleh room demo di game server). */
+const DEMO_QUIZZES: QuizDefinition[] = [
 	{
 		id: 'quiz-demo-nusantara',
 		ownerName: 'Ibu Ratna (SDN 01 Menteng)',
@@ -584,3 +586,6 @@ export const STARTER_QUIZZES: QuizDefinition[] = [
 		]
 	}
 ]
+
+/** Semua kuis contoh yang dimasukkan ke database: demo awal + kuis kurikulum SD kelas 1–6. */
+export const STARTER_QUIZZES: QuizDefinition[] = [...DEMO_QUIZZES, ...CURRICULUM_QUIZZES]

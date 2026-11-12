@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { dirname, isAbsolute, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createClient } from '@libsql/client'
-import { count } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { drizzle, type LibSQLDatabase } from 'drizzle-orm/libsql'
 import { migrate } from 'drizzle-orm/libsql/migrator'
 import { STARTER_QUIZZES } from '@petakuis/shared'
@@ -14,7 +14,7 @@ let ready: Promise<Database> | null = null
 
 /**
  * Koneksi database (SQLite lewat libSQL). Saat pertama dipakai: membuat folder berkas,
- * menyalakan mode WAL, menjalankan migrasi, lalu mengisi kuis contoh bila tabel masih kosong.
+ * menyalakan mode WAL, menjalankan migrasi, lalu memasukkan kuis contoh yang belum pernah dimasukkan.
  * Semua pemanggil menunggu proses ini selesai, jadi tidak ada query sebelum tabel siap.
  */
 export function useDb(): Promise<Database> {
@@ -52,11 +52,21 @@ async function openDatabase(): Promise<Database> {
 	return db
 }
 
+const SEEDED_KEY = 'seeded_starter_quizzes'
+
+/**
+ * Memasukkan kuis contoh yang belum pernah dimasukkan (dicatat per id di tabel app_meta).
+ * Kuis contoh baru ikut masuk ke database lama; kuis contoh yang sudah dihapus admin tidak
+ * dimunculkan lagi karena id-nya sudah tercatat.
+ */
 async function seedStarterQuizzes(db: Database): Promise<void> {
-	const [row] = await db.select({ total: count() }).from(schema.quizzes)
-	if ((row?.total ?? 0) > 0) return
+	const [meta] = await db.select().from(schema.appMeta).where(eq(schema.appMeta.key, SEEDED_KEY)).limit(1)
+	const seeded = new Set(Array.isArray(meta?.value) ? (meta.value as string[]) : [])
+	const pending = STARTER_QUIZZES.filter(q => !seeded.has(q.id))
+	if (!pending.length) return
+
 	await db.insert(schema.quizzes).values(
-		STARTER_QUIZZES.map(q => ({
+		pending.map(q => ({
 			id: q.id,
 			ownerName: q.ownerName,
 			title: q.title,
@@ -72,6 +82,10 @@ async function seedStarterQuizzes(db: Database): Promise<void> {
 			createdAt: q.createdAt,
 			updatedAt: q.updatedAt
 		}))
-	)
-	recordWebLog('info', 'db', `${STARTER_QUIZZES.length} kuis contoh ditambahkan`)
+	).onConflictDoNothing({ target: schema.quizzes.id })
+
+	const all = [...seeded, ...pending.map(q => q.id)]
+	await db.insert(schema.appMeta).values({ key: SEEDED_KEY, value: all })
+		.onConflictDoUpdate({ target: schema.appMeta.key, set: { value: all } })
+	recordWebLog('info', 'db', `${pending.length} kuis contoh diperiksa/ditambahkan`)
 }

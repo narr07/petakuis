@@ -25,6 +25,7 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 | Dashboard per peran | Menu Administrasi (Guru, Siswa, Pengaturan Sekolah, **Log Server**) hanya untuk admin: disembunyikan di menu, dijaga middleware dan API | 0.14 |
 | Halaman admin | Guru & Siswa membaca akun asli (ubah peran, hapus akun, ekspor CSV), Pengaturan Sekolah tersimpan di database | 0.15 |
 | Kelola kuis | Edit & hapus kuis (pemilik atau admin), konfirmasi sebelum hapus | 0.14 |
+| Kuis contoh | 12 kuis publik: 2 demo + 10 kuis SD kelas 1–6 dari buku Kurikulum Merdeka (Matematika, Bahasa Indonesia, IPAS, Pendidikan Pancasila, Koding & KA, Bahasa Inggris) | 0.22 |
 | Pengaman kelas | QR code di layar host, filter nama panggilan kasar (web + game server), batas 40 PIN salah / 10 menit / IP | 0.15 |
 | Keamanan | Kontrol host dengan token, penilaian di server, endpoint internal pakai `INTERNAL_SECRET`; celah ditutup: token reset/verifikasi di log publik, kunci jawaban terkirim ke publik; rate limit login membaca IP Cloudflare | 0.9, 0.13–0.14 |
 | Cloudflare | Aturan blokir bot/scanner zona permadi.dev berlaku untuk Petakuis; rate limit hanya di login/daftar/reset/AI agar satu kelas tidak terblokir; `/api/internal/` diblokir dari internet | 0.13 |
@@ -43,11 +44,10 @@ Situs online: **https://petakuis.permadi.dev** (VPS Oracle + Cloudflare Tunnel).
 
 | # | Pekerjaan | Keterangan |
 | --- | --- | --- |
-| 1 | Kuis contoh di produksi | Database produksi baru berisi 2 kuis; tambah kuis contoh per jenjang/mapel agar guru baru punya bahan |
-| 2 | Mode PR (tanpa guru live) | Siswa mengerjakan sendiri dengan batas waktu |
-| 3 | Efek suara + tombol mute | Bawaan senyap agar kelas tenang |
-| 4 | Dua bahasa (id/en) dan PWA | Belum ada di `nuxt.config.ts` |
-| 5 | Pendaftaran peta generator otomatis | Saat ini potongan kode dari `run.sh --gen` ditempel tangan ke `maps.ts` |
+| 1 | Mode PR (tanpa guru live) | Siswa mengerjakan sendiri dengan batas waktu |
+| 2 | Efek suara + tombol mute | Bawaan senyap agar kelas tenang |
+| 3 | Dua bahasa (id/en) dan PWA | Belum ada di `nuxt.config.ts` |
+| 4 | Pendaftaran peta generator otomatis | Saat ini potongan kode dari `run.sh --gen` ditempel tangan ke `maps.ts` |
 
 Tidak lagi direncanakan: PostgreSQL dan Redis (diganti SQLite untuk satu VPS, lihat 0.10).
 
@@ -475,4 +475,27 @@ Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah
 - **Diuji di VPS:** cadangan `petakuis-20261112-000610.db.gz` terunggah dan terdaftar di bucket (8014 byte); diunduh kembali = berkas `SQLite format 3` dan sama persis dengan salinan lokal; kunci yang sama ditolak (403) untuk bucket `gurukampung-media`.
 - Memulihkan dari R2: unduh objek dengan `curl --aws-sigv4 ... -o` (atau dari dashboard R2), lalu ikuti langkah pemulihan di kepala skrip.
 - Di-push (`230e91d`) dan ditarik di VPS; cron harian 02.30 WIB kini membuat cadangan lokal + R2.
+
+### 0.22 Kuis contoh SD kelas 1–6 dari buku Kurikulum Merdeka (12 November 2026)
+
+Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasmen). Soal ditulis ulang dengan kalimat sendiri; fakta mengikuti bab yang disebut di deskripsi tiap kuis. Penulis tercatat "Tim Petakuis", publik.
+
+| Kelas | Mapel | Kuis | Bab sumber | Peta |
+| --- | --- | --- | --- | --- |
+| 1 | Matematika | Membilang dan Penjumlahan sampai 10 (berurutan) | Matematika I, Bab 1–2 | Desa Ladang |
+| 2 | Bahasa Indonesia | Perasaanku, Huruf Kapital, dan Tanda Baca | Keluargaku Unik, Bab 1 | Kampung Danau |
+| 3 | IPA | Siklus Hidup yang Menakjubkan | IPAS III, Bab 4 | Lembah Sunnyside |
+| 4 | IPA | Mengubah Bentuk Energi dan Fotosintesis | IPAS IV, Bab 1 | Dataran Angin |
+| 4 | Pendidikan Pancasila | Aturan, Gotong Royong, dan Lahirnya Pancasila | Pancasila IV, Bab 2–4 | Desa Tepi Sungai |
+| 5 | IPS | Di Mana Indonesia Berada? | IPAS V, Bab 1 | Pesisir Karang |
+| 5 | Matematika | KPK dan FPB | Matematika V, Bab 2 | Kota Pasar |
+| 5 | Informatika | Berpikir Komputasional dan Teknologi Digital | Koding & KA V, Bab 1–2 | Kampus Modern |
+| 6 | IPA | Sistem Pencernaan dan Makanan Bergizi | IPAS VI, Bab 1 | Kampung Danau |
+| 6 | Bahasa Inggris | Healthy Vegetables and Hygiene Habits | English for Nusantara Kids VI, Ch. 1–2 | Desa Ladang |
+
+8–9 soal per kuis (pilihan ganda, benar/salah, isian), sebagian dengan petunjuk. Berkas: `packages/shared/src/starterQuizzes.ts`; `STARTER_QUIZZES` = 2 kuis demo + 10 kuis ini.
+
+**Pemasukan ke database diubah:** sebelumnya kuis contoh hanya dimasukkan bila tabel kuis kosong, jadi tidak akan masuk ke produksi. Sekarang tabel baru `app_meta` (migrasi `0003_catatan_aplikasi.sql`) mencatat id kuis contoh yang sudah dimasukkan; saat server menyala, yang belum tercatat dimasukkan (`onConflictDoNothing`). Kuis contoh yang dihapus admin tidak muncul lagi.
+
+**Verifikasi:** uji baru `starterQuizzes.test.ts` (25 uji, 543 pengecekan): id unik, peta/mapel/kelas valid, setiap kunci jawaban dinilai benar oleh `evaluateAnswer` dan jawaban salah ditolak; total unit test 70 lulus; typecheck & lint bersih. Di database lokal yang sudah berisi data: 10 kuis masuk; satu dihapus lalu server dinyalakan ulang: tetap terhapus, tidak ada id ganda.
 

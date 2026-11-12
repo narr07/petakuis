@@ -118,6 +118,12 @@ export const schoolSettings = sqliteTable('school_settings', {
 	updatedAt: text('updated_at').notNull()
 })
 
+/** Catatan kecil aplikasi (kunci → nilai JSON), misalnya id kuis contoh yang sudah dimasukkan. */
+export const appMeta = sqliteTable('app_meta', {
+	key: text('key').primaryKey(),
+	value: text('value', { mode: 'json' }).$type<unknown>().notNull()
+})
+
 export type QuizRow = typeof quizzes.$inferSelect
 export type GameSessionRow = typeof gameSessions.$inferSelect
 export type UserRow = typeof user.$inferSelect
