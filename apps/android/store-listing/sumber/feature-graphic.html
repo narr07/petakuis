@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Feature graphic Petakuis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@600;800&family=Funnel+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	html, body { width: 1024px; height: 500px; overflow: hidden; }
+	body {
+		position: relative;
+		font-family: 'Funnel Sans', sans-serif;
+		background: #2563eb url('../../../web/public/maps/desa-ladang.png') center 38% / 1024px auto no-repeat;
+		image-rendering: pixelated;
+		color: #fff;
+	}
+	/* Lapisan biru: kiri pekat untuk teks, kanan memperlihatkan peta */
+	.overlay {
+		position: absolute; inset: 0;
+		background: linear-gradient(90deg, rgba(29, 78, 216, .97) 0%, rgba(37, 99, 235, .93) 46%, rgba(37, 99, 235, .25) 78%, rgba(37, 99, 235, 0) 100%);
+	}
+	.content { position: absolute; left: 72px; top: 0; bottom: 0; width: 560px; display: flex; flex-direction: column; justify-content: center; gap: 22px; }
+	.brand { display: flex; align-items: center; gap: 20px; }
+	.tile { width: 92px; height: 92px; background: #fff; display: grid; place-items: center; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+	.wordmark { font-family: 'Funnel Display', sans-serif; font-weight: 800; font-size: 76px; letter-spacing: -2px; line-height: 1; }
+	.tagline { font-family: 'Funnel Display', sans-serif; font-weight: 600; font-size: 34px; line-height: 1.15; max-width: 520px; }
+	.steps { display: flex; gap: 10px; }
+	.step { font-weight: 700; font-size: 18px; background: rgba(255,255,255,.16); border: 2px solid rgba(255,255,255,.55); padding: 8px 14px; }
+	.step b { color: #fde047; margin-right: 6px; }
+</style>
+</head>
+<body>
+	<div class="overlay"></div>
+	<div class="content">
+		<div class="brand">
+			<div class="tile">
+				<!-- Logo Petak P (biru di atas ubin putih) -->
+				<svg viewBox="0 0 256 256" width="76" height="76"><g fill="#2563EB"><rect x="45" y="18" width="48" height="48"/><rect x="107" y="18" width="48" height="48"/><rect x="169" y="18" width="48" height="48"/><rect x="45" y="80" width="48" height="48"/><rect x="169" y="80" width="48" height="48"/><rect x="45" y="142" width="48" height="48"/><rect x="107" y="142" width="48" height="48"/><rect x="169" y="142" width="48" height="48"/><rect x="45" y="204" width="48" height="48"/></g></svg>
+			</div>
+			<div class="wordmark">Petakuis</div>
+		</div>
+		<div class="tagline">Latihan soal jadi petualangan peta 2D</div>
+		<div class="steps">
+			<div class="step"><b>1</b>Masukkan PIN</div>
+			<div class="step"><b>2</b>Jelajahi peta</div>
+			<div class="step"><b>3</b>Jawab soal</div>
+		</div>
+	</div>
+</body>
+</html>

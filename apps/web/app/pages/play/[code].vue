@@ -184,6 +184,31 @@
 						/>
 					</div>
 
+					<!-- Aksi utama di atas agar tetap terlihat di HP kecil tanpa menggulir -->
+					<div class="flex flex-col gap-2">
+						<UButton
+							label="Lanjutkan bermain"
+							icon="i-lucide-play"
+							block
+							@click="showGameMenu = false"
+						/>
+						<UButton
+							label="Peringkat kelas"
+							icon="i-lucide-trophy"
+							color="neutral"
+							variant="outline"
+							block
+							@click="showGameMenu = false; showLeaderboardDrawer = true"
+						/>
+					</div>
+
+					<USwitch
+						:model-value="store.isAccessibleMode"
+						label="Mode aksesibel"
+						description="Buka soal berikutnya tanpa berjalan ke pos."
+						@update:model-value="(on) => toggleAccessibleMode(Boolean(on))"
+					/>
+
 					<!-- Ganti peta: hanya di room demo -->
 					<div v-if="store.isDemoRoom" class="space-y-2">
 						<p class="text-xs font-semibold uppercase text-muted">
@@ -202,30 +227,6 @@
 								@click="handleSelectDemoMap(m.value); showGameMenu = false"
 							/>
 						</div>
-					</div>
-
-					<USwitch
-						:model-value="store.isAccessibleMode"
-						label="Mode aksesibel"
-						description="Buka soal berikutnya tanpa berjalan ke pos."
-						@update:model-value="(on) => toggleAccessibleMode(Boolean(on))"
-					/>
-
-					<div class="flex flex-col gap-2">
-						<UButton
-							label="Peringkat kelas"
-							icon="i-lucide-trophy"
-							color="neutral"
-							variant="outline"
-							block
-							@click="showGameMenu = false; showLeaderboardDrawer = true"
-						/>
-						<UButton
-							label="Lanjutkan bermain"
-							icon="i-lucide-play"
-							block
-							@click="showGameMenu = false"
-						/>
 					</div>
 				</div>
 			</template>

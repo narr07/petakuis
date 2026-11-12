@@ -546,3 +546,10 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 - **Diuji** (Edge headless): HP layar sentuh 412 px → joystick 40 px dari bawah, ketuk peta 0 px, joystick 252 px; jendela sempit 420 px + mouse → joystick tampil, klik peta 0 px, joystick (drag mouse) 227 px; desktop 1440 px → tanpa joystick, klik peta 260 px. Tangkapan layar HUD dan menu di HP diperiksa. Lint & typecheck bersih.
 
 **Deploy 0.27:** `9c93dee` terpasang (web). Uji di situs online: HP layar sentuh dan jendela sempit → joystick tampil 40 px dari bawah, ketuk/klik peta diabaikan, joystick menggerakkan pemain.
+
+### 0.28 Aset listing Play Store (12 November 2026)
+
+- `apps/android/store-listing/`: `ikon-512.png` (512×512 RGBA dari logo vektor), `feature-graphic-1024x500.png` (logo P + tagline + 3 langkah di atas peta Desa Ladang), 5 screenshot HP 1080×1920 dari situs online (masuk PIN, peta + joystick, menu, jendela soal, jelajah kuis), `listing-play-store.md` (nama, deskripsi singkat & lengkap, kategori). Skrip pembuat ulang di `store-listing/sumber/`.
+- Akun Play Console pemilik dibuat 2019, jadi tidak terkena syarat closed testing 12 penguji × 14 hari.
+- **Menu Permainan diurutkan ulang:** Lanjutkan bermain dan Peringkat di atas, lalu mode aksesibel, daftar peta di paling bawah. Ditemukan saat membuat screenshot: di layar 360×640 tombol "Lanjutkan bermain" berada di bawah daftar 8 peta (di luar layar).
+
