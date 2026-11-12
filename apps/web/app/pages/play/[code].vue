@@ -30,6 +30,7 @@
 	)
 
 	const showLeaderboardDrawer = ref(false)
+	const showGameMenu = ref(false)
 
 	// Layar selesai: sesi diakhiri guru, atau semua pos soal milik siswa ini sudah dijawab.
 	const showFinished = computed(() =>
@@ -124,76 +125,115 @@
 </script>
 
 <template>
-	<div class="relative h-screen w-screen overflow-hidden bg-[#0f172a]">
-		<!-- HUD atas -->
-		<header
-			class="absolute inset-x-0 top-0 z-[1000] flex items-center justify-between gap-2 border-b border-default bg-default/95 px-3 py-1.5 backdrop-blur sm:px-4"
-		>
-			<div class="flex min-w-0 items-center gap-2">
-				<UButton
-					to="/"
-					icon="i-lucide-log-out"
-					label="Keluar"
-					color="neutral"
-					variant="outline"
-					size="sm"
-				/>
-				<UBadge
-					:label="`PIN ${code}`"
-					color="primary"
-					variant="subtle"
-					class="shrink-0 font-mono"
-				/>
-				<span class="hidden max-w-44 truncate text-sm font-semibold text-highlighted md:inline-block">
-					{{ store.quizTitle || 'Memuat peta...' }}
-				</span>
-			</div>
-
-			<!-- Ganti peta (hanya di room demo) -->
-			<USelect
-				v-if="store.isDemoRoom"
-				:model-value="store.mapConfig?.id"
-				:items="demoMapItems"
-				icon="i-lucide-map"
-				size="sm"
-				aria-label="Ganti peta demo"
-				class="hidden w-60 md:flex"
-				@update:model-value="(id) => id && handleSelectDemoMap(String(id))"
+	<div class="relative h-dvh w-screen overflow-hidden bg-[#0f172a]">
+		<!-- HUD gaya game: tombol menu di kiri atas, skor & sisa pos di kanan atas, mengambang di atas peta -->
+		<div class="pointer-events-none absolute inset-x-0 top-0 z-[1000] flex items-start justify-between gap-2 p-3">
+			<UButton
+				icon="i-lucide-menu"
+				color="neutral"
+				variant="solid"
+				size="lg"
+				square
+				aria-label="Buka menu permainan"
+				class="pointer-events-auto shadow-lg ring-2 ring-white/70"
+				@click="showGameMenu = true"
 			/>
 
-			<div class="flex shrink-0 items-center gap-1.5 sm:gap-2">
+			<div class="pointer-events-auto flex items-center gap-2">
 				<UBadge
-					:label="`Sisa pos: ${store.unansweredObjects.length}/${store.assignedObjects.length}`"
 					icon="i-lucide-map-pin"
 					color="neutral"
-					variant="outline"
-					class="font-mono"
-				/>
+					variant="solid"
+					size="lg"
+					class="font-mono shadow-lg ring-2 ring-white/70"
+					:aria-label="`Sisa pos ${store.unansweredObjects.length} dari ${store.assignedObjects.length}`"
+				>
+					{{ store.unansweredObjects.length }}/{{ store.assignedObjects.length }}
+				</UBadge>
 				<UBadge
-					:label="`Skor: ${store.myScore}`"
 					icon="i-lucide-star"
 					color="warning"
 					variant="solid"
-					class="font-mono"
-				/>
-				<UButton
-					:label="store.isAccessibleMode ? 'Aksesibel: aktif' : 'Mode aksesibel'"
-					icon="i-lucide-accessibility"
-					:color="store.isAccessibleMode ? 'success' : 'neutral'"
-					:variant="store.isAccessibleMode ? 'subtle' : 'outline'"
-					size="sm"
-					class="hidden lg:inline-flex"
-					@click="toggleAccessibleMode(!store.isAccessibleMode)"
-				/>
-				<UButton
-					label="Peringkat"
-					icon="i-lucide-trophy"
-					color="neutral"
-					size="sm"
-					@click="showLeaderboardDrawer = !showLeaderboardDrawer"
-				/>
+					size="lg"
+					class="font-mono shadow-lg ring-2 ring-white/70"
+					:aria-label="`Skor ${store.myScore}`"
+				>
+					{{ store.myScore }}
+				</UBadge>
 			</div>
-		</header>
+		</div>
+
+		<!-- Menu permainan -->
+		<USlideover
+			v-model:open="showGameMenu"
+			side="left"
+			title="Menu Permainan"
+			:description="store.quizTitle || 'Memuat peta...'"
+			:ui="{ overlay: 'z-[1100]', content: 'max-w-xs z-[1101]' }"
+		>
+			<template #body>
+				<div class="space-y-6">
+					<div class="flex flex-wrap gap-2">
+						<UBadge :label="`PIN ${code}`" icon="i-lucide-key-round" color="primary" variant="subtle" class="font-mono" />
+						<UBadge :label="store.nickname" icon="i-lucide-user" color="neutral" variant="subtle" />
+						<UBadge
+							:label="`Skor ${store.myScore}`"
+							icon="i-lucide-star"
+							color="warning"
+							variant="subtle"
+						/>
+					</div>
+
+					<!-- Ganti peta: hanya di room demo -->
+					<div v-if="store.isDemoRoom" class="space-y-2">
+						<p class="text-xs font-semibold uppercase text-muted">
+							Ganti peta (room demo)
+						</p>
+						<div class="flex flex-col gap-1.5">
+							<UButton
+								v-for="m in demoMapItems"
+								:key="m.value"
+								:label="m.label"
+								icon="i-lucide-map"
+								:color="store.mapConfig?.id === m.value ? 'primary' : 'neutral'"
+								:variant="store.mapConfig?.id === m.value ? 'solid' : 'ghost'"
+								block
+								class="justify-start"
+								@click="handleSelectDemoMap(m.value); showGameMenu = false"
+							/>
+						</div>
+					</div>
+
+					<USwitch
+						:model-value="store.isAccessibleMode"
+						label="Mode aksesibel"
+						description="Buka soal berikutnya tanpa berjalan ke pos."
+						@update:model-value="(on) => toggleAccessibleMode(Boolean(on))"
+					/>
+
+					<div class="flex flex-col gap-2">
+						<UButton
+							label="Peringkat kelas"
+							icon="i-lucide-trophy"
+							color="neutral"
+							variant="outline"
+							block
+							@click="showGameMenu = false; showLeaderboardDrawer = true"
+						/>
+						<UButton
+							label="Lanjutkan bermain"
+							icon="i-lucide-play"
+							block
+							@click="showGameMenu = false"
+						/>
+					</div>
+				</div>
+			</template>
+
+			<template #footer>
+				<UButton to="/" label="Keluar dari permainan" icon="i-lucide-log-out" color="error" variant="soft" block />
+			</template>
+		</USlideover>
 
 		<!-- Pesan galat -->
 		<UAlert
@@ -246,6 +286,7 @@
 			title="Peringkat Kelas Live"
 			description="Diperbarui otomatis selama sesi berjalan."
 			:overlay="false"
+			:ui="{ content: 'z-[1101]' }"
 		>
 			<template #body>
 				<ol class="space-y-2">

@@ -228,8 +228,15 @@
 		}
 	}
 
+	/**
+	 * Mode joystick: perangkat layar sentuh ATAU layar sempit (< 1024 px, termasuk jendela desktop
+	 * yang dikecilkan). Di mode ini peta tidak merespons sentuhan/klik: gerak hanya lewat joystick
+	 * dan soal dibuka lewat tombol "Buka Pos Soal" yang muncul saat dekat pos.
+	 */
+	const joystickMode = useMediaQuery('(pointer: coarse), (max-width: 1023px)')
+
 	function handleObjectClick(obj: AssignedMapObject) {
-		if (props.disabled || obj.answered) return
+		if (props.disabled || obj.answered || joystickMode.value) return
 		const ox = obj.tileX * tilePx.value + tilePx.value / 2
 		const oy = obj.tileY * tilePx.value + tilePx.value / 2
 		if (Math.hypot(localX.value - ox, localY.value - oy) <= 96) {
@@ -240,7 +247,7 @@
 	}
 
 	function handleViewportPointerDown(e: PointerEvent) {
-		if (props.disabled || !viewportEl.value) return
+		if (props.disabled || !viewportEl.value || joystickMode.value) return
 		const rect = viewportEl.value.getBoundingClientRect()
 		const clickScreenX = e.clientX - rect.left
 		const clickScreenY = e.clientY - rect.top
@@ -385,8 +392,8 @@
 <template>
 	<div
 		ref="viewportEl"
-		class="relative isolate z-0 h-full w-full cursor-pointer select-none overflow-hidden bg-[#183018]"
-		:class="{ 'pointer-events-none': disabled }"
+		class="relative isolate z-0 h-full w-full select-none overflow-hidden bg-[#183018]"
+		:class="{ 'pointer-events-none': disabled, 'cursor-pointer': !joystickMode, 'touch-none': joystickMode }"
 		style="isolation: isolate; z-index: 0"
 		@pointerdown="handleViewportPointerDown"
 	>
@@ -555,9 +562,14 @@
 			</span>
 		</div>
 
-		<!-- Joystick analog: hanya di perangkat layar sentuh (HP/tablet) -->
+		<!--
+			Joystick analog: tampil di mode joystick. Jarak bawah memperhitungkan area aman HP
+			(gesture bar/notch) agar tidak tertutup bilah navigasi.
+		-->
 		<div
-			class="absolute bottom-6 left-6 z-20 hidden pointer-coarse:block"
+			v-if="joystickMode"
+			class="absolute left-6 z-20"
+			style="bottom: calc(env(safe-area-inset-bottom, 0px) + 2.5rem)"
 			@pointerdown.stop
 		>
 			<GameVirtualJoystick :disabled="disabled" @change="handleJoystick" />
