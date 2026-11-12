@@ -545,3 +545,4 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 - **HUD gaya game** (`pages/play/[code].vue`): bilah atas penuh diganti tombol **Menu** mengambang di kiri atas dan chip sisa pos + skor di kanan atas. **Menu Permainan** (`USlideover` kiri): PIN, nama, skor, ganti peta (room demo, 8 peta), mode aksesibel (`USwitch`), peringkat, lanjutkan, keluar. `z-index` slideover dinaikkan di atas HUD.
 - **Diuji** (Edge headless): HP layar sentuh 412 px → joystick 40 px dari bawah, ketuk peta 0 px, joystick 252 px; jendela sempit 420 px + mouse → joystick tampil, klik peta 0 px, joystick (drag mouse) 227 px; desktop 1440 px → tanpa joystick, klik peta 260 px. Tangkapan layar HUD dan menu di HP diperiksa. Lint & typecheck bersih.
 
+**Deploy 0.27:** `9c93dee` terpasang (web). Uji di situs online: HP layar sentuh dan jendela sempit → joystick tampil 40 px dari bawah, ketuk/klik peta diabaikan, joystick menggerakkan pemain.
