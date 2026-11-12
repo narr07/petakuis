@@ -553,3 +553,4 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 - Akun Play Console pemilik dibuat 2019, jadi tidak terkena syarat closed testing 12 penguji × 14 hari.
 - **Menu Permainan diurutkan ulang:** Lanjutkan bermain dan Peringkat di atas, lalu mode aksesibel, daftar peta di paling bawah. Ditemukan saat membuat screenshot: di layar 360×640 tombol "Lanjutkan bermain" berada di bawah daftar 8 peta (di luar layar).
 
+**Deploy 0.28:** `9aeddde` terpasang (web); screenshot Play Store dipotret ulang dari situs online (menu dengan urutan baru). Aplikasi Android tidak perlu dibangun ulang karena isinya mengikuti website.
