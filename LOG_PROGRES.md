@@ -474,5 +474,5 @@ Survei elemen native di halaman kuis: layar host, laporan, dan kanvas peta sudah
 - `scripts/backup-db.sh`: setelah cadangan lokal, unggah ke R2 dengan `curl --aws-sigv4` (curl 8.5 di VPS, tanpa alat tambahan). Tanpa `r2.env` skrip tetap membuat cadangan lokal; gagal unggah keluar dengan kode 1 (tercatat di `backup.log`).
 - **Diuji di VPS:** cadangan `petakuis-20261112-000610.db.gz` terunggah dan terdaftar di bucket (8014 byte); diunduh kembali = berkas `SQLite format 3` dan sama persis dengan salinan lokal; kunci yang sama ditolak (403) untuk bucket `gurukampung-media`.
 - Memulihkan dari R2: unduh objek dengan `curl --aws-sigv4 ... -o` (atau dari dashboard R2), lalu ikuti langkah pemulihan di kepala skrip.
-- **Belum:** commit + push skrip, lalu `git pull` di VPS supaya cron harian memakai skrip baru (sampai itu, cron masih skrip lama: hanya cadangan lokal).
+- Di-push (`230e91d`) dan ditarik di VPS; cron harian 02.30 WIB kini membuat cadangan lokal + R2.
 
