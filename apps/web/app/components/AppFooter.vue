@@ -24,7 +24,8 @@
 				{ label: 'Fitur', to: '/#fitur' },
 				{ label: 'Katalog Peta', to: '/#peta' },
 				{ label: 'Kebijakan Privasi', to: '/privasi' },
-				{ label: 'Ketentuan Layanan', to: '/ketentuan' }
+				{ label: 'Ketentuan Layanan', to: '/ketentuan' },
+				{ label: 'Hapus Akun', to: '/hapus-akun' }
 			]
 		}
 	]

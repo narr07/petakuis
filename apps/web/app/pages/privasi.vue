@@ -45,7 +45,7 @@
 		},
 		{
 			title: 'Hak kamu',
-			paragraphs: ['Kamu bisa meminta salinan, perbaikan, atau penghapusan akun beserta kuis dan laporan milikmu kapan saja melalui kontak di bawah. Login Google juga bisa dicabut dari halaman keamanan akun Google (myaccount.google.com/permissions).']
+			paragraphs: ['Kamu bisa meminta salinan, perbaikan, atau penghapusan akun beserta kuis dan laporan milikmu kapan saja melalui kontak di bawah; langkah lengkapnya ada di halaman Hapus Akun (petakuis.permadi.dev/hapus-akun). Login Google juga bisa dicabut dari halaman keamanan akun Google (myaccount.google.com/permissions).']
 		},
 		{
 			title: 'Pengguna di bawah umur',

@@ -48,7 +48,10 @@ Situs menyajikan `/.well-known/assetlinks.json` dari variabel `TWA_SHA256_FINGER
 
 1. Sidik jari kunci upload (sudah terpasang):
    `A5:4F:0C:2C:9F:9D:2C:82:E2:43:39:3B:14:73:8C:3F:DD:3C:90:D4:F8:A5:ED:E8:99:19:4A:59:C1:C3:AA:33`
-2. **Setelah unggahan pertama ke Play Console**, Google menandatangani ulang aplikasi dengan kunci
+2. Kunci "App signing" Google Play (sudah terpasang 12 November 2026):
+   `F5:A3:2F:F8:E4:41:8D:1D:AC:3C:75:6D:5A:58:92:54:7D:30:74:78:A3:1C:A7:2A:7C:B5:50:0D:25:BD:AB:2C`
+
+   Asal: setelah unggahan pertama ke Play Console, Google menandatangani ulang aplikasi dengan kunci
    "App signing". Salin SHA-256-nya dari *Play Console → Test and release → App integrity → App
    signing* dan tambahkan ke `TWA_SHA256_FINGERPRINTS`. Tanpa ini, aplikasi yang dipasang dari Play
    Store menampilkan bilah alamat browser.

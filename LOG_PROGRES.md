@@ -554,3 +554,16 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 - **Menu Permainan diurutkan ulang:** Lanjutkan bermain dan Peringkat di atas, lalu mode aksesibel, daftar peta di paling bawah. Ditemukan saat membuat screenshot: di layar 360×640 tombol "Lanjutkan bermain" berada di bawah daftar 8 peta (di luar layar).
 
 **Deploy 0.28:** `9aeddde` terpasang (web); screenshot Play Store dipotret ulang dari situs online (menu dengan urutan baru). Aplikasi Android tidak perlu dibangun ulang karena isinya mengikuti website.
+
+### 0.29 Rilis pertama di Play Console (12 November 2026)
+
+- Aplikasi dibuat di Play Console (paket `dev.permadi.petakuis`); `petakuis-1.0.0.aab` (versionCode 1, min API 24, target 36) terunggah ke jalur **Pengujian internal** dengan Play App Signing (kunci dibuat Google).
+- SHA-256 kunci App signing Google `F5:A3:2F:…:25:BD:AB:2C` ditambahkan ke `TWA_SHA256_FINGERPRINTS` di VPS (bersama kunci upload) dan web dinyalakan ulang. `/.well-known/assetlinks.json` menyajikan kedua sidik jari; API Digital Asset Links Google membaca keduanya.
+- **Berikutnya (pemilik):** lengkapi tugas "Siapkan aplikasi Anda" (privasi, akses aplikasi, iklan, rating konten, target audiens, keamanan data, listing, status pedagang), lalu Produksi → Buat rilis baru → tambahkan bundle versi 1 dari library → negara Indonesia → kirim untuk ditinjau.
+- **Akun peninjau Google Play** (peran Guru) `peninjau.play@permadi.dev` dibuat lewat API daftar di situs online; email ditandai terkonfirmasi langsung di database produksi (setelah cadangan lokal + R2), karena alamat ini tidak punya kotak masuk. Kata sandi di `E:/vps-oracle/Petakuis/akun-peninjau-play.txt` (tidak di repo). Diuji: masuk 200 sebagai Guru, `/dashboard` dan `/api/quizzes?mine=1` 200. Dipakai di Play Console → Detail login.
+
+### 0.30 Halaman hapus akun untuk Keamanan data Play (12 November 2026)
+
+- Halaman baru `/hapus-akun` (`pages/hapus-akun.vue`, memakai `LegalPage`): langkah meminta penghapusan lewat email kontak (dari `CONTACT_EMAIL`, tidak ditulis di repo), data yang dihapus (akun, sesi login, kuis, laporan beserta data siswa), retensi cadangan maks. 30 hari (aturan siklus R2), tenggat penghapusan 14 hari, dan cara menghapus sebagian data tanpa menghapus akun.
+- Ditautkan dari footer dan bagian "Hak kamu" di `/privasi`. URL ini diisi di Play Console → Keamanan data → URL hapus akun.
+- Jawaban Keamanan data: mengumpulkan Nama, Email, ID pengguna, Interaksi aplikasi, Konten buatan pengguna lainnya; tidak dibagikan; dienkripsi saat dikirim; metode akun email+sandi dan OAuth (Google). Rating konten IARC: Semua umur / 3+ di semua wilayah.
