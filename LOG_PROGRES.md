@@ -500,3 +500,13 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 **Verifikasi:** uji baru `starterQuizzes.test.ts` (25 uji, 543 pengecekan): id unik, peta/mapel/kelas valid, setiap kunci jawaban dinilai benar oleh `evaluateAnswer` dan jawaban salah ditolak; total unit test 70 lulus; typecheck & lint bersih. Di database lokal yang sudah berisi data: 10 kuis masuk; satu dihapus lalu server dinyalakan ulang: tetap terhapus, tidak ada id ganda.
 
 **Deploy 0.22:** cadangan produksi dibuat dulu (lokal + R2, `petakuis-20261112-002751.db.gz`), lalu `272f0a1` terpasang (migrasi `app_meta` berjalan). Online: 12 kuis publik (2 demo + 10 Tim Petakuis), tanpa id ganda, tanpa kunci jawaban di API publik; situs lain di VPS tetap 200.
+
+### 0.23 Logo baru "Petak P" (12 November 2026) — lokal, belum di-commit
+
+- **Filosofi:** huruf P yang disusun dari 9 petak peta (3 kolom × 4 baris), seperti tilemap di dalam game; satu bentuk memuat inisial Petakuis dan dunia petanya. Satu warna biru `#2563EB` (warna utama situs), sudut tegas mengikuti tampilan situs.
+- **Proses:** 3 konsep awal (Pin Tanya, Petak P, Kuispi Pin) → pemilik memilih Petak P → 4 alternatif → dipilih versi tanpa titik dengan celah antarpetak diperlebar, tinggi 4 baris. Berkas kerja dan skrip pembangun di `brand/v2/` (`build-final.mjs`).
+- **Berkas:** `petakuis-symbol.svg` (master, petak 48 / celah 14), `petakuis-symbol-small.svg` (favicon, celah dirapatkan), `petakuis-tile.svg` (P putih di ubin biru), varian hitam/putih/satu warna dan set ikon web di `brand/v2/dist/`.
+- **Dipasang di situs:** `public/logo.svg`, `logo-tile.svg`, `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192/512.png`, `maskable-512.png`, `site.webmanifest`; `AppLogo` (header), pemisah footer, dan menu sekolah dashboard memakai logo baru; `app.vue` menambah tautan ikon dan manifest. Maskot rubah (`public/mascot.svg`) dihapus dari situs; berkas lama tetap di `brand/concepts` dan `brand/dist`.
+- **Verifikasi:** audit SVG 100/100; favicon 32 px dan ikon 180 px diperiksa; tangkapan layar beranda dan dashboard diperiksa; lint & typecheck bersih.
+- **Catatan:** tulisan "Petakuis" di samping logo tetap teks HTML dengan huruf situs (Funnel Display), belum digambar sebagai path. Kemiripan dengan merek terdaftar belum diperiksa.
+

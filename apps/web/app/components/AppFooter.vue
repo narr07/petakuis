@@ -39,7 +39,7 @@
 </script>
 
 <template>
-	<USeparator :avatar="{ src: '/mascot.svg', alt: 'Kuispi' }" class="h-px" />
+	<USeparator :avatar="{ src: '/logo-tile.svg', alt: 'Petakuis' }" class="h-px" />
 
 	<UFooter :ui="{ top: 'border-b border-default' }">
 		<template #top>

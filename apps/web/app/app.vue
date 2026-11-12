@@ -4,7 +4,12 @@
 
 	useHead({
 		meta: [{ key: 'theme-color', name: 'theme-color', content: themeColor }],
-		link: [{ rel: 'icon', href: '/favicon.ico' }]
+		link: [
+			{ rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+			{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+			{ rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+			{ rel: 'manifest', href: '/site.webmanifest' }
+		]
 	})
 
 	useSeoMeta({

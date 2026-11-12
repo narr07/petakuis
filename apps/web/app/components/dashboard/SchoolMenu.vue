@@ -8,7 +8,7 @@
 	const { data } = await useFetch<{ school: { name: string } }>('/api/school', { key: 'school-profile' })
 	const school = computed(() => ({
 		label: data.value?.school.name || 'Petakuis',
-		avatar: { src: '/mascot.svg', alt: 'Petakuis' }
+		avatar: { src: '/logo-tile.svg', alt: 'Petakuis' }
 	}))
 
 	const { isAdmin } = useDashboardRole()
