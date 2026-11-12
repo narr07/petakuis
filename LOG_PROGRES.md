@@ -527,3 +527,4 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 - Cache Cloudflare untuk host `petakuis.permadi.dev` sudah dibersihkan sekali lewat API (purge per host; situs lain di zona permadi.dev tidak tersentuh).
 - **Diuji:** build produksi lokal dijalankan dengan Node: `/explore` 200, 70 aset JS/CSS di `/_nuxt/<id>/` semuanya 200, CSS memuat aturan `pointer-coarse`.
 
+**Deploy 0.24–0.25:** `e1e927c` dan `87a3371` terpasang (web). Aset kini di `/_nuxt/<id-build>/`. Uji joystick di situs online (emulasi HP layar sentuh) dengan profil browser baru **dan** profil yang masih menyimpan cache basi: keduanya joystick tampil, geser serong kanan-atas → pemain bergerak serong kanan-atas, dilepas → berhenti.
