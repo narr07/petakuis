@@ -260,24 +260,13 @@
 		planWalkTo(worldX, worldY)
 	}
 
-	function stepDpad(dir: Direction) {
-		if (props.disabled) return
-		const step = tilePx.value
-		let tx = localX.value
-		let ty = localY.value
-		if (dir === 'up') ty -= step
-		if (dir === 'down') ty += step
-		if (dir === 'left') tx -= step
-		if (dir === 'right') tx += step
-		localDir.value = dir
-		const slid = slideMovePlayer(
-			props.mapConfig,
-			localX.value,
-			localY.value,
-			tx - localX.value,
-			ty - localY.value
-		)
-		walkWaypoints.value = [{ x: slid.x, y: slid.y }]
+	// Joystick analog (layar sentuh): vektor 0–1, makin jauh digeser makin cepat.
+	const joystick = { x: 0, y: 0 }
+	function handleJoystick(x: number, y: number) {
+		joystick.x = x
+		joystick.y = y
+		// Mengambil alih kendali dari jalan otomatis (ketuk peta).
+		if (x !== 0 || y !== 0) walkWaypoints.value = []
 	}
 
 	let loopTimerId: ReturnType<typeof setInterval> | null = null
@@ -305,6 +294,10 @@
 			if (pressedKeys.has('s') || pressedKeys.has('arrowdown')) vy += 1
 			if (pressedKeys.has('a') || pressedKeys.has('arrowleft')) vx -= 1
 			if (pressedKeys.has('d') || pressedKeys.has('arrowright')) vx += 1
+			if (vx === 0 && vy === 0 && (joystick.x !== 0 || joystick.y !== 0)) {
+				vx = joystick.x
+				vy = joystick.y
+			}
 
 			if (vx === 0 && vy === 0 && walkWaypoints.value.length > 0) {
 				const wp = walkWaypoints.value[0]!
@@ -325,6 +318,8 @@
 			const len = Math.hypot(vx, vy) || 1
 			const nx = vx / len
 			const ny = vy / len
+			// Keyboard & jalan otomatis: kecepatan penuh. Joystick: sesuai seberapa jauh digeser.
+			const strength = Math.min(1, len)
 
 			if (Math.abs(nx) > Math.abs(ny)) {
 				localDir.value = nx < 0 ? 'left' : 'right'
@@ -332,7 +327,7 @@
 				localDir.value = ny < 0 ? 'up' : 'down'
 			}
 
-			const stepDist = speed * dt
+			const stepDist = speed * Math.max(0.35, strength) * dt
 			const slid = slideMovePlayer(
 				props.mapConfig,
 				localX.value,
@@ -560,54 +555,12 @@
 			</span>
 		</div>
 
-		<!-- Mobile GBA D-Pad Controls -->
+		<!-- Joystick analog: hanya di perangkat layar sentuh (HP/tablet) -->
 		<div
-			class="absolute bottom-5 left-5 z-20 grid grid-cols-3 gap-1.5 sm:hidden"
-			aria-label="Kontrol Arah GBA"
+			class="absolute bottom-6 left-6 z-20 hidden pointer-coarse:block"
 			@pointerdown.stop
 		>
-			<div />
-			<UButton
-				icon="i-lucide-chevron-up"
-				color="neutral"
-				variant="solid"
-				size="xl"
-				square
-				class="size-12 justify-center shadow-md"
-				aria-label="Gerak Atas"
-				@click="stepDpad('up')"
-			/>
-			<div />
-			<UButton
-				icon="i-lucide-chevron-left"
-				color="neutral"
-				variant="solid"
-				size="xl"
-				square
-				class="size-12 justify-center shadow-md"
-				aria-label="Gerak Kiri"
-				@click="stepDpad('left')"
-			/>
-			<UButton
-				icon="i-lucide-chevron-down"
-				color="neutral"
-				variant="solid"
-				size="xl"
-				square
-				class="size-12 justify-center shadow-md"
-				aria-label="Gerak Bawah"
-				@click="stepDpad('down')"
-			/>
-			<UButton
-				icon="i-lucide-chevron-right"
-				color="neutral"
-				variant="solid"
-				size="xl"
-				square
-				class="size-12 justify-center shadow-md"
-				aria-label="Gerak Kanan"
-				@click="stepDpad('right')"
-			/>
+			<GameVirtualJoystick :disabled="disabled" @change="handleJoystick" />
 		</div>
 	</div>
 </template>

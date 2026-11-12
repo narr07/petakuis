@@ -511,3 +511,12 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 - **Catatan:** tulisan "Petakuis" di samping logo tetap teks HTML dengan huruf situs (Funnel Display), belum digambar sebagai path. Kemiripan dengan merek terdaftar belum diperiksa.
 
 **Deploy 0.23:** `27f9f4c` terpasang di VPS (web). Online: `/logo.svg`, `/logo-tile.svg`, favicon, ikon, dan manifest 200; beranda memakai logo baru; `/mascot.svg` 404; situs lain di VPS tetap 200.
+
+### 0.24 Joystick analog di HP dan perbaikan Jelajah Kuis (12 November 2026)
+
+- **Joystick analog** (`components/game/VirtualJoystick.vue`) menggantikan 4 tombol D-Pad: geser ibu jari ke segala arah termasuk serong; kecepatan mengikuti seberapa jauh digeser (min. 35%, maks. 220 px/detik = kecepatan keyboard, di bawah batas anti-curang server 340); zona mati 15% di tengah; kenop kembali ke tengah saat dilepas. Hanya tampil di perangkat layar sentuh (`pointer-coarse`); laptop tetap keyboard/klik peta. Menggeser joystick membatalkan jalan otomatis dari ketuk peta. Nuxt UI tidak punya komponen joystick, jadi elemen sendiri.
+  - **Diuji** (Edge headless, emulasi HP 412 px + layar sentuh): joystick tampil, D-Pad lama hilang; digeser serong kanan-atas ±1,5 detik → pemain bergerak dx +165, dy −328; dilepas → berhenti dan kenop kembali ke tengah.
+- **Kartu kuis** (`QuizCard.vue`, dipakai di Jelajah dan beranda): judul & deskripsi sebelumnya tidak tampil karena contoh soal diletakkan di slot `#body` `UPageCard` (slot itu menggantikan judul/deskripsi). Sekarang header (kelas, mapel, mode, **nama peta**) → judul (maks. 2 baris) → deskripsi (maks. 2 baris) + contoh soal → footer rata bawah; efek `spotlight`. Kotak contoh soal melebar keluar kartu karena wrapper `UPageCard` memakai `items-start`; diperbaiki dengan `items-stretch` dan `min-w-0`.
+  - **Diuji:** tangkapan layar Jelajah mode gelap desktop 1440 px dan HP 412 px; lebar kotak contoh soal = lebar isi kartu.
+- Lint & typecheck bersih.
+
