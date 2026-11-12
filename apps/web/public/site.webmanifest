@@ -1,5 +1,16 @@
 {
+  "id": "/",
   "name": "Petakuis",
+  "short_name": "Petakuis",
+  "description": "Kuis petualangan peta 2D untuk kelas: masukkan PIN dari guru, pilih karakter, jelajahi peta, dan jawab soal di setiap pos.",
+  "lang": "id",
+  "start_url": "/join?sumber=aplikasi",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#2563EB",
+  "background_color": "#2563EB",
+  "categories": ["education", "games"],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -17,8 +28,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "theme_color": "#2563EB",
-  "background_color": "#2563EB",
-  "display": "standalone"
+  ]
 }

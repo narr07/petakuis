@@ -116,6 +116,9 @@ export default defineNuxtConfig({
 		/** Pengirim email reset kata sandi lewat Resend. Tanpa kunci, tautan hanya dicatat di log. */
 		resendApiKey: '',
 		mailFrom: 'Petakuis <noreply@permadi.dev>',
+		/** Aplikasi Android (TWA): nama paket dan sidik jari SHA-256 kunci tanda tangan (dipisah koma). */
+		twaPackageName: 'dev.permadi.petakuis',
+		twaSha256Fingerprints: '',
 		public: {
 			gameServerUrl:
 				process.env.NUXT_PUBLIC_GAME_SERVER_URL || 'http://localhost:3001',
