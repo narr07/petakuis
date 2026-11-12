@@ -501,7 +501,7 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 
 **Deploy 0.22:** cadangan produksi dibuat dulu (lokal + R2, `petakuis-20261112-002751.db.gz`), lalu `272f0a1` terpasang (migrasi `app_meta` berjalan). Online: 12 kuis publik (2 demo + 10 Tim Petakuis), tanpa id ganda, tanpa kunci jawaban di API publik; situs lain di VPS tetap 200.
 
-### 0.23 Logo baru "Petak P" (12 November 2026) — lokal, belum di-commit
+### 0.23 Logo baru "Petak P" (12 November 2026)
 
 - **Filosofi:** huruf P yang disusun dari 9 petak peta (3 kolom × 4 baris), seperti tilemap di dalam game; satu bentuk memuat inisial Petakuis dan dunia petanya. Satu warna biru `#2563EB` (warna utama situs), sudut tegas mengikuti tampilan situs.
 - **Proses:** 3 konsep awal (Pin Tanya, Petak P, Kuispi Pin) → pemilik memilih Petak P → 4 alternatif → dipilih versi tanpa titik dengan celah antarpetak diperlebar, tinggi 4 baris. Berkas kerja dan skrip pembangun di `brand/v2/` (`build-final.mjs`).
@@ -510,3 +510,4 @@ Sumber: buku siswa di `E:/website/permadi/books/sumber/buku/Siswa` (Kemendikdasm
 - **Verifikasi:** audit SVG 100/100; favicon 32 px dan ikon 180 px diperiksa; tangkapan layar beranda dan dashboard diperiksa; lint & typecheck bersih.
 - **Catatan:** tulisan "Petakuis" di samping logo tetap teks HTML dengan huruf situs (Funnel Display), belum digambar sebagai path. Kemiripan dengan merek terdaftar belum diperiksa.
 
+**Deploy 0.23:** `27f9f4c` terpasang di VPS (web). Online: `/logo.svg`, `/logo-tile.svg`, favicon, ikon, dan manifest 200; beranda memakai logo baru; `/mascot.svg` 404; situs lain di VPS tetap 200.
