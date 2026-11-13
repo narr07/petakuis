@@ -1,4 +1,4 @@
-import { NPC_CHARACTERS, type QuizDefinition, type QuizQuestion } from '@petakuis/shared'
+import { GAME_CONSTANTS, NPC_CHARACTERS, type QuizDefinition, type QuizQuestion } from '@petakuis/shared'
 import type { CurrentUser } from './auth'
 
 /** Bidang kuis yang boleh diisi guru (id, pemilik, dan waktu diatur server). */
@@ -10,6 +10,12 @@ export function normalizeQuizInput(body: Partial<QuizDefinition>): QuizInput {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Judul kuis dan minimal 1 pertanyaan wajib diisi.'
+		})
+	}
+	if (body.questions.length > GAME_CONSTANTS.MAX_QUESTIONS_PER_QUIZ) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: `Satu kuis maksimal ${GAME_CONSTANTS.MAX_QUESTIONS_PER_QUIZ} soal (sesuai jumlah pos di peta).`
 		})
 	}
 	if (body.questions.some(q => typeof q?.prompt !== 'string' || !q.prompt.trim())) {

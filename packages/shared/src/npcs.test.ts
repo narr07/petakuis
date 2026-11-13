@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test'
+import { GAME_CONSTANTS } from './events'
 import { findTilePathBFS, isTileWalkable } from './collision'
 import { MAP_CATALOG, STARTER_QUIZZES } from './maps'
 import { buildAssignedObjects, NPC_CHARACTERS } from './npcs'
@@ -83,5 +84,13 @@ describe('buildAssignedObjects', () => {
 		const a = buildAssignedObjects(quiz, sunnyside, 'p1')
 		const b = buildAssignedObjects(quiz, sunnyside, 'p2')
 		expect(a.map((o) => [o.tileX, o.tileY])).toEqual(b.map((o) => [o.tileX, o.tileY]))
+	})
+})
+
+describe('batas jumlah soal per kuis', () => {
+	test('setiap peta punya pos soal sebanyak batas, jadi tidak ada dua soal di satu pos', () => {
+		for (const map of MAP_CATALOG) {
+			expect(map.spawnPoints.length).toBeGreaterThanOrEqual(GAME_CONSTANTS.MAX_QUESTIONS_PER_QUIZ)
+		}
 	})
 })

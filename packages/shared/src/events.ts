@@ -103,5 +103,7 @@ export const GAME_CONSTANTS = {
 	INTERACTION_RADIUS_PX: 96,
 	MAX_SPEED_PX_PER_SEC: 340,
 	ACCESSIBLE_COOLDOWN_MS: 4000,
-	MAX_PLAYERS_PER_ROOM: 200
+	MAX_PLAYERS_PER_ROOM: 200,
+	/** Satu soal satu pos: setiap peta punya 24 pos soal, jadi kuis dibatasi 24 soal. */
+	MAX_QUESTIONS_PER_QUIZ: 24
 } as const

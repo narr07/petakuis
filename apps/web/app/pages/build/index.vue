@@ -1,5 +1,6 @@
 <script setup lang="ts">
 	import {
+		GAME_CONSTANTS,
 		INDONESIAN_SUBJECTS,
 		NPC_CHARACTERS,
 		SCHOOL_LEVEL_OPTIONS,
@@ -166,7 +167,44 @@
 		currentStep.value = 2
 	}
 
+	// ---- Editor soal: daftar ringkas di kiri, satu soal aktif di kanan.
+	const MAX_QUESTIONS = GAME_CONSTANTS.MAX_QUESTIONS_PER_QUIZ
+	const activeIndex = ref(0)
+	const activeQuestion = computed(() => questions.value[activeIndex.value] ?? null)
+	const remainingSlots = computed(() => Math.max(0, MAX_QUESTIONS - questions.value.length))
+	const atLimit = computed(() => remainingSlots.value === 0)
+
+	watch(() => questions.value.length, (len) => {
+		if (activeIndex.value > len - 1) activeIndex.value = Math.max(0, len - 1)
+	})
+
+	/** Soal siap dimainkan: kalimat terisi dan kunci jawaban lengkap. */
+	function isQuestionComplete(q: QuizQuestion): boolean {
+		if (!q.prompt.trim()) return false
+		if (q.type === 'multiple') return q.options.every(o => o.text.trim()) && Boolean(q.answer[0])
+		if (q.type === 'subjective') return q.answer.some(a => a.trim())
+		return Boolean(q.answer[0])
+	}
+
+	const incompleteCount = computed(() => questions.value.filter(q => !isQuestionComplete(q)).length)
+
+	function renumber() {
+		questions.value.forEach((q, idx) => {
+			q.order = idx + 1
+		})
+	}
+
+	function warnLimit() {
+		toast.add({
+			title: `Batas ${MAX_QUESTIONS} soal tercapai`,
+			description: `Setiap peta punya ${MAX_QUESTIONS} pos soal. Hapus soal lain dulu bila ingin menambah.`,
+			icon: 'i-lucide-circle-alert',
+			color: 'warning'
+		})
+	}
+
 	function addBlankQuestion(type: QuestionType) {
+		if (atLimit.value) return warnLimit()
 		const nextOrder = questions.value.length + 1
 		if (type === 'ox') {
 			questions.value.push({
@@ -210,14 +248,59 @@
 				order: nextOrder
 			})
 		}
+		activeIndex.value = questions.value.length - 1
 	}
+
+	const addMenuItems = computed(() => questionAdders.map(adder => ({
+		label: adder.label,
+		icon: adder.icon,
+		disabled: atLimit.value,
+		onSelect: () => addBlankQuestion(adder.type)
+	})))
 
 	function removeQuestion(index: number) {
 		questions.value.splice(index, 1)
-		questions.value.forEach((q, idx) => {
-			q.order = idx + 1
-		})
+		renumber()
+		activeIndex.value = Math.min(index, Math.max(0, questions.value.length - 1))
 	}
+
+	function moveQuestion(index: number, delta: -1 | 1) {
+		const target = index + delta
+		if (target < 0 || target >= questions.value.length) return
+		const list = questions.value
+		const moved = list[index]!
+		list[index] = list[target]!
+		list[target] = moved
+		renumber()
+		activeIndex.value = target
+	}
+
+	function duplicateQuestion(index: number) {
+		if (atLimit.value) return warnLimit()
+		const source = questions.value[index]
+		if (!source) return
+		// Posisi di peta tidak ikut disalin: satu pos hanya untuk satu soal.
+		const copy: QuizQuestion = { ...structuredClone(toRaw(source)), id: `q-${Date.now()}`, placement: undefined }
+		questions.value.splice(index + 1, 0, copy)
+		renumber()
+		activeIndex.value = index + 1
+	}
+
+	// Soal aktif selalu terlihat di daftar (mis. setelah menambah soal ke-20).
+	watch(activeIndex, () => {
+		nextTick(() => {
+			for (const sel of ['[data-question-list]', '[data-question-strip]']) {
+				document.querySelector(`${sel} [aria-current="true"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+			}
+		})
+	})
+
+	function goToQuestion(index: number) {
+		activeIndex.value = Math.min(Math.max(0, index), questions.value.length - 1)
+	}
+
+	const aiOpen = ref(false)
+	const csvOpen = ref(false)
 
 	async function handleAiGenerate() {
 		if (!aiTopic.value.trim()) {
@@ -228,6 +311,8 @@
 			})
 			return
 		}
+
+		if (atLimit.value) return warnLimit()
 
 		aiLoading.value = true
 		statusBanner.value = null
@@ -242,7 +327,7 @@
 						schoolLevel: schoolLevel.value,
 						gradeLabel: gradeLabel.value,
 						subject: subject.value,
-						count: aiCount.value,
+						count: Math.min(aiCount.value, remainingSlots.value),
 						sourceText: aiSourceText.value || undefined,
 						apiKey: aiByokKey.value || undefined
 					}
@@ -251,14 +336,16 @@
 
 			if (res.ok && res.questions.length > 0) {
 				const currentCount = questions.value.length
-				const newItems = res.questions.map((q, idx) => ({
+				const newItems = res.questions.slice(0, remainingSlots.value).map((q, idx) => ({
 					...q,
 					order: currentCount + idx + 1
 				}))
 				questions.value = [...questions.value, ...newItems]
+				activeIndex.value = currentCount
+				aiOpen.value = false
 				toast.add({
 					title: 'Soal AI Berhasil Ditambahkan',
-					description: `${res.questions.length} butir soal baru telah dimasukkan ke daftar kuis.`,
+					description: `${newItems.length} butir soal baru telah dimasukkan ke daftar kuis.`,
 					color: 'success'
 				})
 			}
@@ -290,13 +377,19 @@
 		reader.onload = () => {
 			const text = String(reader.result || '')
 			const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+			const firstNew = questions.value.length
 			let count = 0
+			let skipped = 0
 			for (const line of lines) {
 				const parts = line.split(',')
 				if (parts.length >= 2) {
 					const prompt = parts[0]?.trim() || ''
 					const ans = parts[1]?.trim() || ''
 					if (prompt && ans) {
+						if (questions.value.length >= MAX_QUESTIONS) {
+							skipped += 1
+							continue
+						}
 						count += 1
 						questions.value.push({
 							id: `csv-${Date.now()}-${count}`,
@@ -311,16 +404,38 @@
 					}
 				}
 			}
+			if (count > 0) activeIndex.value = firstNew
+			csvOpen.value = false
 			toast.add({
 				title: 'Impor CSV Berhasil',
-				description: `${count} soal berhasil ditambahkan dari berkas CSV.`,
-				color: 'success'
+				description: skipped
+					? `${count} soal ditambahkan. ${skipped} baris dilewati karena batas ${MAX_QUESTIONS} soal.`
+					: `${count} soal berhasil ditambahkan dari berkas CSV.`,
+				color: skipped ? 'warning' : 'success'
 			})
 		}
 		reader.readAsText(file)
 	}
 
 	async function saveAndLaunch(launchNow: boolean) {
+		if (questions.value.length === 0) {
+			toast.add({ title: 'Belum ada soal', description: 'Tambahkan minimal satu soal dulu.', color: 'warning' })
+			return
+		}
+		// Draf cukup berisi kalimat soal; membuka kelas butuh semua soal lengkap.
+		const blocker = questions.value.findIndex(q => (launchNow ? !isQuestionComplete(q) : !q.prompt.trim()))
+		if (blocker >= 0) {
+			activeIndex.value = blocker
+			toast.add({
+				title: `Soal #${blocker + 1} belum lengkap`,
+				description: launchNow
+					? 'Lengkapi kalimat soal dan kunci jawabannya sebelum membuka kelas.'
+					: 'Kalimat soal wajib diisi sebelum disimpan.',
+				icon: 'i-lucide-circle-alert',
+				color: 'warning'
+			})
+			return
+		}
 		if (!title.value.trim()) {
 			title.value = `Kuis ${subject.value} (${gradeLabel.value})`
 		}
@@ -604,123 +719,58 @@
 		</section>
 
 		<!-- ================= STEP 3: EDITOR SOAL & AI ================= -->
-		<section v-else class="mt-8 grid gap-6 lg:grid-cols-12">
-			<!-- Kolom Kiri: AI Generator & Pengaturan -->
-			<div class="space-y-6 lg:col-span-4">
-				<!-- Asisten AI -->
-				<UCard :ui="{ header: 'border-b border-default', body: 'p-5 space-y-4' }">
-					<template #header>
-						<div class="flex items-center gap-2">
-							<UIcon name="i-lucide-sparkles" class="size-5 text-primary" />
-							<h3 class="text-base font-bold text-highlighted">
-								Asisten Soal AI
-							</h3>
-						</div>
-						<p class="text-xs text-muted mt-1">
-							Buat draf soal otomatis sesuai kurikulum jenjang {{ schoolLevel.toUpperCase() }}.
-						</p>
-					</template>
-
-					<UFormField label="Topik / Materi Bahasan">
-						<UInput
-							v-model="aiTopic"
-							placeholder="Misal: Sistem Tata Surya dan Planet"
-							size="lg"
-							class="w-full"
-						/>
-					</UFormField>
-
-					<UFormField label="Ringkasan Materi (Opsional)">
-						<UTextarea
-							v-model="aiSourceText"
-							placeholder="Tempel cuplikan materi buku ajar di sini..."
-							:rows="3"
-							class="w-full"
-						/>
-					</UFormField>
-
-					<div class="grid grid-cols-2 gap-3">
-						<UFormField label="Jumlah Soal">
-							<UInput
-								v-model.number="aiCount"
-								type="number"
-								min="2"
-								max="10"
-								size="lg"
-								class="w-full"
-							/>
-						</UFormField>
-
-						<UFormField label="API Key (Opsional)">
-							<UInput
-								v-model="aiByokKey"
-								type="password"
-								placeholder="BYOK"
-								size="lg"
-								class="w-full"
-							/>
-						</UFormField>
-					</div>
-
-					<UButton
-						color="primary"
-						class="w-full"
-						size="lg"
-						icon="i-lucide-wand-sparkles"
-						:loading="aiLoading"
-						label="Buat Soal Otomatis"
-						@click="handleAiGenerate"
-					/>
-				</UCard>
-
-				<!-- Pengaturan Mekanik & Impor CSV -->
-				<UCard :ui="{ header: 'border-b border-default', body: 'p-5 space-y-4' }">
-					<template #header>
-						<h3 class="text-base font-bold text-highlighted">
-							Mekanik & Impor CSV
-						</h3>
-					</template>
-
-					<div class="flex items-center justify-between">
-						<div class="space-y-0.5">
-							<div class="text-xs font-bold text-highlighted">Tampilkan Kunci Jawaban</div>
-							<div class="text-[11px] text-muted">Siswa melihat jawaban setelah menjawab</div>
-						</div>
-						<USwitch v-model="showIncorrectAnswer" />
-					</div>
-
-					<div class="pt-4 border-t border-default">
-						<UFileUpload
-							v-model="csvFile"
-							accept=".csv,.txt"
-							icon="i-lucide-file-spreadsheet"
-							label="Impor Cepat Soal dari CSV"
-							description="Satu baris per soal: pertanyaan,jawaban"
-							:preview="false"
-							class="min-h-28 w-full"
-						/>
-					</div>
-				</UCard>
-			</div>
-
-			<!-- Kolom Kanan: Daftar Soal -->
-			<div class="space-y-5 lg:col-span-8">
-				<!-- Toolbar Aksi Tambah Soal & Simpan -->
-				<UCard :ui="{ body: 'p-4 flex flex-wrap items-center justify-between gap-3' }">
+		<!-- Daftar soal ringkas di kiri, hanya satu soal yang dibuka di kanan supaya tidak perlu menggulir jauh. -->
+		<section v-else class="mt-6 space-y-6">
+			<!-- Toolbar menempel di bawah header -->
+			<div class="-mx-4 border-y border-default bg-default/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:sticky lg:top-(--ui-header-height) lg:z-30 lg:-mx-8 lg:px-8">
+				<div class="flex flex-wrap items-center justify-between gap-3">
 					<div class="flex flex-wrap items-center gap-2">
+						<UBadge
+							:color="atLimit ? 'warning' : 'neutral'"
+							variant="subtle"
+							size="lg"
+							icon="i-lucide-list-ordered"
+							:label="`${questions.length}/${MAX_QUESTIONS} soal`"
+						/>
+						<UBadge
+							v-if="incompleteCount"
+							color="warning"
+							variant="subtle"
+							size="lg"
+							icon="i-lucide-circle-alert"
+							:label="`${incompleteCount} belum lengkap`"
+						/>
+						<UDropdownMenu :items="addMenuItems">
+							<UButton
+								icon="i-lucide-plus"
+								label="Tambah soal"
+								trailing-icon="i-lucide-chevron-down"
+								size="md"
+								:disabled="atLimit"
+							/>
+						</UDropdownMenu>
 						<UButton
-							v-for="adder in questionAdders"
-							:key="adder.type"
+							icon="i-lucide-sparkles"
+							label="Buat dengan AI"
 							color="neutral"
 							variant="outline"
-							size="sm"
-							:icon="adder.icon"
-							:label="`+ ${adder.label}`"
-							@click="addBlankQuestion(adder.type)"
+							size="md"
+							:disabled="atLimit"
+							@click="aiOpen = true"
+						/>
+						<UButton
+							icon="i-lucide-file-spreadsheet"
+							label="Impor CSV"
+							color="neutral"
+							variant="outline"
+							size="md"
+							:disabled="atLimit"
+							@click="csvOpen = true"
 						/>
 					</div>
 
-					<div class="flex items-center gap-2">
+					<div class="flex flex-wrap items-center gap-3 lg:ml-auto">
+						<USwitch v-model="showIncorrectAnswer" label="Tampilkan kunci" />
 						<UButton
 							color="neutral"
 							variant="outline"
@@ -738,69 +788,229 @@
 							@click="saveAndLaunch(true)"
 						/>
 					</div>
-				</UCard>
+				</div>
+			</div>
 
-				<!-- Daftar Kartu Soal -->
-				<div class="space-y-4">
+			<div v-if="questions.length" class="grid items-start gap-6 lg:grid-cols-12">
+				<!-- Daftar soal (layar lebar) -->
+				<aside class="hidden lg:sticky lg:top-[calc(var(--ui-header-height)+5.5rem)] lg:col-span-4 lg:block">
+					<UCard :ui="{ header: 'px-4 py-3 sm:px-4', body: 'p-2 sm:p-2' }">
+						<template #header>
+							<div class="flex items-center justify-between gap-2">
+								<span class="text-sm font-bold text-highlighted">Daftar soal</span>
+								<span class="text-xs text-muted">Klik untuk mengedit</span>
+							</div>
+						</template>
+
+						<div data-question-list class="max-h-[calc(100dvh-var(--ui-header-height)-13rem)] space-y-1 overflow-y-auto pr-1">
+							<UButton
+								v-for="(item, itemIdx) in questions"
+								:key="item.id"
+								block
+								color="neutral"
+								:variant="itemIdx === activeIndex ? 'soft' : 'ghost'"
+								class="justify-start gap-3 py-2 text-left font-normal"
+								:class="itemIdx === activeIndex ? 'ring-1 ring-primary/50' : ''"
+								:aria-current="itemIdx === activeIndex ? 'true' : undefined"
+								@click="goToQuestion(itemIdx)"
+							>
+								<span
+									class="flex size-7 shrink-0 items-center justify-center font-mono text-xs font-bold"
+									:class="itemIdx === activeIndex ? 'bg-primary text-inverted' : 'bg-elevated text-muted'"
+								>{{ itemIdx + 1 }}</span>
+								<span class="min-w-0 flex-1">
+									<span
+										class="block truncate text-sm"
+										:class="item.prompt.trim() ? 'font-medium text-highlighted' : 'italic text-dimmed'"
+									>{{ item.prompt.trim() || 'Soal belum ditulis' }}</span>
+									<span class="flex items-center gap-1 text-xs text-muted">
+										<UIcon :name="typeLabels[item.type]?.icon ?? 'i-lucide-circle-help'" class="size-3.5" />
+										{{ typeLabels[item.type]?.label }}
+									</span>
+								</span>
+								<UIcon
+									:name="isQuestionComplete(item) ? 'i-lucide-circle-check' : 'i-lucide-circle-alert'"
+									class="size-4 shrink-0"
+									:class="isQuestionComplete(item) ? 'text-success' : 'text-warning'"
+								/>
+							</UButton>
+						</div>
+					</UCard>
+				</aside>
+
+				<div class="min-w-0 space-y-4 lg:col-span-8">
+					<!-- Navigasi nomor soal (layar kecil) -->
+					<div data-question-strip class="flex gap-1.5 overflow-x-auto pb-1 lg:hidden">
+						<UButton
+							v-for="(item, itemIdx) in questions"
+							:key="item.id"
+							size="sm"
+							:color="itemIdx === activeIndex ? 'primary' : isQuestionComplete(item) ? 'neutral' : 'warning'"
+							:variant="itemIdx === activeIndex ? 'solid' : 'outline'"
+							class="w-10 shrink-0 justify-center font-mono"
+							:label="String(itemIdx + 1)"
+							:aria-label="`Soal ${itemIdx + 1}`"
+							:aria-current="itemIdx === activeIndex ? 'true' : undefined"
+							@click="goToQuestion(itemIdx)"
+						/>
+					</div>
+
+					<!-- Editor satu soal aktif -->
 					<UCard
-						v-for="(q, qIdx) in questions"
+						v-for="q in activeQuestion ? [activeQuestion] : []"
 						:key="q.id"
-						:ui="{ header: 'border-b border-default', body: 'p-5 space-y-4' }"
+						:ui="{ header: 'border-b border-default', body: 'p-5 space-y-5', footer: 'border-t border-default' }"
 					>
 						<template #header>
-							<div class="flex items-center justify-between">
+							<div class="flex flex-wrap items-center justify-between gap-3">
 								<div class="flex items-center gap-2">
-									<UBadge color="primary" variant="solid" size="sm">
-										Pos #{{ qIdx + 1 }}
+									<UBadge color="primary" variant="solid" size="md">
+										Soal {{ activeIndex + 1 }} dari {{ questions.length }}
 									</UBadge>
 									<UBadge
 										:color="typeLabels[q.type]?.color || 'neutral'"
 										variant="subtle"
-										size="sm"
+										size="md"
 										:icon="typeLabels[q.type]?.icon"
 									>
 										{{ typeLabels[q.type]?.label }}
 									</UBadge>
 								</div>
 
-								<UButton
-									color="error"
-									variant="ghost"
-									size="xs"
-									icon="i-lucide-trash-2"
-									label="Hapus"
-									@click="removeQuestion(qIdx)"
-								/>
+								<div class="flex items-center gap-1">
+									<UTooltip text="Naikkan urutan">
+										<UButton
+											icon="i-lucide-arrow-up"
+											color="neutral"
+											variant="ghost"
+											size="sm"
+											aria-label="Naikkan urutan"
+											:disabled="activeIndex === 0"
+											@click="moveQuestion(activeIndex, -1)"
+										/>
+									</UTooltip>
+									<UTooltip text="Turunkan urutan">
+										<UButton
+											icon="i-lucide-arrow-down"
+											color="neutral"
+											variant="ghost"
+											size="sm"
+											aria-label="Turunkan urutan"
+											:disabled="activeIndex === questions.length - 1"
+											@click="moveQuestion(activeIndex, 1)"
+										/>
+									</UTooltip>
+									<UTooltip text="Duplikat soal">
+										<UButton
+											icon="i-lucide-copy"
+											color="neutral"
+											variant="ghost"
+											size="sm"
+											aria-label="Duplikat soal"
+											:disabled="atLimit"
+											@click="duplicateQuestion(activeIndex)"
+										/>
+									</UTooltip>
+									<UButton
+										color="error"
+										variant="ghost"
+										size="sm"
+										icon="i-lucide-trash-2"
+										label="Hapus"
+										@click="removeQuestion(activeIndex)"
+									/>
+								</div>
 							</div>
 						</template>
 
 						<!-- Input Kalimat Pertanyaan -->
 						<UFormField label="Pertanyaan">
-							<UInput
+							<UTextarea
 								v-model="q.prompt"
 								placeholder="Tulis kalimat pertanyaan soal..."
+								autoresize
+								:rows="2"
+								:maxrows="6"
 								size="lg"
 								class="w-full"
 							/>
 						</UFormField>
 
-						<!-- Karakter NPC & Posisi di Peta -->
-						<div class="rounded-xl border border-default bg-muted/10 p-3.5 space-y-3">
-							<div class="flex items-center justify-between">
-								<span class="text-xs font-bold text-muted">Karakter Pembawa Soal</span>
-								<div class="flex items-center gap-2">
+						<!-- Tipe Pilihan Ganda -->
+						<UFormField v-if="q.type === 'multiple'" label="Pilihan jawaban" description="Klik bulatan di kiri untuk menandai jawaban yang benar.">
+							<div class="grid gap-2 sm:grid-cols-2">
+								<div
+									v-for="opt in q.options"
+									:key="opt.id"
+									class="flex items-center gap-2 rounded-xl border border-default bg-default p-2.5"
+									:class="q.answer[0] === opt.id ? 'border-primary ring-1 ring-primary' : ''"
+								>
 									<UButton
-										color="primary"
-										variant="subtle"
-										size="xs"
-										icon="i-lucide-map-pin"
-										:label="q.placement ? `Kolom ${q.placement.tileX}, Baris ${q.placement.tileY}` : 'Pilih Posisi di Peta'"
-										@click="placementIndex = qIdx"
+										:icon="q.answer[0] === opt.id ? 'i-lucide-circle-check-big' : 'i-lucide-circle'"
+										:color="q.answer[0] === opt.id ? 'primary' : 'neutral'"
+										variant="ghost"
+										size="sm"
+										:aria-label="`Jadikan pilihan ${opt.id.toUpperCase()} jawaban benar`"
+										:aria-pressed="q.answer[0] === opt.id"
+										@click="q.answer = [opt.id]"
+									/>
+									<UInput
+										v-model="opt.text"
+										:placeholder="`Pilihan ${opt.id.toUpperCase()}`"
+										size="sm"
+										class="w-full"
 									/>
 								</div>
 							</div>
+						</UFormField>
 
-							<!-- Pemilih Karakter NPC -->
+						<!-- Tipe Benar / Salah -->
+						<UFormField v-else-if="q.type === 'ox'" label="Kunci jawaban">
+							<div class="flex flex-wrap items-center gap-3">
+								<UButton
+									:color="q.answer[0] === 'o' ? 'success' : 'neutral'"
+									:variant="q.answer[0] === 'o' ? 'solid' : 'outline'"
+									size="md"
+									icon="i-lucide-check"
+									label="Kunci: BENAR (O)"
+									@click="q.answer = ['o']"
+								/>
+								<UButton
+									:color="q.answer[0] === 'x' ? 'error' : 'neutral'"
+									:variant="q.answer[0] === 'x' ? 'solid' : 'outline'"
+									size="md"
+									icon="i-lucide-x"
+									label="Kunci: SALAH (X)"
+									@click="q.answer = ['x']"
+								/>
+							</div>
+						</UFormField>
+
+						<!-- Tipe Isian Singkat -->
+						<UFormField v-else label="Kunci Jawaban Singkat (pisahkan tanda koma bila ada sinonim)">
+							<UInput
+								:model-value="q.answer.join(', ')"
+								placeholder="Misal: danau toba, toba"
+								size="lg"
+								class="w-full"
+								@update:model-value="onAnswerInput(q, $event)"
+							/>
+						</UFormField>
+
+						<!-- Karakter NPC & Posisi di Peta -->
+						<div class="space-y-3 rounded-xl border border-default bg-muted/10 p-3.5">
+							<div class="flex flex-wrap items-center justify-between gap-2">
+								<span class="text-xs font-bold text-muted">Karakter Pembawa Soal</span>
+								<UButton
+									color="primary"
+									variant="subtle"
+									size="xs"
+									icon="i-lucide-map-pin"
+									:label="q.placement ? `Kolom ${q.placement.tileX}, Baris ${q.placement.tileY}` : 'Pilih Posisi di Peta'"
+									@click="placementIndex = activeIndex"
+								/>
+							</div>
+
 							<div class="flex flex-wrap items-end gap-2">
 								<UButton
 									:color="!q.npcId ? 'primary' : 'neutral'"
@@ -828,67 +1038,134 @@
 							</div>
 						</div>
 
-						<!-- Tipe Pilihan Ganda -->
-						<div v-if="q.type === 'multiple'" class="grid gap-2 sm:grid-cols-2">
-							<div
-								v-for="opt in q.options"
-								:key="opt.id"
-								class="flex items-center gap-2 rounded-xl border border-default p-2.5 bg-default"
-								:class="q.answer[0] === opt.id ? 'border-primary ring-1 ring-primary' : ''"
-							>
+						<template #footer>
+							<div class="flex items-center justify-between gap-3">
 								<UButton
-									:icon="q.answer[0] === opt.id ? 'i-lucide-circle-check-big' : 'i-lucide-circle'"
-									:color="q.answer[0] === opt.id ? 'primary' : 'neutral'"
-									variant="ghost"
-									size="sm"
-									:aria-label="`Jadikan pilihan ${opt.id.toUpperCase()} jawaban benar`"
-									:aria-pressed="q.answer[0] === opt.id"
-									@click="q.answer = [opt.id]"
+									icon="i-lucide-arrow-left"
+									label="Sebelumnya"
+									color="neutral"
+									variant="outline"
+									:disabled="activeIndex === 0"
+									@click="goToQuestion(activeIndex - 1)"
 								/>
-								<UInput
-									v-model="opt.text"
-									:placeholder="`Pilihan ${opt.id.toUpperCase()}`"
-									size="sm"
-									class="w-full"
+								<UButton
+									v-if="activeIndex < questions.length - 1"
+									trailing-icon="i-lucide-arrow-right"
+									label="Berikutnya"
+									@click="goToQuestion(activeIndex + 1)"
+								/>
+								<UButton
+									v-else
+									icon="i-lucide-plus"
+									:label="`Tambah ${typeLabels[q.type]?.label ?? 'soal'}`"
+									:disabled="atLimit"
+									@click="addBlankQuestion(q.type)"
 								/>
 							</div>
-						</div>
-
-						<!-- Tipe Benar / Salah -->
-						<div v-else-if="q.type === 'ox'" class="flex items-center gap-3">
-							<UButton
-								:color="q.answer[0] === 'o' ? 'success' : 'neutral'"
-								:variant="q.answer[0] === 'o' ? 'solid' : 'outline'"
-								size="md"
-								icon="i-lucide-check"
-								label="Kunci: BENAR (O)"
-								@click="q.answer = ['o']"
-							/>
-							<UButton
-								:color="q.answer[0] === 'x' ? 'error' : 'neutral'"
-								:variant="q.answer[0] === 'x' ? 'solid' : 'outline'"
-								size="md"
-								icon="i-lucide-x"
-								label="Kunci: SALAH (X)"
-								@click="q.answer = ['x']"
-							/>
-						</div>
-
-						<!-- Tipe Isian Singkat -->
-						<div v-else>
-							<UFormField label="Kunci Jawaban Singkat (pisahkan tanda koma bila ada sinonim)">
-								<UInput
-									:model-value="q.answer.join(', ')"
-									placeholder="Misal: danau toba, toba"
-									size="lg"
-									class="w-full"
-									@update:model-value="onAnswerInput(q, $event)"
-								/>
-							</UFormField>
-						</div>
+						</template>
 					</UCard>
 				</div>
 			</div>
+
+			<UEmpty
+				v-else
+				icon="i-lucide-list-plus"
+				title="Belum ada soal"
+				:description="`Tambahkan soal satu per satu, buat dengan AI, atau impor dari CSV. Maksimal ${MAX_QUESTIONS} soal per kuis.`"
+				:actions="[
+					{ label: 'Pilihan Ganda', icon: 'i-lucide-list-checks', onClick: () => addBlankQuestion('multiple') },
+					{ label: 'Buat dengan AI', icon: 'i-lucide-sparkles', color: 'neutral', variant: 'outline', onClick: () => { aiOpen = true } }
+				]"
+			/>
+
+			<!-- Panel AI -->
+			<USlideover
+				v-model:open="aiOpen"
+				title="Asisten Soal AI"
+				:description="`Draf soal sesuai kurikulum jenjang ${schoolLevel.toUpperCase()}. Sisa tempat: ${remainingSlots} soal.`"
+			>
+				<template #body>
+					<div class="space-y-4">
+						<UFormField label="Topik / Materi Bahasan">
+							<UInput
+								v-model="aiTopic"
+								placeholder="Misal: Sistem Tata Surya dan Planet"
+								size="lg"
+								class="w-full"
+							/>
+						</UFormField>
+
+						<UFormField label="Ringkasan Materi (Opsional)">
+							<UTextarea
+								v-model="aiSourceText"
+								placeholder="Tempel cuplikan materi buku ajar di sini..."
+								:rows="5"
+								class="w-full"
+							/>
+						</UFormField>
+
+						<div class="grid grid-cols-2 gap-3">
+							<UFormField label="Jumlah Soal">
+								<UInput
+									v-model.number="aiCount"
+									type="number"
+									min="2"
+									:max="Math.min(10, remainingSlots)"
+									size="lg"
+									class="w-full"
+								/>
+							</UFormField>
+
+							<UFormField label="API Key (Opsional)">
+								<UInput
+									v-model="aiByokKey"
+									type="password"
+									placeholder="BYOK"
+									size="lg"
+									class="w-full"
+								/>
+							</UFormField>
+						</div>
+					</div>
+				</template>
+
+				<template #footer>
+					<UButton
+						color="primary"
+						block
+						size="lg"
+						icon="i-lucide-wand-sparkles"
+						:loading="aiLoading"
+						:disabled="atLimit"
+						label="Buat Soal Otomatis"
+						@click="handleAiGenerate"
+					/>
+				</template>
+			</USlideover>
+
+			<!-- Impor CSV -->
+			<UModal
+				v-model:open="csvOpen"
+				title="Impor soal dari CSV"
+				description="Satu baris per soal dengan format: pertanyaan,jawaban. Soal masuk sebagai isian singkat."
+			>
+				<template #body>
+					<div class="space-y-3">
+						<UFileUpload
+							v-model="csvFile"
+							accept=".csv,.txt"
+							icon="i-lucide-file-spreadsheet"
+							label="Pilih atau seret berkas CSV"
+							description="Contoh baris: Ibu kota Indonesia adalah...,Jakarta"
+							:preview="false"
+							class="min-h-32 w-full"
+						/>
+						<p class="text-xs text-muted">
+							Sisa tempat: {{ remainingSlots }} soal. Baris yang melebihi batas akan dilewati.
+						</p>
+					</div>
+				</template>
+			</UModal>
 		</section>
 
 		<!-- Modal Penempatan Posisi di Peta -->
