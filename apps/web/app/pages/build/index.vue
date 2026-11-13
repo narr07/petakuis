@@ -7,11 +7,18 @@
 		type GameMode,
 		type MapTemplate,
 		type QuestionType,
+		parseQuizRows,
 		type QuizDefinition,
+		type QuizImportError,
 		type QuizQuestion,
 		type SchoolLevel,
 		type TilePosition
 	} from '@petakuis/shared'
+
+	// Penyusun kuis tampil di dalam panel dashboard guru.
+	definePageMeta({
+		layout: 'dashboard'
+	})
 
 	const route = useRoute()
 	const router = useRouter()
@@ -300,7 +307,7 @@
 	}
 
 	const aiOpen = ref(false)
-	const csvOpen = ref(false)
+	const excelOpen = ref(false)
 
 	async function handleAiGenerate() {
 		if (!aiTopic.value.trim()) {
@@ -361,60 +368,73 @@
 		}
 	}
 
-	// Impor CSV lewat UFileUpload: berkas diproses saat dipilih, lalu kotak dikosongkan lagi.
-	const csvFile = ref<File | null>(null)
-	watch(csvFile, (file) => {
+	// ---- Impor Excel: berkas dibaca di browser, kolom mengikuti templat yang bisa diunduh.
+	const EXCEL_TEMPLATE_URL = '/templat/templat-soal-petakuis.xlsx'
+	const excelFile = ref<File | null>(null)
+	const excelImporting = ref(false)
+	const excelErrors = ref<QuizImportError[]>([])
+
+	watch(excelOpen, (open) => {
+		if (open) excelErrors.value = []
+	})
+
+	watch(excelFile, (file) => {
 		if (!file) return
-		importCsvFile(file)
+		importExcelFile(file)
 		nextTick(() => {
-			csvFile.value = null
+			excelFile.value = null
 		})
 	})
 
-	function importCsvFile(file: File) {
-
-		const reader = new FileReader()
-		reader.onload = () => {
-			const text = String(reader.result || '')
-			const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-			const firstNew = questions.value.length
-			let count = 0
-			let skipped = 0
-			for (const line of lines) {
-				const parts = line.split(',')
-				if (parts.length >= 2) {
-					const prompt = parts[0]?.trim() || ''
-					const ans = parts[1]?.trim() || ''
-					if (prompt && ans) {
-						if (questions.value.length >= MAX_QUESTIONS) {
-							skipped += 1
-							continue
-						}
-						count += 1
-						questions.value.push({
-							id: `csv-${Date.now()}-${count}`,
-							type: 'subjective',
-							prompt,
-							options: [],
-							answer: [ans],
-							timeLimitS: 25,
-							points: 100,
-							order: questions.value.length + 1
-						})
-					}
-				}
-			}
-			if (count > 0) activeIndex.value = firstNew
-			csvOpen.value = false
-			toast.add({
-				title: 'Impor CSV Berhasil',
-				description: skipped
-					? `${count} soal ditambahkan. ${skipped} baris dilewati karena batas ${MAX_QUESTIONS} soal.`
-					: `${count} soal berhasil ditambahkan dari berkas CSV.`,
-				color: skipped ? 'warning' : 'success'
-			})
+	async function importExcelFile(file: File) {
+		if (atLimit.value) return warnLimit()
+		if (!/\.xlsx$/i.test(file.name)) {
+			toast.add({ title: 'Format belum didukung', description: 'Simpan berkas sebagai Excel .xlsx lalu unggah lagi.', color: 'warning' })
+			return
 		}
-		reader.readAsText(file)
+		excelImporting.value = true
+		excelErrors.value = []
+		try {
+			// Pembaca Excel baru dimuat saat dibutuhkan supaya halaman tetap ringan.
+			const { default: readExcelFile } = await import('read-excel-file/browser')
+			const sheets = await readExcelFile(file)
+			const sheet = sheets.find(sh => sh.sheet.trim().toLowerCase() === 'soal') ?? sheets[0]
+			const { questions: parsed, errors } = parseQuizRows(sheet?.data ?? [], {
+				idPrefix: `xl-${Date.now()}`,
+				startOrder: questions.value.length + 1
+			})
+			const accepted = parsed.slice(0, remainingSlots.value)
+			const overLimit = parsed.length - accepted.length
+			excelErrors.value = errors
+
+			if (accepted.length) {
+				const firstNew = questions.value.length
+				questions.value.push(...accepted)
+				activeIndex.value = firstNew
+			}
+			// Jendela tetap terbuka bila ada baris bermasalah, supaya daftarnya bisa dibaca.
+			if (!errors.length) excelOpen.value = false
+
+			const notes = [
+				errors.length ? `${errors.length} baris dilewati karena belum benar.` : '',
+				overLimit ? `${overLimit} soal tidak masuk karena batas ${MAX_QUESTIONS} soal.` : ''
+			].filter(Boolean).join(' ')
+			toast.add({
+				title: accepted.length ? `${accepted.length} soal berhasil diimpor` : 'Tidak ada soal yang diimpor',
+				description: notes || 'Periksa kembali soal di daftar sebelum menyimpan.',
+				icon: accepted.length ? 'i-lucide-circle-check' : 'i-lucide-circle-alert',
+				color: accepted.length && !notes ? 'success' : 'warning'
+			})
+		} catch {
+			toast.add({
+				title: 'Berkas tidak bisa dibaca',
+				description: 'Pastikan berkasnya Excel .xlsx. Paling aman isi dari templat yang disediakan.',
+				icon: 'i-lucide-circle-alert',
+				color: 'error'
+			})
+		} finally {
+			excelImporting.value = false
+		}
 	}
 
 	async function saveAndLaunch(launchNow: boolean) {
@@ -509,33 +529,111 @@
 </script>
 
 <template>
-	<UContainer class="py-8 sm:py-10">
-		<!-- Header Halaman -->
-		<UPageHeader
-			headline="Penyusun Petualangan Kuis"
-			:title="isEditing ? `Edit Kuis: ${title || 'Tanpa judul'}` : 'Buat Kuis Baru untuk Kelas'"
-			description="Rancang pos tantangan interaktif 2D dalam 3 langkah mudah: pilih kawasan peta, tentukan jenjang materi, dan isi soal."
-			:ui="{ root: 'border-b-0 pb-0' }"
-		>
-			<template #links>
-				<!-- Navigasi Stepper -->
-				<div class="flex items-center gap-2">
-					<UButton
-						v-for="s in steps"
-						:key="s.id"
-						:color="currentStep === s.id ? 'primary' : 'neutral'"
-						:variant="currentStep === s.id ? 'solid' : 'outline'"
-						size="md"
-						:icon="s.icon"
-						:label="s.label"
-						@click="currentStep = s.id"
-					/>
-				</div>
-			</template>
-		</UPageHeader>
+	<UDashboardPanel id="build-quiz">
+		<template #header>
+			<UDashboardNavbar :title="isEditing ? `Edit Kuis: ${title || 'Tanpa judul'}` : 'Buat Kuis Baru'">
+				<template #leading>
+					<UDashboardSidebarCollapse />
+				</template>
 
+				<template #right>
+					<UButton
+						color="neutral"
+						variant="outline"
+						icon="i-lucide-save"
+						:loading="saving"
+						:aria-label="isEditing ? 'Simpan Perubahan' : 'Simpan Draf'"
+						@click="saveAndLaunch(false)"
+					>
+						<span class="hidden sm:inline">{{ isEditing ? 'Simpan Perubahan' : 'Simpan Draf' }}</span>
+					</UButton>
+					<UButton
+						icon="i-lucide-play"
+						:loading="saving"
+						aria-label="Simpan & Buka Kelas"
+						@click="saveAndLaunch(true)"
+					>
+						<span class="hidden sm:inline">Simpan &amp; Buka Kelas</span>
+					</UButton>
+				</template>
+			</UDashboardNavbar>
+
+			<UDashboardToolbar :ui="{ root: 'overflow-x-auto' }">
+				<template #left>
+					<div class="flex items-center gap-1.5">
+						<UButton
+							v-for="s in steps"
+							:key="s.id"
+							:color="currentStep === s.id ? 'primary' : 'neutral'"
+							:variant="currentStep === s.id ? 'soft' : 'ghost'"
+							size="sm"
+							:icon="s.icon"
+							:aria-label="s.label"
+							@click="currentStep = s.id"
+						>
+							<span class="hidden md:inline">{{ s.label }}</span>
+							<span class="md:hidden">{{ s.id }}</span>
+						</UButton>
+					</div>
+				</template>
+
+				<template v-if="currentStep === 3" #right>
+					<div class="flex items-center gap-1.5">
+						<UBadge
+							:color="atLimit ? 'warning' : 'neutral'"
+							variant="subtle"
+							icon="i-lucide-list-ordered"
+							:label="`${questions.length}/${MAX_QUESTIONS}`"
+						/>
+						<UBadge
+							v-if="incompleteCount"
+							color="warning"
+							variant="subtle"
+							icon="i-lucide-circle-alert"
+							:label="`${incompleteCount} belum lengkap`"
+							class="hidden xl:inline-flex"
+						/>
+						<UDropdownMenu :items="addMenuItems">
+							<UButton
+								icon="i-lucide-plus"
+								trailing-icon="i-lucide-chevron-down"
+								size="sm"
+								:disabled="atLimit"
+								aria-label="Tambah soal"
+							>
+								<span class="hidden sm:inline">Tambah soal</span>
+							</UButton>
+						</UDropdownMenu>
+						<UButton
+							icon="i-lucide-sparkles"
+							color="neutral"
+							variant="outline"
+							size="sm"
+							:disabled="atLimit"
+							aria-label="Buat dengan AI"
+							@click="aiOpen = true"
+						>
+							<span class="hidden lg:inline">Buat dengan AI</span>
+						</UButton>
+						<UButton
+							icon="i-lucide-sheet"
+							color="neutral"
+							variant="outline"
+							size="sm"
+							:disabled="atLimit"
+							aria-label="Impor Excel"
+							@click="excelOpen = true"
+						>
+							<span class="hidden lg:inline">Impor Excel</span>
+						</UButton>
+					</div>
+				</template>
+			</UDashboardToolbar>
+		</template>
+
+		<template #body>
 		<!-- ================= STEP 1: PILIH PETA ================= -->
-		<section v-if="currentStep === 1" class="mt-8 space-y-6">
+		<section v-if="currentStep === 1" class="space-y-6">
 			<!-- Filter Mode Peta -->
 			<div class="flex flex-wrap items-center justify-between gap-3">
 				<div class="flex items-center gap-2">
@@ -613,7 +711,7 @@
 		</section>
 
 		<!-- ================= STEP 2: JENJANG & MAPEL ================= -->
-		<section v-else-if="currentStep === 2" class="mt-8 space-y-6">
+		<section v-else-if="currentStep === 2" class="space-y-6">
 			<UCard :ui="{ header: 'border-b border-default', body: 'p-6 sm:p-8' }">
 				<template #header>
 					<h2 class="text-xl font-bold text-highlighted">
@@ -688,6 +786,15 @@
 						/>
 					</UFormField>
 
+					<!-- Pengaturan tampilan jawaban -->
+					<UFormField
+						label="Kunci jawaban"
+						description="Setelah menjawab, siswa melihat jawaban yang benar."
+						class="sm:col-span-2"
+					>
+						<USwitch v-model="showIncorrectAnswer" label="Tampilkan kunci jawaban ke siswa" />
+					</UFormField>
+
 					<!-- Nama Pengajar / Sekolah -->
 					<UFormField label="Nama Guru / Sekolah">
 						<UInput
@@ -720,80 +827,10 @@
 
 		<!-- ================= STEP 3: EDITOR SOAL & AI ================= -->
 		<!-- Daftar soal ringkas di kiri, hanya satu soal yang dibuka di kanan supaya tidak perlu menggulir jauh. -->
-		<section v-else class="mt-6 space-y-6">
-			<!-- Toolbar menempel di bawah header -->
-			<div class="-mx-4 border-y border-default bg-default/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:sticky lg:top-(--ui-header-height) lg:z-30 lg:-mx-8 lg:px-8">
-				<div class="flex flex-wrap items-center justify-between gap-3">
-					<div class="flex flex-wrap items-center gap-2">
-						<UBadge
-							:color="atLimit ? 'warning' : 'neutral'"
-							variant="subtle"
-							size="lg"
-							icon="i-lucide-list-ordered"
-							:label="`${questions.length}/${MAX_QUESTIONS} soal`"
-						/>
-						<UBadge
-							v-if="incompleteCount"
-							color="warning"
-							variant="subtle"
-							size="lg"
-							icon="i-lucide-circle-alert"
-							:label="`${incompleteCount} belum lengkap`"
-						/>
-						<UDropdownMenu :items="addMenuItems">
-							<UButton
-								icon="i-lucide-plus"
-								label="Tambah soal"
-								trailing-icon="i-lucide-chevron-down"
-								size="md"
-								:disabled="atLimit"
-							/>
-						</UDropdownMenu>
-						<UButton
-							icon="i-lucide-sparkles"
-							label="Buat dengan AI"
-							color="neutral"
-							variant="outline"
-							size="md"
-							:disabled="atLimit"
-							@click="aiOpen = true"
-						/>
-						<UButton
-							icon="i-lucide-file-spreadsheet"
-							label="Impor CSV"
-							color="neutral"
-							variant="outline"
-							size="md"
-							:disabled="atLimit"
-							@click="csvOpen = true"
-						/>
-					</div>
-
-					<div class="flex flex-wrap items-center gap-3 lg:ml-auto">
-						<USwitch v-model="showIncorrectAnswer" label="Tampilkan kunci" />
-						<UButton
-							color="neutral"
-							variant="outline"
-							size="md"
-							:loading="saving"
-							:label="isEditing ? 'Simpan Perubahan' : 'Simpan Draf'"
-							@click="saveAndLaunch(false)"
-						/>
-						<UButton
-							color="primary"
-							size="md"
-							icon="i-lucide-play"
-							:loading="saving"
-							label="Simpan & Buka Kelas"
-							@click="saveAndLaunch(true)"
-						/>
-					</div>
-				</div>
-			</div>
-
+		<section v-else class="space-y-6">
 			<div v-if="questions.length" class="grid items-start gap-6 lg:grid-cols-12">
 				<!-- Daftar soal (layar lebar) -->
-				<aside class="hidden lg:sticky lg:top-[calc(var(--ui-header-height)+5.5rem)] lg:col-span-4 lg:block">
+				<aside class="hidden lg:sticky lg:top-0 lg:col-span-4 lg:block">
 					<UCard :ui="{ header: 'px-4 py-3 sm:px-4', body: 'p-2 sm:p-2' }">
 						<template #header>
 							<div class="flex items-center justify-between gap-2">
@@ -802,7 +839,7 @@
 							</div>
 						</template>
 
-						<div data-question-list class="max-h-[calc(100dvh-var(--ui-header-height)-13rem)] space-y-1 overflow-y-auto pr-1">
+						<div data-question-list class="max-h-[calc(100dvh-14rem)] space-y-1 overflow-y-auto pr-1">
 							<UButton
 								v-for="(item, itemIdx) in questions"
 								:key="item.id"
@@ -1071,7 +1108,7 @@
 				v-else
 				icon="i-lucide-list-plus"
 				title="Belum ada soal"
-				:description="`Tambahkan soal satu per satu, buat dengan AI, atau impor dari CSV. Maksimal ${MAX_QUESTIONS} soal per kuis.`"
+				:description="`Tambahkan soal satu per satu, buat dengan AI, atau impor dari Excel. Maksimal ${MAX_QUESTIONS} soal per kuis.`"
 				:actions="[
 					{ label: 'Pilihan Ganda', icon: 'i-lucide-list-checks', onClick: () => addBlankQuestion('multiple') },
 					{ label: 'Buat dengan AI', icon: 'i-lucide-sparkles', color: 'neutral', variant: 'outline', onClick: () => { aiOpen = true } }
@@ -1143,26 +1180,79 @@
 				</template>
 			</USlideover>
 
-			<!-- Impor CSV -->
+			<!-- Impor Excel -->
 			<UModal
-				v-model:open="csvOpen"
-				title="Impor soal dari CSV"
-				description="Satu baris per soal dengan format: pertanyaan,jawaban. Soal masuk sebagai isian singkat."
+				v-model:open="excelOpen"
+				title="Impor soal dari Excel"
+				description="Isi templat, lalu unggah berkasnya. Ketiga jenis soal didukung."
+				:ui="{ content: 'sm:max-w-xl' }"
 			>
 				<template #body>
-					<div class="space-y-3">
+					<div class="space-y-5">
+						<ol class="space-y-3 text-sm">
+							<li class="flex gap-3">
+								<UBadge label="1" color="primary" variant="soft" class="size-6 shrink-0 justify-center" />
+								<div class="flex-1 space-y-2">
+									<p class="font-medium text-highlighted">
+										Unduh templat Excel
+									</p>
+									<UButton
+										:to="EXCEL_TEMPLATE_URL"
+										external
+										download="templat-soal-petakuis.xlsx"
+										icon="i-lucide-download"
+										color="neutral"
+										variant="outline"
+										size="sm"
+										label="templat-soal-petakuis.xlsx"
+									/>
+								</div>
+							</li>
+							<li class="flex gap-3">
+								<UBadge label="2" color="primary" variant="soft" class="size-6 shrink-0 justify-center" />
+								<div class="flex-1">
+									<p class="font-medium text-highlighted">
+										Isi lembar "Soal", satu baris per soal
+									</p>
+									<p class="text-muted">
+										Jenis soal dipilih dari daftar. Kunci jawaban: huruf A–D untuk pilihan ganda, Benar/Salah, atau teks jawaban untuk isian singkat (sinonim dipisah koma). Lihat lembar "Contoh".
+									</p>
+								</div>
+							</li>
+							<li class="flex gap-3">
+								<UBadge label="3" color="primary" variant="soft" class="size-6 shrink-0 justify-center" />
+								<p class="flex-1 font-medium text-highlighted">
+									Unggah berkas .xlsx di bawah ini
+								</p>
+							</li>
+						</ol>
+
 						<UFileUpload
-							v-model="csvFile"
-							accept=".csv,.txt"
-							icon="i-lucide-file-spreadsheet"
-							label="Pilih atau seret berkas CSV"
-							description="Contoh baris: Ibu kota Indonesia adalah...,Jakarta"
+							v-model="excelFile"
+							accept=".xlsx"
+							icon="i-lucide-sheet"
+							label="Pilih atau seret berkas Excel (.xlsx)"
+							:description="`Sisa tempat: ${remainingSlots} soal. Google Sheets: File > Download > Microsoft Excel.`"
 							:preview="false"
+							:disabled="excelImporting || atLimit"
 							class="min-h-32 w-full"
 						/>
-						<p class="text-xs text-muted">
-							Sisa tempat: {{ remainingSlots }} soal. Baris yang melebihi batas akan dilewati.
-						</p>
+
+						<UAlert
+							v-if="excelErrors.length"
+							color="warning"
+							variant="subtle"
+							icon="i-lucide-circle-alert"
+							:title="`${excelErrors.length} baris dilewati`"
+						>
+							<template #description>
+								<ul class="mt-1 max-h-40 space-y-1 overflow-y-auto">
+									<li v-for="err in excelErrors" :key="err.row">
+										<span class="font-semibold">Baris {{ err.row }}:</span> {{ err.message }}
+									</li>
+								</ul>
+							</template>
+						</UAlert>
 					</div>
 				</template>
 			</UModal>
@@ -1178,5 +1268,6 @@
 			@clear="setPlacement(undefined)"
 			@close="placementIndex = null"
 		/>
-	</UContainer>
+		</template>
+	</UDashboardPanel>
 </template>
