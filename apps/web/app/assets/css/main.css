@@ -5,6 +5,7 @@
   --font-sans: 'Funnel Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Funnel Display', sans-serif;
   --font-heading: 'Funnel Display', sans-serif;
+  --font-pixel: 'Pixelify Sans', 'JetBrains Mono', monospace;
 }
 
 @layer base {
@@ -18,4 +19,63 @@
 
 :root {
   --ui-radius: 0rem;
+}
+
+/* ---- Gaya piksel untuk landing page ---- */
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
+/* Bayangan keras tanpa blur, seperti bingkai jendela game 16-bit. */
+.pixel-shadow {
+  box-shadow: 6px 6px 0 0 var(--ui-border-accented);
+}
+
+/* Garis bawah berupa deret kotak 4px untuk kata yang disorot. */
+.pixel-underline {
+  background-image: linear-gradient(90deg, currentColor 50%, transparent 50%);
+  background-size: 12px 6px;
+  background-repeat: repeat-x;
+  transform-origin: left center;
+}
+
+/* Sprite avatar 16x16: posisi frame diatur JS, pembalik arah lewat --flip. */
+.pixel-walker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+
+.pixel-walker__sprite {
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  transform: scaleX(var(--flip, 1));
+}
+
+/* Bayangan bulat kecil di kaki sprite. */
+.pixel-walker__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 70%;
+  height: 22%;
+  transform: translateX(-50%);
+  background: rgb(0 0 0 / 0.22);
+  border-radius: 50%;
+}
+
+/* Langkah daftar "Cara kerja" ikut menyala saat avatar sampai di bendera. */
+.quest-steps [data-slot="features"] > li {
+  transition: opacity 0.25s steps(3), transform 0.25s steps(3);
+}
+
+.quest-steps.is-scrubbing [data-slot="features"] > li {
+  opacity: 0.4;
+}
+
+.quest-steps.is-scrubbing [data-slot="features"] > li.is-reached {
+  opacity: 1;
+  transform: translateX(8px);
 }
