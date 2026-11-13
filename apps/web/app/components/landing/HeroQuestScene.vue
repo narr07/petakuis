@@ -154,7 +154,7 @@
 				</span>
 				<span
 					:data-reward="npc.key"
-					class="absolute z-[401] whitespace-nowrap font-pixel text-[9px] font-bold leading-none text-yellow-300 opacity-0 [text-shadow:1px_1px_0_#422006]"
+					class="absolute z-[401] whitespace-nowrap font-pixel text-[9px] leading-none text-yellow-300 opacity-0 [text-shadow:1px_1px_0_#422006]"
 					:style="{ left: `${npc.x + 7}px`, top: `${npc.y - 28}px` }"
 				>+100</span>
 			</template>

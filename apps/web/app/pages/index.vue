@@ -323,7 +323,7 @@
 					}"
 					class="lg:rounded-none lg:first:rounded-l-lg lg:last:rounded-r-lg"
 				>
-					<span class="font-pixel text-3xl font-semibold text-highlighted">
+					<span class="font-pixel text-3xl text-highlighted">
 						{{ stat.prefix }}<span data-count :data-from="stat.from" :data-to="stat.value">{{ numberFormat.format(stat.value) }}</span>{{ stat.suffix }}
 					</span>
 				</UPageCard>

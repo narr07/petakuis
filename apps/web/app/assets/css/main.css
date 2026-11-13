@@ -5,7 +5,7 @@
   --font-sans: 'Funnel Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Funnel Display', sans-serif;
   --font-heading: 'Funnel Display', sans-serif;
-  --font-pixel: 'Pixelify Sans', 'JetBrains Mono', monospace;
+  --font-pixel: 'Geist Pixel', 'JetBrains Mono', monospace;
 }
 
 @layer base {
@@ -78,4 +78,9 @@
 .quest-steps.is-scrubbing [data-slot="features"] > li.is-reached {
   opacity: 1;
   transform: translateX(8px);
+}
+
+/* Geist Pixel hanya punya satu ketebalan: jangan biarkan browser menebalkan/memiringkan palsu. */
+.font-pixel {
+  font-synthesis: none;
 }

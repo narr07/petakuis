@@ -163,7 +163,7 @@ export default defineNuxtConfig({
 				},
 				{
 					rel: 'stylesheet',
-					href: 'https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Funnel+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Pixelify+Sans:wght@400..700&display=swap'
+					href: 'https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;500;600;700;800&family=Funnel+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Geist+Pixel&display=swap'
 				}
 			]
 		}
