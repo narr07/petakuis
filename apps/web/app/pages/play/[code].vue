@@ -100,6 +100,11 @@
 		})
 	}
 
+	// Muat ulang halaman: server mengenali pemain yang sudah selesai lalu memberinya pos soal baru.
+	function playDemoAgain() {
+		window.location.reload()
+	}
+
 	function handleAccessibleNextQuestion() {
 		const target = store.nextTargetObject
 		if (!target) return
@@ -362,7 +367,9 @@
 			<template #footer>
 				<div class="flex w-full flex-wrap justify-end gap-2">
 					<UButton to="/" label="Kembali ke beranda" color="neutral" variant="outline" />
-					<UButton :to="`/report/${code}`" icon="i-lucide-file-spreadsheet" label="Lihat laporan lengkap" />
+					<!-- Room demo tidak punya laporan; pemain bisa langsung mengulang dari awal. -->
+					<UButton v-if="store.isDemoRoom" icon="i-lucide-rotate-ccw" label="Main lagi" @click="playDemoAgain" />
+					<UButton v-else :to="`/report/${code}`" icon="i-lucide-file-spreadsheet" label="Lihat laporan lengkap" />
 				</div>
 			</template>
 		</UModal>

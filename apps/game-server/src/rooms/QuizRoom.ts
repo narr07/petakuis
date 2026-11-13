@@ -249,6 +249,11 @@ export class QuizRoom {
 		if (payload.reconnectToken && this.reconnectIndex.has(payload.reconnectToken)) {
 			const existingId = this.reconnectIndex.get(payload.reconnectToken)!
 			player = this.players.get(existingId)
+			// Room demo dipakai berulang kali: pemain yang sudah menjawab semua pos mulai dari awal lagi.
+			if (this.isDemo && player && player.answeredQuestionIds.size >= this.quiz.questions.length) {
+				this.removePlayer(player)
+				player = undefined
+			}
 		}
 
 		if (!player) {
@@ -549,6 +554,8 @@ export class QuizRoom {
 	}
 
 	private checkAutoEndSession(): void {
+		// Room demo tidak pernah ditutup: tiap pemain cukup melihat layar selesai miliknya sendiri.
+		if (this.isDemo) return
 		if (this.players.size === 0) return
 		const totalQuestions = this.quiz.questions.length
 		const allFinished = Array.from(this.players.values()).every(
@@ -615,7 +622,7 @@ export class QuizRoom {
 	}
 
 	public endSession(): void {
-		if (this.status === 'ended') return
+		if (this.status === 'ended' || this.isDemo) return
 		this.status = 'ended'
 		this.endedAt = new Date().toISOString()
 
@@ -655,9 +662,16 @@ export class QuizRoom {
 	private pruneStalePlayers(now = Date.now()): void {
 		for (const [id, p] of this.players) {
 			if (!p.connected && p.disconnectedAt && now - p.disconnectedAt > DEMO_STALE_PLAYER_MS) {
-				this.players.delete(id)
-				this.reconnectIndex.delete(p.reconnectToken)
+				this.removePlayer(p)
 			}
+		}
+	}
+
+	private removePlayer(player: InternalPlayer): void {
+		this.players.delete(player.id)
+		this.reconnectIndex.delete(player.reconnectToken)
+		if (this.socketToPlayerId.get(player.socketId) === player.id) {
+			this.socketToPlayerId.delete(player.socketId)
 		}
 	}
 
