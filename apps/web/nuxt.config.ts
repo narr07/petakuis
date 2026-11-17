@@ -105,9 +105,6 @@ export default defineNuxtConfig({
 		gameServerInternalUrl:
 			process.env.GAME_SERVER_INTERNAL_URL || 'http://localhost:3001',
 		internalSecret: process.env.INTERNAL_SECRET || 'petakuis_internal_secret',
-		geminiApiKey: process.env.GEMINI_API_KEY || '',
-		/** Model Gemini untuk generator soal (NUXT_GEMINI_MODEL); kosong = bawaan di server/api/ai/generate.post.ts. */
-		geminiModel: '',
 		// ---- login (Better Auth). Diisi lewat NUXT_AUTH_SECRET, NUXT_GOOGLE_CLIENT_ID, dst.
 		/** Rahasia penandatangan sesi; wajib acak di produksi (openssl rand -hex 32). */
 		authSecret: '',

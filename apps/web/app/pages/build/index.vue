@@ -7,6 +7,8 @@
 		type GameMode,
 		type MapTemplate,
 		type QuestionType,
+		buildAiPrompt,
+		parsePastedTable,
 		parseQuizRows,
 		type QuizDefinition,
 		type QuizImportError,
@@ -95,12 +97,10 @@
 
 	const aiTopic = ref('')
 	const aiSourceText = ref('')
-	const aiCount = ref(5)
-	const aiByokKey = ref('')
-	const aiLoading = ref(false)
+	const aiCount = ref(10)
+	const aiPasted = ref('')
 
 	const saving = ref(false)
-	const statusBanner = ref<string | null>(null)
 
 	const questions = ref<QuizQuestion[]>(editQuiz ? structuredClone(editQuiz.questions) : [
 		{
@@ -309,64 +309,71 @@
 	const aiOpen = ref(false)
 	const excelOpen = ref(false)
 
-	async function handleAiGenerate() {
+	// ---- Buat soal dengan AI tanpa kunci API: guru menyalin prompt ke ChatGPT/Gemini/AI lain,
+	// lalu menempel tabel hasilnya. Tabel diperiksa parser yang sama dengan impor Excel.
+	const AI_SERVICES = [
+		{ label: 'Buka ChatGPT', to: 'https://chatgpt.com/' },
+		{ label: 'Buka Gemini', to: 'https://gemini.google.com/app' }
+	]
+	const aiPrompt = computed(() => buildAiPrompt({
+		topic: aiTopic.value,
+		count: Math.max(1, Math.min(Number(aiCount.value) || 10, remainingSlots.value)),
+		schoolLevel: schoolLevel.value,
+		gradeLabel: gradeLabel.value,
+		subject: subject.value,
+		sourceText: aiSourceText.value
+	}))
+	const { copy: copyText, copied: aiCopied } = useClipboard({ legacy: true, copiedDuring: 2500 })
+
+	async function copyAiPrompt() {
 		if (!aiTopic.value.trim()) {
-			toast.add({
-				title: 'Topik belum diisi',
-				description: 'Masukkan topik atau kompetensi dasar kuis terlebih dahulu.',
-				color: 'warning'
-			})
+			toast.add({ title: 'Topik belum diisi', description: 'Tulis topik atau materi soal terlebih dahulu.', color: 'warning' })
 			return
 		}
-
-		if (atLimit.value) return warnLimit()
-
-		aiLoading.value = true
-		statusBanner.value = null
-
 		try {
-			const res = await $fetch<{ ok: boolean, questions: QuizQuestion[], dropped?: number }>(
-				'/api/ai/generate',
-				{
-					method: 'POST',
-					body: {
-						topic: aiTopic.value,
-						schoolLevel: schoolLevel.value,
-						gradeLabel: gradeLabel.value,
-						subject: subject.value,
-						count: Math.min(aiCount.value, remainingSlots.value),
-						sourceText: aiSourceText.value || undefined,
-						apiKey: aiByokKey.value || undefined
-					}
-				}
-			)
-
-			if (res.ok && res.questions.length > 0) {
-				const currentCount = questions.value.length
-				const newItems = res.questions.slice(0, remainingSlots.value).map((q, idx) => ({
-					...q,
-					order: currentCount + idx + 1
-				}))
-				questions.value = [...questions.value, ...newItems]
-				activeIndex.value = currentCount
-				aiOpen.value = false
-				const skipped = res.dropped ? ` ${res.dropped} soal dari AI dibuang karena tidak lengkap.` : ''
-				toast.add({
-					title: `${newItems.length} soal AI ditambahkan`,
-					description: `Periksa kembali isi dan kunci jawabannya sebelum dipakai di kelas.${skipped}`,
-					color: 'success'
-				})
-			}
-		} catch (err: unknown) {
-			const e = err as { data?: { statusMessage?: string } }
-			toast.add({
-				title: 'Gagal membuat soal AI',
-				description: e?.data?.statusMessage || 'Periksa koneksi internet lalu coba lagi.',
-				color: 'error'
-			})
-		} finally {
-			aiLoading.value = false
+			await copyText(aiPrompt.value)
+		} catch {
+			toast.add({ title: 'Prompt belum tersalin', description: 'Buka "Lihat isi prompt", lalu salin teksnya secara manual.', color: 'warning' })
 		}
+	}
+
+	/** Pratinjau hasil tempelan: berapa soal terbaca dan baris mana yang bermasalah. */
+	const aiPreview = computed(() => {
+		const rows = parsePastedTable(aiPasted.value)
+		if (rows.length === 0) return null
+		const result = parseQuizRows(rows, { idPrefix: 'ai-pratinjau' })
+		const errors = result.errors.map((e) => {
+			const no = Number(rows[e.row - 1]?.[0])
+			return { label: Number.isInteger(no) && no > 0 ? `Soal no. ${no}` : `Baris ${e.row}`, message: e.message }
+		})
+		return { count: result.questions.length, errors }
+	})
+
+	function addAiQuestions() {
+		if (atLimit.value) return warnLimit()
+		const { questions: parsed, errors } = parseQuizRows(parsePastedTable(aiPasted.value), {
+			idPrefix: `ai-${Date.now()}`,
+			startOrder: questions.value.length + 1
+		})
+		const accepted = parsed.slice(0, remainingSlots.value)
+		if (accepted.length === 0) return
+		const overLimit = parsed.length - accepted.length
+		const firstNew = questions.value.length
+		questions.value.push(...accepted)
+		activeIndex.value = firstNew
+		aiOpen.value = false
+		aiPasted.value = ''
+
+		const notes = [
+			errors.length ? `${errors.length} soal dilewati karena belum benar.` : '',
+			overLimit ? `${overLimit} soal tidak masuk karena batas ${MAX_QUESTIONS} soal.` : ''
+		].filter(Boolean).join(' ')
+		toast.add({
+			title: `${accepted.length} soal dari AI ditambahkan`,
+			description: `Periksa kembali isi dan kunci jawabannya sebelum dipakai di kelas. ${notes}`.trim(),
+			icon: 'i-lucide-circle-check',
+			color: notes ? 'warning' : 'success'
+		})
 	}
 
 	// ---- Impor Excel: berkas dibaca di browser, kolom mengikuti templat yang bisa diunduh.
@@ -719,7 +726,7 @@
 						Jenjang Pendidikan & Informasi Kuis
 					</h2>
 					<p class="mt-1 text-xs text-muted">
-						Informasi ini membantu guru lain menemukan kuis Anda di perpustakaan terbuka dan menyesuaikan generator soal AI.
+						Informasi ini membantu guru lain menemukan kuis Anda di perpustakaan terbuka dan menyesuaikan prompt pembuat soal AI.
 					</p>
 				</template>
 
@@ -1116,55 +1123,136 @@
 				]"
 			/>
 
-			<!-- Panel AI -->
+			<!-- Panel AI: salin prompt, tempel hasil -->
 			<USlideover
 				v-model:open="aiOpen"
-				title="Asisten Soal AI"
-				:description="`Draf soal sesuai kurikulum jenjang ${schoolLevel.toUpperCase()}. Sisa tempat: ${remainingSlots} soal.`"
+				title="Buat soal dengan AI"
+				:description="`Pakai ChatGPT, Gemini, atau AI lain yang biasa kamu pakai, gratis. Sisa tempat: ${remainingSlots} soal.`"
 			>
 				<template #body>
-					<div class="space-y-4">
-						<UFormField label="Topik / Materi Bahasan">
-							<UInput
-								v-model="aiTopic"
-								placeholder="Misal: Sistem Tata Surya dan Planet"
-								size="lg"
-								class="w-full"
-							/>
-						</UFormField>
+					<div class="space-y-8">
+						<section class="space-y-4">
+							<h3 class="text-sm font-semibold text-highlighted">
+								1. Tulis topik, lalu salin prompt
+							</h3>
+							<UFormField label="Topik / materi" required>
+								<UInput
+									v-model="aiTopic"
+									placeholder="Misal: Sistem tata surya dan planet"
+									size="lg"
+									class="w-full"
+								/>
+							</UFormField>
 
-						<UFormField label="Ringkasan Materi (Opsional)">
-							<UTextarea
-								v-model="aiSourceText"
-								placeholder="Tempel cuplikan materi buku ajar di sini..."
-								:rows="5"
-								class="w-full"
-							/>
-						</UFormField>
+							<UFormField label="Ringkasan materi" hint="Opsional">
+								<UTextarea
+									v-model="aiSourceText"
+									placeholder="Tempel cuplikan materi buku ajar supaya soal sesuai bab yang diajarkan."
+									:rows="4"
+									class="w-full"
+								/>
+							</UFormField>
 
-						<div class="grid grid-cols-2 gap-3">
-							<UFormField label="Jumlah Soal">
+							<UFormField label="Jumlah soal">
 								<UInput
 									v-model.number="aiCount"
 									type="number"
-									min="2"
-									:max="Math.min(10, remainingSlots)"
+									min="1"
+									:max="remainingSlots"
 									size="lg"
 									class="w-full"
 								/>
 							</UFormField>
 
-							<UFormField label="Kunci API Gemini" hint="Opsional">
-								<UInput
-									v-model="aiByokKey"
-									type="password"
-									placeholder="Pakai kunci server"
-									autocomplete="off"
-									size="lg"
-									class="w-full"
+							<UButton
+								block
+								size="lg"
+								:icon="aiCopied ? 'i-lucide-check' : 'i-lucide-copy'"
+								:color="aiCopied ? 'success' : 'primary'"
+								:label="aiCopied ? 'Prompt tersalin' : 'Salin prompt'"
+								:disabled="atLimit"
+								@click="copyAiPrompt"
+							/>
+
+							<UCollapsible v-if="aiTopic.trim()">
+								<UButton
+									label="Lihat isi prompt"
+									color="neutral"
+									variant="link"
+									size="sm"
+									trailing-icon="i-lucide-chevron-down"
+									class="px-0"
 								/>
-							</UFormField>
-						</div>
+								<template #content>
+									<UTextarea
+										:model-value="aiPrompt"
+										readonly
+										:rows="8"
+										class="mt-2 w-full"
+										:ui="{ base: 'font-mono text-xs' }"
+									/>
+								</template>
+							</UCollapsible>
+						</section>
+
+						<section class="space-y-3">
+							<h3 class="text-sm font-semibold text-highlighted">
+								2. Tempel prompt ke AI, lalu kirim
+							</h3>
+							<div class="grid grid-cols-2 gap-2">
+								<UButton
+									v-for="service in AI_SERVICES"
+									:key="service.to"
+									:to="service.to"
+									target="_blank"
+									external
+									:label="service.label"
+									trailing-icon="i-lucide-external-link"
+									color="neutral"
+									variant="outline"
+									block
+								/>
+							</div>
+						</section>
+
+						<section class="space-y-3">
+							<h3 class="text-sm font-semibold text-highlighted">
+								3. Salin jawaban AI, tempel di sini
+							</h3>
+							<UTextarea
+								v-model="aiPasted"
+								placeholder="Tekan tombol salin di bawah jawaban AI, lalu tempel di sini. Tabelnya akan dibaca otomatis."
+								:rows="6"
+								class="w-full"
+							/>
+							<UAlert
+								v-if="aiPreview"
+								:color="aiPreview.count ? (aiPreview.errors.length ? 'warning' : 'success') : 'error'"
+								variant="subtle"
+								:icon="aiPreview.count ? 'i-lucide-circle-check' : 'i-lucide-circle-alert'"
+								:title="aiPreview.count ? `${aiPreview.count} soal siap ditambahkan` : 'Belum ada soal yang terbaca'"
+							>
+								<template v-if="aiPreview.errors.length" #description>
+									<p>{{ aiPreview.errors.length }} soal dilewati:</p>
+									<ul class="mt-1 list-disc space-y-0.5 ps-4">
+										<li v-for="err in aiPreview.errors.slice(0, 5)" :key="err.label + err.message">
+											{{ err.label }}: {{ err.message }}
+										</li>
+									</ul>
+									<p v-if="aiPreview.errors.length > 5" class="mt-1">
+										dan {{ aiPreview.errors.length - 5 }} lainnya.
+									</p>
+								</template>
+							</UAlert>
+							<UAlert
+								v-else-if="aiPasted.trim()"
+								color="warning"
+								variant="subtle"
+								icon="i-lucide-table"
+								title="Tabel belum terbaca"
+								description="Pastikan yang ditempel adalah jawaban AI berupa tabel dengan kolom No, Jenis Soal, Pertanyaan, dan seterusnya. Bila AI tidak menjawab dengan tabel, minta AI menampilkannya dalam bentuk tabel."
+							/>
+						</section>
 					</div>
 				</template>
 
@@ -1173,11 +1261,10 @@
 						color="primary"
 						block
 						size="lg"
-						icon="i-lucide-wand-sparkles"
-						:loading="aiLoading"
-						:disabled="atLimit"
-						label="Buat Soal Otomatis"
-						@click="handleAiGenerate"
+						icon="i-lucide-list-plus"
+						:disabled="!aiPreview?.count || atLimit"
+						:label="aiPreview?.count ? `Tambahkan ${Math.min(aiPreview.count, remainingSlots)} soal` : 'Tambahkan soal'"
+						@click="addAiQuestions"
 					/>
 				</template>
 			</USlideover>
