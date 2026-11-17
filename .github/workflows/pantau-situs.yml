@@ -1,0 +1,46 @@
+# Pemantau Petakuis: tiap 10 menit memeriksa web, database, game server (/api/health) dan jalur
+# socket game lewat Cloudflare. Bila gagal 3 kali berturut-turut (jeda 20 detik), workflow gagal dan
+# GitHub mengirim email ke pemilik repo (orang yang terakhir mengubah jadwal di berkas ini).
+# Catatan GitHub: jadwal bisa tertunda beberapa menit, dan workflow terjadwal dinonaktifkan otomatis
+# bila repo tidak ada aktivitas selama 60 hari (aktifkan lagi dari tab Actions).
+name: Pantau situs
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: pantau-situs
+  cancel-in-progress: false
+
+jobs:
+  cek:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SITUS: https://petakuis.permadi.dev
+    steps:
+      - name: Web, database, dan game server
+        run: |
+          for percobaan in 1 2 3; do
+            if curl -fsS --max-time 15 -A "petakuis-pemantau" "$SITUS/api/health"; then
+              echo; exit 0
+            fi
+            echo "Percobaan $percobaan gagal"; sleep 20
+          done
+          echo "::error::Petakuis tidak sehat: /api/health gagal 3 kali"
+          exit 1
+
+      - name: Jalur socket game lewat Cloudflare
+        run: |
+          for percobaan in 1 2 3; do
+            if curl -fsS --max-time 15 -A "petakuis-pemantau" -o /dev/null "$SITUS/socket.io/?EIO=4&transport=polling"; then
+              echo "Socket game OK"; exit 0
+            fi
+            echo "Percobaan $percobaan gagal"; sleep 20
+          done
+          echo "::error::Jalur socket game (/socket.io) gagal 3 kali"
+          exit 1
