@@ -1,11 +1,19 @@
-import type { QuizQuestion } from '@petakuis/shared'
+import { AI_QUESTION_JSON_SCHEMA, normalizeAiQuestions } from '@petakuis/shared'
 
+/** Model bawaan bila NUXT_GEMINI_MODEL kosong. Daftar model & tanggal pensiun: aistudio.google.com/docs/deprecations */
+const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash'
+const TIMEOUT_MS = 60_000
+
+/**
+ * Membuat draf soal dengan Gemini. Bila AI gagal, guru diberi tahu alasannya; tidak ada soal
+ * pengganti buatan templat, karena soal semacam itu tampak seperti hasil AI padahal isinya generik.
+ */
 export default defineEventHandler(async (event) => {
 	// Memakai kunci Gemini milik server: hanya untuk guru/admin yang sudah masuk.
 	await requireUser(event, ['teacher', 'admin'])
 	const config = useRuntimeConfig()
 	const body = await readBody<{
-		topic: string
+		topic?: string
 		sourceText?: string
 		schoolLevel?: string
 		gradeLabel?: string
@@ -14,164 +22,123 @@ export default defineEventHandler(async (event) => {
 		apiKey?: string
 	}>(event)
 
-	const topic = (body.topic || 'Ilmu Pengetahuan Umum').trim()
-	const count = Math.min(12, Math.max(2, Number(body.count) || 5))
-	const activeKey = (body.apiKey || config.geminiApiKey || '').trim()
+	const topic = String(body.topic || '').trim().slice(0, 200)
+	if (!topic) {
+		throw createError({ statusCode: 400, statusMessage: 'Isi topik atau materi soal terlebih dahulu.' })
+	}
+	const count = Math.min(12, Math.max(1, Math.floor(Number(body.count) || 5)))
+	const byok = String(body.apiKey || '').trim()
+	const apiKey = byok || String(config.geminiApiKey || '').trim()
+	if (!apiKey) {
+		throw createError({
+			statusCode: 503,
+			statusMessage: 'Fitur AI belum aktif di server. Masukkan kunci API Gemini pribadi di kolom "Kunci API Gemini", atau hubungi admin.'
+		})
+	}
+	const model = String(config.geminiModel || '').trim() || DEFAULT_GEMINI_MODEL
+	const source = String(body.sourceText || '').trim().slice(0, 4000)
 
-	if (activeKey) {
-		try {
-			const systemInstruction = `Buat ${count} soal kuis berbahasa Indonesia untuk jenjang ${body.schoolLevel || 'SD/SMP'} (${body.gradeLabel || ''}) mata pelajaran ${body.subject || 'Umum'} tentang topik "${topic}". ${body.sourceText ? `Materi referensi: ${body.sourceText.slice(0, 2000)}` : ''}
-Kembalikan HANYA JSON array murni dengan skema:
-[{"type":"multiple"|"ox"|"subjective","prompt":"teks soal","hint":{"type":"text","value":"petunjuk singkat"},"options":[{"id":"a","text":"..."},{"id":"b","text":"..."},{"id":"c","text":"..."},{"id":"d","text":"..."}],"answer":["a"],"timeLimitS":30,"points":100}]
-Untuk type "ox", gunakan options [{"id":"o","text":"Benar"},{"id":"x","text":"Salah"}] dan answer ["o"] atau ["x"]. Untuk type "subjective", kosongkan options [] dan isi answer dengan kata kunci jawaban singkat.`
+	const instruction = [
+		`Buat ${count} soal kuis berbahasa Indonesia untuk siswa ${body.schoolLevel?.toUpperCase() || 'SD'} ${body.gradeLabel || ''}, mata pelajaran ${body.subject || 'umum'}, tentang: "${topic}".`,
+		source ? `Gunakan materi berikut sebagai sumber utama:\n"""\n${source}\n"""` : '',
+		'Aturan:',
+		'- Fakta harus benar dan sesuai Kurikulum Merdeka untuk jenjang itu; bahasa sederhana sesuai usia siswa.',
+		'- Campurkan jenis soal: sebagian besar "multiple" (pilihan ganda), beberapa "ox" (benar/salah), sedikit "subjective" (isian singkat).',
+		'- multiple: tepat 4 pilihan berbeda, tepat satu jawaban benar (huruf a, b, c, atau d), pengecoh masuk akal; jangan memakai pilihan "semua benar" atau "semua salah".',
+		'- ox: pernyataan yang jelas benar atau jelas salah; answer "benar" atau "salah"; options kosong.',
+		'- subjective: jawaban satu sampai tiga kata; answer berisi variasi penulisan yang diterima; options kosong.',
+		'- hint: petunjuk singkat yang membantu tanpa membocorkan jawaban.'
+	].filter(Boolean).join('\n')
 
-			const resp = await fetch(
-				`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(activeKey)}`,
-				{
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						contents: [{ parts: [{ text: systemInstruction }] }],
-						generationConfig: {
-							responseMimeType: 'application/json',
-							temperature: 0.5
-						}
-					})
-				}
-			)
-
-			if (resp.ok) {
-				const data = (await resp.json()) as {
-					candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-				}
-				const rawText =
-					data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
-				const parsed = JSON.parse(rawText) as Array<Partial<QuizQuestion>>
-				if (Array.isArray(parsed) && parsed.length > 0) {
-					const questions: QuizQuestion[] = parsed.map((q, idx) => ({
-						id: `ai-${Date.now()}-${idx + 1}`,
-						type: q.type || 'multiple',
-						prompt: q.prompt || `Pertanyaan #${idx + 1} tentang ${topic}`,
-						hint: q.hint,
-						options: q.options || [],
-						answer: q.answer || ['a'],
-						ignoreSpaces: true,
-						timeLimitS: q.timeLimitS || 30,
-						points: q.points || 100,
-						order: idx + 1
-					}))
-					return {
-						ok: true,
-						source: body.apiKey ? 'gemini-byok' : 'gemini-server',
-						questions
+	let resp: Response
+	try {
+		resp = await fetch(
+			`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+			{
+				method: 'POST',
+				// Kunci di header, bukan di URL, supaya tidak tercatat di log mana pun.
+				headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+				body: JSON.stringify({
+					contents: [{ role: 'user', parts: [{ text: instruction }] }],
+					generationConfig: {
+						responseMimeType: 'application/json',
+						responseJsonSchema: AI_QUESTION_JSON_SCHEMA,
+						temperature: 0.4
 					}
-				}
+				}),
+				signal: AbortSignal.timeout(TIMEOUT_MS)
 			}
-		} catch {
-			// Fall back to deterministic template generator below
-		}
+		)
+	} catch (err) {
+		const timedOut = err instanceof Error && err.name === 'TimeoutError'
+		recordWebLog('warn', 'ai', `Gemini tidak terjangkau: ${timedOut ? 'waktu habis' : String(err)}`, { model })
+		throw createError({
+			statusCode: 504,
+			statusMessage: timedOut
+				? 'AI terlalu lama menjawab. Coba lagi dengan jumlah soal lebih sedikit.'
+				: 'Server tidak bisa menghubungi layanan AI. Coba lagi beberapa saat lagi.'
+		})
 	}
 
-	const fallbackTemplates: QuizQuestion[] = [
-		{
-			id: `ai-${Date.now()}-1`,
-			type: 'multiple',
-			prompt: `Manakah pernyataan yang paling tepat menjelaskan konsep utama dari ${topic}?`,
-			hint: {
-				type: 'text',
-				value: `Perhatikan definisi dasar pada materi ${body.subject || 'pelajaran'}.`
-			},
-			options: [
-				{
-					id: 'a',
-					text: `Prinsip dasar dan penerapan ${topic} dalam kehidupan sehari-hari`
-				},
-				{
-					id: 'b',
-					text: `Faktor eksternal yang tidak berkaitan dengan ${topic}`
-				},
-				{
-					id: 'c',
-					text: `Kesimpulan sementara tanpa pengamatan ilmiah`
-				},
-				{
-					id: 'd',
-					text: `Data acak yang belum diklasifikasikan`
-				}
-			],
-			answer: ['a'],
-			timeLimitS: 30,
-			points: 100,
-			order: 1
-		},
-		{
-			id: `ai-${Date.now()}-2`,
-			type: 'ox',
-			prompt: `Pemahaman terhadap ${topic} membantu kita memecahkan masalah praktis pada bidang ${body.subject || 'sains dan sosial'}.`,
-			hint: {
-				type: 'text',
-				value: 'Pikirkan manfaat praktis dari materi ini.'
-			},
-			options: [
-				{ id: 'o', text: 'Benar' },
-				{ id: 'x', text: 'Salah' }
-			],
-			answer: ['o'],
-			timeLimitS: 20,
-			points: 100,
-			order: 2
-		},
-		{
-			id: `ai-${Date.now()}-3`,
-			type: 'subjective',
-			prompt: `Ketikkan kata kunci utama yang menjadi pokok bahasan pada topik "${topic}"!`,
-			hint: {
-				type: 'text',
-				value: `Gunakan istilah utama dari topik (${topic.split(' ')[0]}).`
-			},
-			options: [],
-			answer: [
-				topic.toLowerCase(),
-				topic.split(' ')[0]?.toLowerCase() || topic.toLowerCase()
-			],
-			ignoreSpaces: true,
-			timeLimitS: 30,
-			points: 120,
-			order: 3
-		},
-		{
-			id: `ai-${Date.now()}-4`,
-			type: 'multiple',
-			prompt: `Dalam mempelajari ${topic} untuk tingkat ${body.gradeLabel || 'sekolah'}, langkah pertama yang perlu dilakukan adalah...`,
-			options: [
-				{ id: 'a', text: 'Mengamati ciri-ciri dan komponen utamanya' },
-				{ id: 'b', text: 'Melewati bagian pengertian dasar' },
-				{ id: 'c', text: 'Menghafal tanpa memahami konteks' },
-				{ id: 'd', text: 'Mengabaikan data hasil pengamatan' }
-			],
-			answer: ['a'],
-			timeLimitS: 30,
-			points: 100,
-			order: 4
-		},
-		{
-			id: `ai-${Date.now()}-5`,
-			type: 'ox',
-			prompt: `Topik ${topic} sama sekali tidak memiliki hubungan dengan materi ${body.subject || 'lainnya'}.`,
-			options: [
-				{ id: 'o', text: 'Benar' },
-				{ id: 'x', text: 'Salah' }
-			],
-			answer: ['x'],
-			timeLimitS: 20,
-			points: 100,
-			order: 5
-		}
-	]
-
-	return {
-		ok: true,
-		source: 'local-template',
-		questions: fallbackTemplates.slice(0, count)
+	if (!resp.ok) {
+		const detail = await resp.json().catch(() => null) as {
+			error?: { status?: string, message?: string, details?: Array<{ reason?: string }> }
+		} | null
+		const reason = detail?.error?.details?.find(d => d.reason)?.reason || detail?.error?.status || ''
+		recordWebLog('warn', 'ai', `Gemini menolak permintaan (${resp.status} ${reason})`, {
+			model,
+			byok: Boolean(byok),
+			message: detail?.error?.message?.slice(0, 300)
+		})
+		throw createError(geminiError(resp.status, reason, Boolean(byok)))
 	}
+
+	const data = await resp.json().catch(() => null) as {
+		candidates?: Array<{ finishReason?: string, content?: { parts?: Array<{ text?: string }> } }>
+	} | null
+	const candidate = data?.candidates?.[0]
+	const rawText = candidate?.content?.parts?.map(p => p.text || '').join('') || ''
+	let parsed: unknown = null
+	try {
+		parsed = JSON.parse(rawText)
+	} catch {
+		// Ditangani di bawah sebagai "tidak ada soal valid".
+	}
+
+	const { questions, dropped } = normalizeAiQuestions(parsed, {
+		idPrefix: `ai-${Date.now()}`,
+		limit: count
+	})
+	if (questions.length === 0) {
+		recordWebLog('warn', 'ai', `Gemini tidak menghasilkan soal valid (finishReason ${candidate?.finishReason || '-'})`, {
+			model,
+			dropped
+		})
+		throw createError({
+			statusCode: 502,
+			statusMessage: candidate?.finishReason === 'SAFETY'
+				? 'AI menolak topik ini. Ubah kata-kata topik lalu coba lagi.'
+				: 'AI tidak menghasilkan soal yang bisa dipakai. Coba lagi atau perjelas topiknya.'
+		})
+	}
+
+	return { ok: true, source: byok ? 'gemini-byok' : 'gemini-server', model, questions, dropped }
 })
+
+function geminiError(status: number, reason: string, byok: boolean): { statusCode: number, statusMessage: string } {
+	if (reason === 'API_KEY_INVALID' || status === 401 || status === 403) {
+		return byok
+			? { statusCode: 400, statusMessage: 'Kunci API Gemini yang kamu masukkan tidak valid atau tidak punya akses.' }
+			: { statusCode: 502, statusMessage: 'Kunci API Gemini di server tidak valid. Hubungi admin, atau masukkan kunci API pribadi.' }
+	}
+	if (status === 429) {
+		return { statusCode: 429, statusMessage: 'Kuota AI sedang habis. Coba lagi beberapa menit lagi, atau masukkan kunci API pribadi.' }
+	}
+	if (status === 404) {
+		return { statusCode: 502, statusMessage: 'Model AI yang dipakai server sudah tidak tersedia. Hubungi admin.' }
+	}
+	if (status >= 500) {
+		return { statusCode: 502, statusMessage: 'Layanan AI sedang bermasalah. Coba lagi beberapa saat lagi.' }
+	}
+	return { statusCode: 502, statusMessage: 'Permintaan ke AI gagal. Coba lagi beberapa saat lagi.' }
+}

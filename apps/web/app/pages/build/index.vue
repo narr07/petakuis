@@ -325,7 +325,7 @@
 		statusBanner.value = null
 
 		try {
-			const res = await $fetch<{ ok: boolean, questions: QuizQuestion[] }>(
+			const res = await $fetch<{ ok: boolean, questions: QuizQuestion[], dropped?: number }>(
 				'/api/ai/generate',
 				{
 					method: 'POST',
@@ -350,9 +350,10 @@
 				questions.value = [...questions.value, ...newItems]
 				activeIndex.value = currentCount
 				aiOpen.value = false
+				const skipped = res.dropped ? ` ${res.dropped} soal dari AI dibuang karena tidak lengkap.` : ''
 				toast.add({
-					title: 'Soal AI Berhasil Ditambahkan',
-					description: `${newItems.length} butir soal baru telah dimasukkan ke daftar kuis.`,
+					title: `${newItems.length} soal AI ditambahkan`,
+					description: `Periksa kembali isi dan kunci jawabannya sebelum dipakai di kelas.${skipped}`,
 					color: 'success'
 				})
 			}
@@ -360,7 +361,7 @@
 			const e = err as { data?: { statusMessage?: string } }
 			toast.add({
 				title: 'Gagal membuat soal AI',
-				description: e?.data?.statusMessage || 'Periksa koneksi atau kunci API Anda.',
+				description: e?.data?.statusMessage || 'Periksa koneksi internet lalu coba lagi.',
 				color: 'error'
 			})
 		} finally {
@@ -1153,11 +1154,12 @@
 								/>
 							</UFormField>
 
-							<UFormField label="API Key (Opsional)">
+							<UFormField label="Kunci API Gemini" hint="Opsional">
 								<UInput
 									v-model="aiByokKey"
 									type="password"
-									placeholder="BYOK"
+									placeholder="Pakai kunci server"
+									autocomplete="off"
 									size="lg"
 									class="w-full"
 								/>
