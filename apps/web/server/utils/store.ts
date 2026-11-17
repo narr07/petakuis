@@ -173,16 +173,22 @@ export async function saveSessionReport(code: string, report: SessionReportData)
 	return true
 }
 
-/** Laporan tersimpan terbaru untuk kode sesi (dipakai setelah room hilang dari game server). */
-export async function getSavedReport(code: string): Promise<SessionReportData | undefined> {
+/**
+ * Sesi terbaru dengan kode itu: pemiliknya (untuk izin melihat laporan) dan laporan
+ * tersimpannya (dipakai setelah room hilang dari game server). PIN bisa dipakai ulang,
+ * jadi yang berlaku selalu sesi terbaru.
+ */
+export async function getLatestSessionByCode(
+	code: string
+): Promise<{ ownerId: string | null, report: SessionReportData | null } | undefined> {
 	const db = await useDb()
 	const [row] = await db
-		.select({ report: gameSessions.report })
+		.select({ ownerId: gameSessions.ownerId, report: gameSessions.report })
 		.from(gameSessions)
 		.where(eq(gameSessions.code, code))
 		.orderBy(desc(gameSessions.createdAt))
 		.limit(1)
-	return row?.report ?? undefined
+	return row ? { ownerId: row.ownerId, report: row.report ?? null } : undefined
 }
 
 /** Riwayat sesi terbaru; `ownerId` membatasi ke sesi milik satu guru (kosong = semua, untuk admin). */

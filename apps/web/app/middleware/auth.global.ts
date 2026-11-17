@@ -1,6 +1,6 @@
 /**
  * Penjaga halaman:
- * - /dashboard dan /build: wajib masuk sebagai Guru atau Admin; ADMIN_PAGES hanya Admin.
+ * - /dashboard, /build, dan /report: wajib masuk sebagai Guru atau Admin; ADMIN_PAGES hanya Admin.
  * - Akun yang belum memilih peran diarahkan ke /auth/pilih-peran.
  * - Halaman login/daftar dilewati bila sudah masuk.
  */
@@ -16,7 +16,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 		})
 	}
 
-	const teacherOnly = to.path.startsWith('/dashboard') || to.path.startsWith('/build')
+	const teacherOnly = to.path.startsWith('/dashboard') || to.path.startsWith('/build') || to.path.startsWith('/report')
 	const guestOnly = ['/auth/login', '/auth/daftar', '/auth/lupa-sandi'].includes(to.path)
 	const current = user.value
 

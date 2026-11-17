@@ -1,13 +1,7 @@
 /** Konstanta tampilan dashboard dan daftar room demo. */
 
-/** Room demo yang otomatis aktif saat game server menyala (lihat apps/game-server/src/index.ts). */
-export const DEMO_ROOMS = [
-	{ code: '123456', mapId: 'map-pesisir-karang' },
-	{ code: '222222', mapId: 'map-desa-sunnyside' },
-	{ code: '333333', mapId: 'map-kampus-modern' },
-	{ code: '555555', mapId: 'map-dataran-angin' },
-	{ code: '666666', mapId: 'map-kota-pasar' }
-]
+/** Room demo yang otomatis aktif saat game server menyala (daftarnya di @petakuis/shared). */
+export { DEMO_ROOMS } from '@petakuis/shared'
 
 export const QUESTION_TYPE_LABELS: Record<string, { label: string, color: 'primary' | 'secondary' | 'warning' }> = {
 	multiple: { label: 'PG', color: 'primary' },
