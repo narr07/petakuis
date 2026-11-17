@@ -12,6 +12,9 @@
 
 	const route = useRoute()
 	const store = useSessionStore()
+	// Laporan lengkap memuat jawaban semua siswa, jadi tombolnya hanya untuk guru/admin.
+	const { role } = useCurrentUser()
+	const canSeeReport = computed(() => role.value === 'teacher' || role.value === 'admin')
 	const {
 		connectPlayer,
 		sendMove,
@@ -369,7 +372,7 @@
 					<UButton to="/" label="Kembali ke beranda" color="neutral" variant="outline" />
 					<!-- Room demo tidak punya laporan; pemain bisa langsung mengulang dari awal. -->
 					<UButton v-if="store.isDemoRoom" icon="i-lucide-rotate-ccw" label="Main lagi" @click="playDemoAgain" />
-					<UButton v-else :to="`/report/${code}`" icon="i-lucide-file-spreadsheet" label="Lihat laporan lengkap" />
+					<UButton v-else-if="canSeeReport" :to="`/report/${code}`" icon="i-lucide-file-spreadsheet" label="Lihat laporan lengkap" />
 				</div>
 			</template>
 		</UModal>
