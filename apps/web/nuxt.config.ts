@@ -131,7 +131,11 @@ export default defineNuxtConfig({
 	},
 	routeRules: {
 		// Halaman status lama pindah ke dashboard admin.
-		'/logs': { redirect: { to: '/dashboard/logs', statusCode: 301 } }
+		'/logs': { redirect: { to: '/dashboard/logs', statusCode: 301 } },
+		// Service worker dan halaman offline harus selalu dicek ulang (Cloudflare & browser),
+		// supaya perubahan langsung sampai setelah deploy.
+		'/sw.js': { headers: { 'cache-control': 'no-cache' } },
+		'/offline.html': { headers: { 'cache-control': 'no-cache' } }
 	},
 	app: {
 		buildAssetsDir: `/_nuxt/${BUILD_ID}/`,
