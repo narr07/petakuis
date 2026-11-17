@@ -6,7 +6,14 @@ import type { Database } from './db'
 
 export type UserRole = 'admin' | 'teacher' | 'student'
 export type SelectableRole = Exclude<UserRole, 'admin'>
+/** Peran tersimpan yang dikenali. 'student' hanya untuk akun Siswa lama (pendaftaran sudah ditutup). */
 export const SELECTABLE_ROLES: SelectableRole[] = ['teacher', 'student']
+/**
+ * Peran yang boleh diberikan ke akun (daftar, pilih peran, ubah oleh admin): hanya Guru.
+ * Siswa bermain dengan PIN dan nama panggilan tanpa akun, sehingga Petakuis tidak
+ * mengumpulkan email anak (UU PDP Pasal 25: data anak butuh persetujuan orang tua).
+ */
+export const ASSIGNABLE_ROLES: SelectableRole[] = ['teacher']
 
 const DEV_AUTH_SECRET = 'petakuis-dev-auth-secret-hanya-untuk-lokal'
 
@@ -62,7 +69,7 @@ function createAuth(db: Database) {
 		},
 		user: {
 			additionalFields: {
-				// Boleh dikirim saat daftar (Guru/Siswa); disaring di databaseHooks di bawah.
+				// Boleh dikirim saat daftar; disaring di databaseHooks di bawah (hanya Guru).
 				role: { type: 'string', required: false, input: true }
 			}
 		},
@@ -103,7 +110,7 @@ function createAuth(db: Database) {
 			user: {
 				create: {
 					before: async (data) => {
-						const role = SELECTABLE_ROLES.includes(data.role as SelectableRole) ? data.role : null
+						const role = ASSIGNABLE_ROLES.includes(data.role as SelectableRole) ? data.role : null
 						return { data: { ...data, role } }
 					}
 				},

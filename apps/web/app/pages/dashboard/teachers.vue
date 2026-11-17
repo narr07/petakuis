@@ -42,10 +42,8 @@
 	function rowItems(u: AdminUser): DropdownMenuItem[][] {
 		return [
 			[{ label: 'Salin email', icon: 'i-lucide-copy', onSelect: () => copyEmail(u.email) }],
-			[
-				...(u.storedRole !== 'teacher' ? [{ label: 'Jadikan Guru', icon: 'i-lucide-graduation-cap', onSelect: () => changeRole(u, 'teacher') }] : []),
-				...(u.storedRole !== 'student' ? [{ label: 'Jadikan Siswa', icon: 'i-lucide-backpack', onSelect: () => changeRole(u, 'student') }] : [])
-			],
+			// Akun hanya bisa dijadikan Guru; akun Siswa baru tidak lagi dibuat.
+			...(u.storedRole !== 'teacher' ? [[{ label: 'Jadikan Guru', icon: 'i-lucide-graduation-cap', onSelect: () => changeRole(u) }]] : []),
 			[{ label: 'Hapus akun', icon: 'i-lucide-user-x', color: 'error' as const, onSelect: () => askDelete(u) }]
 		]
 	}

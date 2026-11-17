@@ -5,7 +5,7 @@ export interface CurrentUserInfo {
 	name: string
 	email: string
 	image: string | null
-	/** null: akun Google baru yang belum memilih Guru/Siswa. */
+	/** null: akun Google baru yang belum mengonfirmasi sebagai Guru. */
 	role: UserRole | null
 }
 

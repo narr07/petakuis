@@ -8,7 +8,7 @@
 
 	useSeoMeta({ title: 'Daftar Siswa' })
 
-	const { users, status, refresh, copyEmail, copySignupLink, changeRole, askDelete } = await useAdminUsers()
+	const { users, status, refresh, copyEmail, changeRole, askDelete } = await useAdminUsers()
 	const search = ref('')
 
 	const students = computed(() => users.value.filter(u => u.role === 'student'))
@@ -44,7 +44,7 @@
 	function rowItems(u: AdminUser): DropdownMenuItem[][] {
 		return [
 			[{ label: 'Salin email', icon: 'i-lucide-copy', onSelect: () => copyEmail(u.email) }],
-			[{ label: 'Jadikan Guru', icon: 'i-lucide-graduation-cap', onSelect: () => changeRole(u, 'teacher') }],
+			[{ label: 'Jadikan Guru', icon: 'i-lucide-graduation-cap', onSelect: () => changeRole(u) }],
 			[{ label: 'Hapus akun', icon: 'i-lucide-user-x', color: 'error' as const, onSelect: () => askDelete(u) }]
 		]
 	}
@@ -85,8 +85,8 @@
 					color="neutral"
 					variant="subtle"
 					icon="i-lucide-info"
-					title="Siswa tidak wajib punya akun"
-					description="Siswa bisa bermain cukup dengan PIN dan nama panggilan; nilainya ada di Laporan & Nilai. Daftar ini hanya berisi siswa yang mendaftar akun."
+					title="Pendaftaran akun siswa sudah ditutup"
+					description="Siswa bermain cukup dengan PIN dan nama panggilan; nilainya ada di Laporan & Nilai. Daftar ini berisi akun siswa lama: jadikan Guru bila pemiliknya guru, atau hapus bila tidak dipakai lagi."
 				/>
 
 				<UInput
@@ -143,10 +143,9 @@
 					<template #empty>
 						<UEmpty
 							icon="i-lucide-backpack"
-							title="Belum ada akun siswa"
-							description="Siswa yang mendaftar sebagai Siswa akan muncul di sini."
+							title="Tidak ada akun siswa"
+							description="Akun siswa tidak lagi dibuat; siswa bermain dengan PIN tanpa akun."
 							variant="naked"
-							:actions="[{ label: 'Salin tautan daftar', icon: 'i-lucide-link', color: 'neutral', variant: 'outline', onClick: copySignupLink }]"
 						/>
 					</template>
 				</UTable>

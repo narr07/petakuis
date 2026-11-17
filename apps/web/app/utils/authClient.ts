@@ -5,7 +5,7 @@ function makeClient() {
 	return createAuthClient({
 		baseURL: window.location.origin,
 		plugins: [
-			// Supaya `role` (Guru/Siswa) bisa dikirim saat daftar; tetap disaring di server.
+			// Supaya `role` bisa dikirim saat daftar; tetap disaring di server (hanya Guru).
 			inferAdditionalFields({
 				user: { role: { type: 'string', required: false } }
 			})
