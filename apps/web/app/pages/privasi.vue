@@ -10,11 +10,11 @@
 		{
 			title: 'Data yang kami simpan',
 			items: [
-				'Akun guru dan siswa: nama, alamat email, peran (Guru atau Siswa), dan kata sandi dalam bentuk hash (kata sandi asli tidak pernah disimpan).',
+				'Akun guru: nama, alamat email, peran, dan kata sandi dalam bentuk hash (kata sandi asli tidak pernah disimpan). Akun hanya untuk guru; siswa tidak membuat akun.',
 				'Login dengan Google: nama, alamat email, dan foto profil dari akun Google. Kami tidak meminta akses ke Gmail, Drive, kontak, atau data Google lainnya.',
 				'Sesi login: cookie sesi, alamat IP, dan jenis browser, untuk menjaga akun tetap masuk dan mendeteksi penyalahgunaan.',
 				'Kuis buatan guru: judul, soal, kunci jawaban, dan peta yang dipilih.',
-				'Permainan: nama panggilan yang diketik siswa, jawaban, skor, dan waktu menjawab dalam satu sesi kuis. Siswa bisa bermain dengan PIN tanpa membuat akun.'
+				'Permainan: nama panggilan yang diketik siswa, jawaban, skor, dan waktu menjawab dalam satu sesi kuis. Siswa bermain dengan PIN tanpa akun dan tanpa email. Laporan sesi hanya bisa dibuka guru yang membuka sesi itu dan admin.'
 			]
 		},
 		{
@@ -49,7 +49,10 @@
 		},
 		{
 			title: 'Pengguna di bawah umur',
-			paragraphs: ['Petakuis dipakai di kelas di bawah arahan guru. Siswa cukup memakai nama panggilan untuk bermain; guru dan sekolah bertanggung jawab memastikan pemakaian oleh siswa sesuai aturan sekolah dan izin orang tua.']
+			paragraphs: [
+				'Petakuis dipakai di kelas di bawah arahan guru. Kami tidak membuat akun untuk siswa dan tidak meminta email, nomor telepon, atau tanggal lahir anak. Siswa cukup memakai nama panggilan; sebaiknya nama panggilan, bukan nama lengkap.',
+				'Bila siswa tidak sengaja mendaftar dengan akun Google, pendaftaran itu bisa dibatalkan di langkah konfirmasi dan akunnya langsung dihapus. Akun siswa yang dibuat sebelum pendaftaran siswa ditutup bisa dihapus lewat halaman Hapus Akun.'
+			]
 		},
 		{
 			title: 'Perubahan kebijakan',
@@ -62,7 +65,7 @@
 	<LegalPage
 		title="Kebijakan Privasi"
 		description="Ringkas dan jujur: data apa yang disimpan Petakuis, untuk apa, dan cara menghapusnya."
-		updated="11 November 2026"
+		updated="17 November 2026"
 		:sections="sections"
 	/>
 </template>

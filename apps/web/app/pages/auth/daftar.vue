@@ -1,6 +1,6 @@
 <script setup lang="ts">
 	import * as z from 'zod'
-	import type { AuthFormField, ButtonProps, FormSubmitEvent, RadioGroupItem } from '@nuxt/ui'
+	import type { AuthFormField, ButtonProps, FormSubmitEvent } from '@nuxt/ui'
 
 	definePageMeta({
 		layout: 'auth'
@@ -8,16 +8,10 @@
 
 	useSeoMeta({
 		title: 'Daftar',
-		description: 'Buat akun Petakuis sebagai guru atau siswa.'
+		description: 'Buat akun guru Petakuis untuk menyusun kuis dan membuka kelas live.'
 	})
 
 	const config = useRuntimeConfig()
-
-	const role = ref<'teacher' | 'student'>('teacher')
-	const roleItems: RadioGroupItem[] = [
-		{ label: 'Guru', value: 'teacher', description: 'Menyusun kuis, membuka kelas live, melihat nilai.' },
-		{ label: 'Siswa', value: 'student', description: 'Ikut kuis dari guru dengan akun sendiri.' }
-	]
 
 	const loading = ref(false)
 	const errorMessage = ref('')
@@ -44,12 +38,6 @@
 	})
 
 	async function signUpWithGoogle() {
-		// Pilihan Guru/Siswa dibawa ke halaman pilih peran setelah kembali dari Google.
-		try {
-			sessionStorage.setItem('petakuis-peran-pilihan', role.value)
-		} catch {
-			// Penyimpanan diblokir: pengguna tinggal memilih lagi di halaman pilih peran.
-		}
 		await useAuthClient().signIn.social({
 			provider: 'google',
 			callbackURL: '/dashboard',
@@ -72,7 +60,8 @@
 				name: event.data.name,
 				email: event.data.email,
 				password: event.data.password,
-				role: role.value,
+				// Akun Petakuis hanya untuk guru; siswa bermain dengan PIN tanpa akun.
+				role: 'teacher',
 				callbackURL: '/dashboard'
 			})
 			if (error) {
@@ -119,26 +108,24 @@
 		/>
 
 		<template v-else>
-			<UFormField label="Daftar sebagai" required>
-				<URadioGroup
-					v-model="role"
-					:items="roleItems"
-					variant="card"
-					orientation="horizontal"
-					class="w-full"
-					:ui="{ fieldset: 'grid grid-cols-2 gap-2', item: 'w-full' }"
-				/>
-			</UFormField>
+			<UAlert
+				color="info"
+				variant="subtle"
+				icon="i-lucide-backpack"
+				title="Kamu siswa? Tidak perlu daftar."
+				description="Akun Petakuis hanya untuk guru. Siswa cukup memasukkan PIN dari guru lalu bermain dengan nama panggilan."
+				:actions="[{ label: 'Masukkan PIN', to: '/join', color: 'info', variant: 'outline' }]"
+			/>
 
 			<UAuthForm
 				:fields="fields"
 				:schema="schema"
 				:providers="providers"
 				separator="atau"
-				title="Buat akun"
+				title="Buat akun guru"
 				icon="i-lucide-user-plus"
 				:loading="loading"
-				:submit="{ label: role === 'teacher' ? 'Daftar sebagai Guru' : 'Daftar sebagai Siswa', block: true }"
+				:submit="{ label: 'Daftar sebagai Guru', block: true }"
 				@submit="onSubmit"
 			>
 				<template #description>

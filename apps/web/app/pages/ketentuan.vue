@@ -15,7 +15,7 @@
 			title: 'Akun',
 			items: [
 				'Daftar dengan data yang benar dan jaga kerahasiaan kata sandimu.',
-				'Satu akun untuk satu orang. Peran Guru atau Siswa dipilih saat pertama kali mendaftar.',
+				'Satu akun untuk satu orang. Akun Petakuis hanya untuk guru; siswa bermain dengan PIN dan nama panggilan tanpa akun.',
 				'Kami dapat menangguhkan akun yang menyalahgunakan layanan.'
 			]
 		},
@@ -48,7 +48,7 @@
 	<LegalPage
 		title="Ketentuan Layanan"
 		description="Aturan singkat supaya Petakuis aman dan nyaman dipakai di kelas."
-		updated="11 November 2026"
+		updated="17 November 2026"
 		:sections="sections"
 	/>
 </template>

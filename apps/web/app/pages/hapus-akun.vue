@@ -14,7 +14,7 @@
 			items: [
 				`Kirim email ke ${contactEmail} dengan judul "Hapus akun Petakuis".`,
 				'Kirim dari alamat email yang terdaftar di akun Petakuis-mu (termasuk akun yang masuk dengan Google), supaya kami bisa memastikan akun itu milikmu.',
-				'Tulis nama akun dan peranmu (Guru atau Siswa). Bila hanya ingin menghapus sebagian data, sebutkan data mana.',
+				'Tulis nama akunmu (termasuk akun siswa lama, bila ada). Bila hanya ingin menghapus sebagian data, sebutkan data mana.',
 				'Kami membalas untuk konfirmasi, lalu menghapus akun paling lambat 14 hari setelah permintaan diterima.'
 			]
 		},
@@ -49,7 +49,7 @@
 	<LegalPage
 		title="Hapus Akun Petakuis"
 		description="Langkah meminta penghapusan akun aplikasi dan situs Petakuis, data apa yang dihapus, dan berapa lama cadangan disimpan."
-		updated="12 November 2026"
+		updated="17 November 2026"
 		:sections="sections"
 	/>
 </template>

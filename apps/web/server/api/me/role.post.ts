@@ -2,15 +2,15 @@ import { and, eq, isNull } from 'drizzle-orm'
 import { user } from '../../db/schema'
 
 /**
- * Memilih peran Guru atau Siswa, hanya sekali (untuk akun Google yang baru dibuat).
- * Admin tidak bisa dipilih; peran yang sudah terisi tidak bisa diganti dari sini.
+ * Memilih peran, hanya sekali (untuk akun Google yang baru dibuat). Saat ini hanya Guru:
+ * pendaftaran Siswa ditutup. Peran yang sudah terisi tidak bisa diganti dari sini.
  */
 export default defineEventHandler(async (event) => {
 	const current = await requireUser(event)
 	const body = await readBody<{ role?: string }>(event)
 	const role = body?.role
-	if (!SELECTABLE_ROLES.includes(role as SelectableRole)) {
-		throw createError({ statusCode: 400, statusMessage: 'Pilih Guru atau Siswa.' })
+	if (!ASSIGNABLE_ROLES.includes(role as SelectableRole)) {
+		throw createError({ statusCode: 400, statusMessage: 'Akun Petakuis hanya untuk guru.' })
 	}
 
 	const db = await useDb()

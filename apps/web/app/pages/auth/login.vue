@@ -131,7 +131,7 @@
 		>
 			<template #description>
 				Belum punya akun?
-				<ULink to="/auth/daftar" class="font-medium text-primary">Daftar sebagai guru atau siswa</ULink>.
+				<ULink to="/auth/daftar" class="font-medium text-primary">Daftar sebagai guru</ULink>.
 			</template>
 
 			<template #password-hint>
