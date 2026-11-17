@@ -32,7 +32,7 @@
 				'Google: hanya bila kamu memilih "Masuk dengan Google".',
 				'Resend: pengiriman email konfirmasi dan atur ulang kata sandi.',
 				'Cloudflare: jaringan dan perlindungan situs; lalu lintas melewati Cloudflare sebelum sampai ke server kami.',
-				'Google Gemini: hanya bila guru memakai fitur buat soal dengan AI. Teks topik yang diketik guru dikirim ke Gemini. Kunci API pribadi yang dimasukkan guru dipakai untuk permintaan itu saja dan tidak disimpan di server.'
+				'Layanan AI (ChatGPT, Gemini, dan lainnya): Petakuis tidak mengirim data apa pun ke layanan AI. Pada fitur buat soal dengan AI, guru sendiri yang menyalin prompt ke layanan pilihannya, dan berlaku ketentuan layanan tersebut.'
 			]
 		},
 		{

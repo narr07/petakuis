@@ -70,8 +70,8 @@
 			icon: 'i-lucide-map-pin'
 		},
 		{
-			title: 'Generator soal AI',
-			description: 'Buat draf soal pilihan ganda, benar/salah, dan isian singkat dari topik atau teks materi.',
+			title: 'Buat soal dengan AI',
+			description: 'Salin prompt siap pakai ke ChatGPT atau Gemini, tempel tabel hasilnya, dan soal langsung masuk. Gratis, tanpa kunci API.',
 			icon: 'i-lucide-sparkles'
 		},
 		{
@@ -106,7 +106,7 @@
 		},
 		{
 			label: 'Bagaimana cara membuat soal?',
-			content: 'Lewat halaman Buat Kuis: tulis manual, impor dari berkas CSV, atau gunakan generator AI dari topik pelajaran.'
+			content: 'Lewat halaman Buat Kuis: tulis manual, impor dari templat Excel, atau minta ChatGPT/Gemini membuatkan soal dengan prompt yang disediakan lalu tempel hasilnya.'
 		},
 		{
 			label: 'Data siswa apa saja yang disimpan?',
