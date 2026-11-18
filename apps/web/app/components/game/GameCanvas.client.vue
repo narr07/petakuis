@@ -40,6 +40,28 @@
 	const mapW = computed(() => props.mapConfig.widthTiles * tilePx.value)
 	const mapH = computed(() => props.mapConfig.heightTiles * tilePx.value)
 
+	/**
+	 * Mode joystick: perangkat layar sentuh ATAU layar sempit (< 1024 px, termasuk jendela desktop
+	 * yang dikecilkan). Di mode ini peta tidak merespons sentuhan/klik: gerak hanya lewat joystick
+	 * dan soal dibuka lewat tombol "Buka Pos Soal" yang muncul saat dekat pos.
+	 */
+	const joystickMode = useMediaQuery('(pointer: coarse), (max-width: 1023px)')
+
+	/**
+	 * Zoom tampilan untuk HP: 2/3 membuat 1 piksel aset = 2 px layar (tile 32 px), jadi tetap tajam.
+	 * Hanya mengubah tampilan; koordinat dunia, tabrakan, dan data ke server tetap 48 px per tile.
+	 */
+	const viewZoom = computed(() =>
+		joystickMode.value && Math.min(viewportW.value, viewportH.value) < 640 ? 2 / 3 : 1
+	)
+	const worldTransform = computed(() =>
+		viewZoom.value === 1 ? 'none' : `scale(${viewZoom.value})`
+	)
+	// Label dibesarkan balik supaya teksnya tetap terbaca saat dunia diperkecil.
+	const labelTransform = computed(() =>
+		viewZoom.value === 1 ? 'none' : `scale(${1 / viewZoom.value})`
+	)
+
 	function ensureWalkableWorldPos(rawX: number, rawY: number): {
 		x: number
 		y: number
@@ -77,10 +99,10 @@
 	const pressedKeys = new Set<string>()
 
 	const camX = computed(() =>
-		Math.round(localX.value - viewportW.value / 2)
+		Math.round(localX.value * viewZoom.value - viewportW.value / 2)
 	)
 	const camY = computed(() =>
-		Math.round(localY.value - viewportH.value / 2)
+		Math.round(localY.value * viewZoom.value - viewportH.value / 2)
 	)
 
 	const navigatorHud = computed(() => {
@@ -228,13 +250,6 @@
 		}
 	}
 
-	/**
-	 * Mode joystick: perangkat layar sentuh ATAU layar sempit (< 1024 px, termasuk jendela desktop
-	 * yang dikecilkan). Di mode ini peta tidak merespons sentuhan/klik: gerak hanya lewat joystick
-	 * dan soal dibuka lewat tombol "Buka Pos Soal" yang muncul saat dekat pos.
-	 */
-	const joystickMode = useMediaQuery('(pointer: coarse), (max-width: 1023px)')
-
 	function handleObjectClick(obj: AssignedMapObject) {
 		if (props.disabled || obj.answered || joystickMode.value) return
 		const ox = obj.tileX * tilePx.value + tilePx.value / 2
@@ -251,8 +266,8 @@
 		const rect = viewportEl.value.getBoundingClientRect()
 		const clickScreenX = e.clientX - rect.left
 		const clickScreenY = e.clientY - rect.top
-		const worldX = clickScreenX + camX.value
-		const worldY = clickScreenY + camY.value
+		const worldX = (clickScreenX + camX.value) / viewZoom.value
+		const worldY = (clickScreenY + camY.value) / viewZoom.value
 
 		for (const obj of props.assignedObjects) {
 			if (obj.answered) continue
@@ -399,12 +414,13 @@
 	>
 		<!-- GBA / ZEP World Camera Container -->
 		<div
-			class="absolute"
+			class="absolute origin-top-left"
 			:style="{
 				width: `${mapW}px`,
 				height: `${mapH}px`,
 				left: `${-camX}px`,
-				top: `${-camY}px`
+				top: `${-camY}px`,
+				transform: worldTransform
 			}"
 		>
 			<!-- Gambar peta -->
@@ -440,19 +456,21 @@
 				<div
 					v-if="obj.answered"
 					v-show="!disabled"
-					class="mb-1 rounded border-2 border-[#4ade80] bg-[#14532d]/95 px-1.5 py-0.5 font-mono-num text-[10px] font-extrabold text-[#fef08a] shadow"
+					class="mb-1 origin-bottom rounded border-2 border-[#4ade80] bg-[#14532d]/95 px-1.5 py-0.5 font-mono-num text-[10px] font-extrabold text-[#fef08a] shadow"
+					:style="{ transform: labelTransform }"
 				>
 					✓ #{{ obj.orderIndex }}
 				</div>
 				<div
 					v-else
 					v-show="!disabled"
-					class="mb-1 whitespace-nowrap rounded border-2 border-[#16211b] px-1.5 py-0.5 font-mono-num text-[11px] font-extrabold text-[#16211b] shadow-[2px_2px_0px_#16211b]"
+					class="mb-1 origin-bottom whitespace-nowrap rounded border-2 border-[#16211b] px-1.5 py-0.5 font-mono-num text-[11px] font-extrabold text-[#16211b] shadow-[2px_2px_0px_#16211b]"
 					:class="
 						nextTargetObject?.objectId === obj.objectId
 							? 'bg-[#facc15]'
 							: 'bg-white'
 					"
+					:style="{ transform: labelTransform }"
 				>
 					? #{{ obj.orderIndex }}
 				</div>
@@ -494,7 +512,8 @@
 					>
 				</div>
 				<span
-					class="mt-0.5 rounded border border-white bg-[#16211b]/90 px-2 py-0.5 text-[11px] font-bold text-white shadow"
+					class="mt-0.5 origin-top rounded border border-white bg-[#16211b]/90 px-2 py-0.5 text-[11px] font-bold text-white shadow"
+					:style="{ transform: labelTransform }"
 				>
 					{{ p[4] }}
 				</span>
@@ -512,7 +531,8 @@
 			>
 				<!-- Golden Player Arrow -->
 				<span
-					class="mb-0.5 text-xs font-extrabold text-[#fde047] drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]"
+					class="mb-0.5 origin-bottom text-xs font-extrabold text-[#fde047] drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]"
+					:style="{ transform: labelTransform }"
 				>
 					▼
 				</span>
@@ -538,7 +558,8 @@
 
 				<!-- Player Nameplate -->
 				<span
-					class="mt-0.5 whitespace-nowrap rounded border-2 border-[#fde047] bg-[#14532d] px-2.5 py-0.5 text-xs font-extrabold text-white shadow"
+					class="mt-0.5 origin-top whitespace-nowrap rounded border-2 border-[#fde047] bg-[#14532d] px-2.5 py-0.5 text-xs font-extrabold text-white shadow"
+					:style="{ transform: labelTransform }"
 				>
 					{{ myNickname }}
 				</span>
